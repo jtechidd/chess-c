@@ -31,6 +31,10 @@ Rook* Rook_Clone(Rook* rook_src) {
     return rook;
 }
 
+MoveArray* Rook_GetPositionalMoves(Board* board, Piece* piece) {
+    Rook* rook = (Rook*)piece;
+}
+
 void Rook_Free(Piece* piece) {
     Rook* rook = (Rook*)piece;
     free(rook);

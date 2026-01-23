@@ -3,8 +3,11 @@
 
 #include <stdint.h>
 
+#include "../moves.h"
 #include "../position.h"
 #include "../types.h"
+
+typedef struct Board Board;
 
 typedef struct Piece {
     Position position;
@@ -14,7 +17,8 @@ typedef struct Piece {
     unsigned int is_captured : 1;
 
     // Virtual functions
-    void (*Piece_Free)(struct Piece* p);
+    void (*Piece_Free)(struct Piece*);
+    MoveArray* (*Piece_GetPositionalMoves)(struct Board*, struct Piece*);
 } Piece;
 
 uint8_t Piece_IsAlias(Piece*, Piece*);

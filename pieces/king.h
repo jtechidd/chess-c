@@ -10,6 +10,8 @@ typedef struct King {
 
 King* King_New(PieceId, Side, Position);
 King* King_Clone(King*);
+
+MoveArray* King_GetPositionalMoves(Board*, Piece*);
 void King_Free(Piece*);
 
 #endif

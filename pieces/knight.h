@@ -9,6 +9,8 @@ typedef struct Knight {
 
 Knight* Knight_New(PieceId, Side, Position);
 Knight* Knight_Clone(Knight*);
+
+MoveArray* Knight_GetPositionalMoves(Board*, Piece*);
 void Knight_Free(Piece*);
 
 #endif

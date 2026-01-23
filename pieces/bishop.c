@@ -14,6 +14,7 @@ Bishop* Bishop_New(PieceId piece_id, Side side, Position position) {
 
     // Set functions
     bishop->piece.Piece_Free = Bishop_Free;
+    bishop->piece.Piece_GetPositionalMoves = Bishop_GetPositionalMoves;
 
     return bishop;
 }
@@ -25,6 +26,11 @@ Bishop* Bishop_Clone(Bishop* bishop_src) {
     bishop->piece.is_captured = bishop_src->piece.is_captured;
 
     return bishop;
+}
+
+MoveArray* Bishop_GetPositionalMoves(Board* board, Piece* piece) {
+    Bishop* bishop = (Bishop*)piece;
+    // TODO: Find bishop positional moves on board
 }
 
 void Bishop_Free(Piece* piece) {

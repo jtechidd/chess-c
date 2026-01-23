@@ -13,6 +13,7 @@ King* King_New(PieceId piece_id, Side side, Position position) {
     king->piece.is_captured = 0;
 
     // Set functions
+    king->piece.Piece_GetPositionalMoves = King_GetPositionalMoves;
     king->piece.Piece_Free = King_Free;
 
     // Set fields
@@ -33,7 +34,12 @@ King* King_Clone(King* king_src) {
     return king;
 }
 
-void King_Free(Piece* p) {
-    King* king = (King*)p;
+MoveArray* King_GetPositionalMoves(Board* board, Piece* piece) {
+    King* king = (King*)piece;
+    // TODO: Find king positional moves on board
+}
+
+void King_Free(Piece* piece) {
+    King* king = (King*)piece;
     free(king);
 }

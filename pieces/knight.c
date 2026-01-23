@@ -13,6 +13,7 @@ Knight* Knight_New(PieceId piece_id, Side side, Position position) {
     knight->piece.is_captured = 0;
 
     // Set functions
+    knight->piece.Piece_GetPositionalMoves = Knight_GetPositionalMoves;
     knight->piece.Piece_Free = Knight_Free;
 
     return knight;
@@ -25,6 +26,11 @@ Knight* Knight_Clone(Knight* knight_src) {
     knight->piece.is_captured = knight->piece.is_captured;
 
     return knight;
+}
+
+MoveArray* Knight_GetPositionalMoves(Board* board, Piece* piece) {
+    Knight* knight = (Knight*)piece;
+    // TODO: Find knight positional moves on board
 }
 
 void Knight_Free(Piece* piece) {

@@ -10,6 +10,8 @@ typedef struct Pawn {
 
 Pawn* Pawn_New(PieceId, Side, Position);
 Pawn* Pawn_Clone(Pawn*);
+
+MoveArray* Pawn_GetPositionalMoves(Board*, Piece*);
 void Pawn_Free(Piece*);
 
 #endif

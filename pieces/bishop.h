@@ -9,6 +9,8 @@ typedef struct Bishop {
 
 Bishop* Bishop_New(PieceId, Side, Position);
 Bishop* Bishop_Clone(Bishop*);
+
+MoveArray* Bishop_GetPositionalMoves(Board*, Piece*);
 void Bishop_Free(Piece*);
 
 #endif

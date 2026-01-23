@@ -4,11 +4,11 @@
 #include <stdint.h>
 
 typedef struct Position {
-    int i;
-    int j;
+    uint8_t i;
+    uint8_t j;
 } Position;
 
 uint8_t Position_OutOfBound(Position* pos);
-Position Position_Make(int i, int j);
+Position Position_Make(uint8_t i, uint8_t j);
 
 #endif

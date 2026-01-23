@@ -7,6 +7,6 @@ uint8_t Position_OutOfBound(Position* pos) {
              pos->j < BOARD_WIDTH);
 }
 
-Position Position_Make(int i, int j) {
+Position Position_Make(uint8_t i, uint8_t j) {
     return (Position){i, j};
 }

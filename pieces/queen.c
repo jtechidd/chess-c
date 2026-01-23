@@ -13,6 +13,7 @@ Queen* Queen_New(PieceId piece_id, Side side, Position position) {
     queen->piece.is_captured = 0;
 
     // Set functions
+    queen->piece.Piece_GetPositionalMoves = Queen_GetPositionalMoves;
     queen->piece.Piece_Free = Queen_Free;
 
     return queen;
@@ -27,7 +28,12 @@ Queen* Queen_Clone(Queen* queen_src) {
     return queen;
 }
 
-void Queen_Free(Piece* p) {
-    Queen* queen = (Queen*)p;
+MoveArray* Queen_GetPositionalMoves(Board* board, Piece* piece) {
+    Queen* queen = (Queen*)piece;
+    // TODO: Find queen positional moves on board
+}
+
+void Queen_Free(Piece* piece) {
+    Queen* queen = (Queen*)piece;
     free(queen);
 }

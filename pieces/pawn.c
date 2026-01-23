@@ -13,6 +13,7 @@ Pawn* Pawn_New(PieceId piece_id, Side side, Position position) {
     pawn->piece.is_captured = 0;
 
     // Set functions
+    pawn->piece.Piece_GetPositionalMoves = Pawn_GetPositionalMoves;
     pawn->piece.Piece_Free = Pawn_Free;
 
     // Set fields
@@ -33,7 +34,12 @@ Pawn* Pawn_Clone(Pawn* pawn_src) {
     return pawn;
 }
 
-void Pawn_Free(Piece* p) {
-    Pawn* pawn = (Pawn*)p;
+MoveArray* Pawn_GetPositionalMoves(Board* board, Piece* piece) {
+    Pawn* pawn = (Pawn*)piece;
+    // TODO: Get pawn positional moves on board
+}
+
+void Pawn_Free(Piece* piece) {
+    Pawn* pawn = (Pawn*)piece;
     free(pawn);
 }
