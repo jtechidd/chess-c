@@ -1,22 +1,4 @@
-#include "moves.h"
-
-#include <stdio.h>
-
-Move* Move_New(Side side, PieceId piece_id, PieceType piece_type, Position position_from, Position position_to) {
-    Move* move = (Move*)malloc(sizeof(Move));
-
-    move->side = side;
-    move->piece_id = piece_id;
-    move->piece_type = piece_type;
-    move->position_from = position_from;
-    move->position_to = position_to;
-
-    return move;
-}
-
-void Move_Free(Move* move) {
-    free(move);
-}
+#include "move_array.h"
 
 MoveArray* MoveArray_New() {
     MoveArray* move_array = (MoveArray*)malloc(sizeof(MoveArray));
@@ -32,6 +14,7 @@ void MoveArray_Add(MoveArray* move_array, Move* move) {
         Move** reallocated_array = (Move**)realloc(move_array->array, new_capacity * sizeof(Move**));
         if (!reallocated_array) {
             perror("Cannot realloc move array");
+            exit(EXIT_FAILURE);
         }
         move_array->array = reallocated_array;
         move_array->capacity = new_capacity;
@@ -48,5 +31,6 @@ Move* MoveArray_GetIndex(MoveArray* move_array, size_t index) {
 }
 
 void MoveArray_Free(MoveArray* move_array) {
+    // NOTE: This will not free move elements
     free(move_array);
 }

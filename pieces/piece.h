@@ -3,17 +3,15 @@
 
 #include <stdint.h>
 
-#include "../moves.h"
-#include "../position.h"
-#include "../types.h"
+#include "../move/move_array.h"
 
 typedef struct Board Board;
 
 typedef struct Piece {
-    Position position;
     enum PieceId id;
-    enum Side side;
     enum PieceType type;
+    enum Side side;
+    Position position;
     unsigned int is_captured : 1;
 
     // Virtual functions

@@ -11,6 +11,22 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
+uint8_t Board_IsPieceIdValid(PieceId piece_id) {
+    return piece_id >= 0 && piece_id < TOTAL_PIECES;
+}
+
+uint8_t Board_IsPositionInBoundary(Position position) {
+    return position.i >= 0 && position.i < BOARD_HEIGHT && position.j >= 0 && position.j < BOARD_WIDTH;
+}
+
+uint8_t Board_IsPositionTop(Position position) {
+    return position.i == 0;
+}
+
+uint8_t Board_IsPositionBottom(Position position) {
+    return position.i == BOARD_HEIGHT - 1;
+}
+
 Board* Board_New() {
     Board* board = (Board*)malloc(sizeof(Board));
 
@@ -99,21 +115,30 @@ void Board_RegisterPiece(Board* board, Piece* piece) {
     board->pieces[piece->id] = piece;
 }
 
-Piece* Board_GetPieceById(Board* b, PieceId id) { return b->pieces[id]; }
+Piece* Board_GetPieceById(Board* board, PieceId piece_id) { return board->pieces[piece_id]; }
 
-Piece* Board_GetPieceByPosition(Board* b, Position pos) {
-    if (Position_OutOfBound(&pos)) {
+Piece* Board_GetPieceByPosition(Board* board, Position position) {
+    if (Board_IsPositionInBoundary(position)) {
         return NULL;
     }
-    Cell cell = b->cells[pos.i][pos.j];
+    Cell cell = board->cells[position.i][position.j];
     if (!cell.has_piece) {
         return NULL;
     }
-    PieceId id = cell.piece_id;
-    if (!PieceId_IsValid(id)) {
+    PieceId piece_id = cell.piece_id;
+    if (!Board_IsPieceIdValid(piece_id)) {
         return NULL;
     }
-    return b->pieces[id];
+    return board->pieces[piece_id];
+}
+
+uint8_t Board_HasPieceOnPosition(Board* board, Position position) {
+    return Board_GetPieceByPosition(board, position) != NULL;
+}
+
+uint8_t Board_CanTakePosition(Board* board, Piece* piece, Position position) {
+    Piece* piece_on_position = Board_GetPieceByPosition(board, position);
+    return piece_on_position && Piece_IsOpposite(piece, piece_on_position);
 }
 
 MoveArray* Board_GetMoves(Board* board, Side side) {
@@ -128,8 +153,8 @@ MoveArray* Board_GetMoves(Board* board, Side side) {
     }
 
     MoveArray* all_moves = MoveArray_New();
-    for (PieceId id = piece_id_start; id <= piece_id_end; id++) {
-        Piece* piece = Board_GetPieceById(board, id);
+    for (PieceId piece_id = piece_id_start; piece_id <= piece_id_end; piece_id++) {
+        Piece* piece = Board_GetPieceById(board, piece_id);
 
         MoveArray* positional_moves = piece->Piece_GetPositionalMoves(board, piece);
 
@@ -152,7 +177,7 @@ MoveArray* Board_GetMoves(Board* board, Side side) {
 }
 
 void Board_MakeMove(Board* board, Move* move) {
-
+    // TODO: Transit state of board from move
 }
 
 uint8_t Board_IsKingInDanger(Board* board, Side side) {
@@ -160,8 +185,8 @@ uint8_t Board_IsKingInDanger(Board* board, Side side) {
 }
 
 void Board_Free(Board* board) {
-    for (PieceId id = 0; id < TOTAL_PIECES; id++) {
-        Piece* piece = Board_GetPieceById(board, id);
+    for (PieceId piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
+        Piece* piece = Board_GetPieceById(board, piece_id);
         piece->Piece_Free(piece);
     }
     free(board);

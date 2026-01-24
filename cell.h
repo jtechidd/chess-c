@@ -1,7 +1,7 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "./types.h"
+#include "./enums.h"
 
 typedef struct Cell {
     unsigned int has_piece : 1;

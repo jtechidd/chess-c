@@ -6,8 +6,8 @@ set(LIBCHESS_SOURCE_FILES
     board.c
     cell.c
     position.c
-    types.c
-    moves.c
+    move/move_array.c
+    move/move.c
     pieces/piece.c
     pieces/rook.c
     pieces/knight.c

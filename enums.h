@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 
-typedef enum Side : uint8_t { Side_White, Side_Black } Side;
+typedef enum Side : uint8_t {
+    Side_White,
+    Side_Black,
+} Side;
 
 typedef enum PieceType : uint8_t {
     PieceType_Rook,
@@ -49,6 +52,16 @@ typedef enum PieceId : uint8_t {
     PieceId_WhitePawn8,
 } PieceId;
 
-uint8_t PieceId_IsValid(PieceId);
+typedef enum MoveFlags : uint8_t {
+    MoveFlags_HasMovingPiece = 1 << 0,
+    MoveFlags_HasTakingPiece = 1 << 1,
+    MoveFlags_HasPromotion = 1 << 2,
+    MoveFlags_HasCastling = 1 << 3,
+} MoveFlags;
+
+typedef enum MoveCastlingType : uint8_t {
+    MoveCastlingType_KingSide,
+    MoveCastlingType_QueenSide
+} MoveCastlingType;
 
 #endif

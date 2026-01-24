@@ -1,5 +1,7 @@
 #include "rook.h"
 
+#include "../board.h"
+
 Rook* Rook_New(PieceId piece_id, Side side, Position position) {
     Rook* rook = (Rook*)malloc(sizeof(Rook));
 
@@ -11,6 +13,7 @@ Rook* Rook_New(PieceId piece_id, Side side, Position position) {
     rook->piece.is_captured = 0;
 
     // Set piece functions
+    rook->piece.Piece_GetPositionalMoves = Rook_GetPositionalMoves;
     rook->piece.Piece_Free = Rook_Free;
 
     // Set field

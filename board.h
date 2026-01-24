@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include "cell.h"
-#include "moves.h"
+#include "move/move.h"
 #include "pieces/piece.h"
 
 #define BOARD_WIDTH 8
@@ -25,10 +25,16 @@ void Board_RegisterPiecesFromBoard(Board*, Board*);
 void Board_RegisterPiece(Board*, Piece*);
 Piece* Board_GetPieceById(Board*, PieceId);
 Piece* Board_GetPieceByPosition(Board*, Position);
+uint8_t Board_HasPieceOnPosition(Board*, Position);
+uint8_t Board_CanTakePosition(Board*, Piece*, Position);
 MoveArray* Board_GetMoves(Board*, Side);
 void Board_MakeMove(Board*, Move*);
 uint8_t Board_IsKingInDanger(Board*, Side);
 void Board_Free(Board*);
 void Board_Debug(Board*);
+uint8_t Board_IsPieceIdValid(PieceId);
+uint8_t Board_IsPositionInBoundary(Position);
+uint8_t Board_IsPositionTop(Position);
+uint8_t Board_IsPositionBottom(Position);
 
 #endif
