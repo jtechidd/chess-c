@@ -1,5 +1,7 @@
 #include "move.h"
 
+#include <stdlib.h>
+
 Move* Move_New() {
     Move* move = (Move*)malloc(sizeof(Move));
     move->flags = 0;
@@ -10,7 +12,7 @@ Move* Move_Clone(Move* move) {
     Move* cloned_move = (Move*)malloc(sizeof(Move));
 
     cloned_move->flags = move->flags;
-    
+
     cloned_move->piece_id = move->piece_id;
     cloned_move->position = move->position;
 

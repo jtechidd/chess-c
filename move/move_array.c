@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "move_array.h"
 
 MoveArray* MoveArray_New() {
