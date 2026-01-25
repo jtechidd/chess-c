@@ -7,10 +7,10 @@ typedef struct Queen {
     Piece piece;
 } Queen;
 
-Queen* Queen_New(PieceId, Side, Position);
-Queen* Queen_Clone(Queen*);
+Queen* queen_new(PieceId, Side, Vector2);
+Queen* queen_clone(Queen*);
 
-MoveArray* Queen_GetPositionalMoves(Board*, Piece*);
-void Queen_Free(Piece*);
+MoveArray* queen_getposmoves(Board*, Piece*);
+void queen_free(Piece*);
 
 #endif

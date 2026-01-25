@@ -2,13 +2,13 @@
 #define MOVE_H
 
 #include "../enums.h"
-#include "../position.h"
+#include "../vector2.h"
 
 typedef struct Move {
     MoveFlags flags;
 
     PieceId piece_id;
-    Position position;
+    Vector2 position_to;
 
     PieceId take_piece_id;
 
@@ -17,14 +17,15 @@ typedef struct Move {
     MoveCastlingType castling_type;
 } Move;
 
-Move* Move_New();
-Move* Move_Clone(Move*);
-Move* Move_NewMovingPiece(PieceId, Position);
-Move* Move_NewTakingPiece(PieceId, Position, PieceId);
-Move* Move_NewCastling(MoveCastlingType);
-void Move_WithMovingPiece(Move*, PieceId, Position);
-void Move_WithTakingPiece(Move*, PieceId);
-void Move_WithPromotion(Move*, PieceType);
-void Move_Free(Move*);
+Move* move_new();
+Move* move_clone(Move*);
+Move* move_new_moving_piece(PieceId, Vector2);
+Move* move_new_taking_piece(PieceId, Vector2, PieceId);
+Move* move_new_castling(MoveCastlingType);
+void move_with_moving_piece(Move*, PieceId, Vector2);
+void move_with_taking_piece(Move*, PieceId);
+void move_with_promotion(Move*, PieceType);
+void move_debug(Move*);
+void move_free(Move*);
 
 #endif

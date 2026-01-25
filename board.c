@@ -11,114 +11,117 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
-uint8_t Board_IsPieceIdValid(PieceId piece_id) {
-    return piece_id >= 0 && piece_id < TOTAL_PIECES;
+uint8_t is_piece_id_valid(PieceId pieceid) {
+    return pieceid >= 0 && pieceid < TOTAL_PIECES;
 }
 
-uint8_t Board_IsPositionInBoundary(Position position) {
+uint8_t is_position_in_boundary(Vector2 position) {
     return position.i >= 0 && position.i < BOARD_HEIGHT && position.j >= 0 && position.j < BOARD_WIDTH;
 }
 
-uint8_t Board_IsPositionTop(Position position) {
+uint8_t is_position_top(Vector2 position) {
     return position.i == 0;
 }
 
-uint8_t Board_IsPositionBottom(Position position) {
+uint8_t is_position_bottom(Vector2 position) {
     return position.i == BOARD_HEIGHT - 1;
 }
 
-Board* Board_New() {
+Board* board_new() {
     Board* board = (Board*)malloc(sizeof(Board));
 
-    Board_RegisterPiecesNewGame(board);
-    Board_UpdateCells(board);
+    board_register_pieces_new_game(board);
+    board_update_cells(board);
 
     return board;
 }
 
-Board* Board_Clone(Board* board_src) {
-    Board* board = (Board*)malloc(sizeof(Board));
+Board* board_clone(Board* boardsrc) {
+    Board* b = (Board*)malloc(sizeof(Board));
 
-    Board_RegisterPiecesFromBoard(board, board_src);
-    Board_UpdateCells(board);
+    board_register_pieces_from_board(b, boardsrc);
+    board_update_cells(b);
 
-    return board;
+    return b;
 }
 
-void Board_ClearCells(Board* b) {
+void board_clear_cells(Board* b) {
     memset(b->cells, 0, sizeof(b->cells));
 }
 
-void Board_UpdateCells(Board* board) {
-    Board_ClearCells(board);
-    for (PieceId piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
-        Piece* piece = Board_GetPieceById(board, piece_id);
+void board_update_cells(Board* board) {
+    board_clear_cells(board);
+    for (PieceId id = 0; id < TOTAL_PIECES; id++) {
+        Piece* piece = board_get_piece_by_id(board, id);
+        if (piece->is_captured) {
+            continue;
+        }
         board->cells[piece->position.i][piece->position.j] = Cell_Make(1, piece->id);
     }
 }
 
-void Board_RegisterPiecesNewGame(Board* board) {
-    Board_RegisterPiece(board, (Piece*)Rook_New(PieceId_BlackRook1, Side_Black, Position_Make(0, 0)));
-    Board_RegisterPiece(board, (Piece*)Knight_New(PieceId_BlackKnight1, Side_Black, Position_Make(0, 1)));
-    Board_RegisterPiece(board, (Piece*)Bishop_New(PieceId_BlackBishop1, Side_Black, Position_Make(0, 2)));
-    Board_RegisterPiece(board, (Piece*)Queen_New(PieceId_BlackQueen, Side_Black, Position_Make(0, 3)));
-    Board_RegisterPiece(board, (Piece*)King_New(PieceId_BlackKing, Side_Black, Position_Make(0, 4)));
-    Board_RegisterPiece(board, (Piece*)Bishop_New(PieceId_BlackBishop2, Side_Black, Position_Make(0, 5)));
-    Board_RegisterPiece(board, (Piece*)Knight_New(PieceId_BlackKnight2, Side_Black, Position_Make(0, 6)));
-    Board_RegisterPiece(board, (Piece*)Rook_New(PieceId_BlackRook2, Side_Black, Position_Make(0, 7)));
+void board_register_pieces_new_game(Board* board) {
+    board_register_piece(board, (Piece*)rook_new(PIECE_ID_BLACK_ROOK_QUEEN_SIDE, SIDE_BLACK, vector2_make(0, 0)));
+    board_register_piece(board, (Piece*)knight_new(PIECE_ID_BLACK_KNIGHT_QUEEN_SIDE, SIDE_BLACK, vector2_make(0, 1)));
+    board_register_piece(board, (Piece*)bishop_new(PIECE_ID_BLACK_BISHOP_QUEEN_SIDE, SIDE_BLACK, vector2_make(0, 2)));
+    board_register_piece(board, (Piece*)queen_new(PIECE_ID_BLACK_QUEEN, SIDE_BLACK, vector2_make(0, 3)));
+    board_register_piece(board, (Piece*)king_new(PIECE_ID_BLACK_KING, SIDE_BLACK, vector2_make(0, 4)));
+    board_register_piece(board, (Piece*)bishop_new(PIECE_ID_BLACK_BISHOP_KING_SIDE, SIDE_BLACK, vector2_make(0, 5)));
+    board_register_piece(board, (Piece*)knight_new(PIECE_ID_BLACK_KNIGHT_KING_SIDE, SIDE_BLACK, vector2_make(0, 6)));
+    board_register_piece(board, (Piece*)rook_new(PIECE_ID_BLACK_ROOK_KING_SIDE, SIDE_BLACK, vector2_make(0, 7)));
     for (PieceId j = 0; j < 8; j++) {
-        Board_RegisterPiece(board, (Piece*)Pawn_New(PieceId_BlackPawn1 + j, Side_Black, Position_Make(1, j)));
+        board_register_piece(board, (Piece*)pawn_new(PIECE_ID_BLACK_PAWN_1 + j, SIDE_BLACK, vector2_make(1, j)));
     }
 
-    Board_RegisterPiece(board, (Piece*)Rook_New(PieceId_WhiteRook1, Side_White, Position_Make(7, 0)));
-    Board_RegisterPiece(board, (Piece*)Knight_New(PieceId_WhiteKnight1, Side_White, Position_Make(7, 1)));
-    Board_RegisterPiece(board, (Piece*)Bishop_New(PieceId_WhiteBishop1, Side_White, Position_Make(7, 2)));
-    Board_RegisterPiece(board, (Piece*)Queen_New(PieceId_WhiteQueen, Side_White, Position_Make(7, 3)));
-    Board_RegisterPiece(board, (Piece*)King_New(PieceId_WhiteKing, Side_White, Position_Make(7, 4)));
-    Board_RegisterPiece(board, (Piece*)Bishop_New(PieceId_WhiteBishop2, Side_White, Position_Make(7, 5)));
-    Board_RegisterPiece(board, (Piece*)Knight_New(PieceId_WhiteKnight2, Side_White, Position_Make(7, 6)));
-    Board_RegisterPiece(board, (Piece*)Rook_New(PieceId_WhiteRook2, Side_White, Position_Make(7, 7)));
+    board_register_piece(board, (Piece*)rook_new(PIECE_ID_WHITE_ROOK_QUEEN_SIDE, SIDE_WHITE, vector2_make(7, 0)));
+    board_register_piece(board, (Piece*)knight_new(PIECE_ID_WHITE_KNIGHT_QUEEN_SIDE, SIDE_WHITE, vector2_make(7, 1)));
+    board_register_piece(board, (Piece*)bishop_new(PIECE_ID_WHITE_BISHOP_QUEEN_SIDE, SIDE_WHITE, vector2_make(7, 2)));
+    board_register_piece(board, (Piece*)queen_new(PIECE_ID_WHITE_QUEEN, SIDE_WHITE, vector2_make(7, 3)));
+    board_register_piece(board, (Piece*)king_new(PIECE_ID_WHITE_KING, SIDE_WHITE, vector2_make(7, 4)));
+    board_register_piece(board, (Piece*)bishop_new(PIECE_ID_WHITE_BISHOP_KING_SIDE, SIDE_WHITE, vector2_make(7, 5)));
+    board_register_piece(board, (Piece*)knight_new(PIECE_ID_WHITE_KNIGHT_KING_SIDE, SIDE_WHITE, vector2_make(7, 6)));
+    board_register_piece(board, (Piece*)rook_new(PIECE_ID_WHITE_ROOK_KING_SIDE, SIDE_WHITE, vector2_make(7, 7)));
     for (PieceId j = 0; j < 8; j++) {
-        Board_RegisterPiece(board, (Piece*)Pawn_New(PieceId_WhitePawn1 + j, Side_White, Position_Make(6, j)));
+        board_register_piece(board, (Piece*)pawn_new(PIECE_ID_WHITE_PAWN_1 + j, SIDE_WHITE, vector2_make(6, j)));
     }
 }
 
-void Board_RegisterPiecesFromBoard(Board* board_dest, Board* board_src) {
+void board_register_pieces_from_board(Board* board_dst, Board* board_src) {
     for (PieceId piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
-        Piece* piece = Board_GetPieceById(board_src, piece_id);
+        Piece* piece = board_get_piece_by_id(board_src, piece_id);
         Piece* new_piece;
         switch (piece->type) {
-            case PieceType_Rook:
-                new_piece = (Piece*)Rook_Clone((Rook*)piece);
+            case PIECE_TYPE_ROOK:
+                new_piece = (Piece*)rook_clone((Rook*)piece);
                 break;
-            case PieceType_Knight:
-                new_piece = (Piece*)Knight_Clone((Knight*)piece);
+            case PIECE_TYPE_KNIGHT:
+                new_piece = (Piece*)knight_clone((Knight*)piece);
                 break;
-            case PieceType_Bishop:
-                new_piece = (Piece*)Bishop_Clone((Bishop*)piece);
+            case PIECE_TYPE_BISHOP:
+                new_piece = (Piece*)bishop_clone((Bishop*)piece);
                 break;
-            case PieceType_Queen:
-                new_piece = (Piece*)Queen_Clone((Queen*)piece);
+            case PIECE_TYPE_QUEEN:
+                new_piece = (Piece*)queen_clone((Queen*)piece);
                 break;
-            case PieceType_King:
-                new_piece = (Piece*)King_Clone((King*)piece);
+            case PIECE_TYPE_KING:
+                new_piece = (Piece*)king_clone((King*)piece);
                 break;
-            case PieceType_Pawn:
-                new_piece = (Piece*)Pawn_Clone((Pawn*)piece);
+            case PIECE_TYPE_PAWN:
+                new_piece = (Piece*)pawn_clone((Pawn*)piece);
                 break;
         }
-        Board_RegisterPiece(board_dest, new_piece);
+        board_register_piece(board_dst, new_piece);
     }
 }
 
-void Board_RegisterPiece(Board* board, Piece* piece) {
+void board_register_piece(Board* board, Piece* piece) {
     board->pieces[piece->id] = piece;
 }
 
-Piece* Board_GetPieceById(Board* board, PieceId piece_id) { return board->pieces[piece_id]; }
+Piece* board_get_piece_by_id(Board* board, PieceId piece_id) { return board->pieces[piece_id]; }
 
-Piece* Board_GetPieceByPosition(Board* board, Position position) {
-    if (Board_IsPositionInBoundary(position)) {
+Piece* board_get_piece_by_position(Board* board, Vector2 position) {
+    if (!is_position_in_boundary(position)) {
         return NULL;
     }
     Cell cell = board->cells[position.i][position.j];
@@ -126,97 +129,131 @@ Piece* Board_GetPieceByPosition(Board* board, Position position) {
         return NULL;
     }
     PieceId piece_id = cell.piece_id;
-    if (!Board_IsPieceIdValid(piece_id)) {
+    if (!is_piece_id_valid(piece_id)) {
         return NULL;
     }
     return board->pieces[piece_id];
 }
 
-uint8_t Board_HasPieceOnPosition(Board* board, Position position) {
-    return Board_GetPieceByPosition(board, position) != NULL;
+uint8_t board_has_piece_on_position(Board* board, Vector2 position) {
+    return board_get_piece_by_position(board, position) != NULL;
 }
 
-uint8_t Board_CanTakePosition(Board* board, Piece* piece, Position position) {
-    Piece* piece_on_position = Board_GetPieceByPosition(board, position);
-    return piece_on_position && Piece_IsOpposite(piece, piece_on_position);
+uint8_t board_can_take_position(Board* board, Piece* piece, Vector2 position) {
+    Piece* piece_on_position = board_get_piece_by_position(board, position);
+    return piece_on_position && piece_is_opposite(piece, piece_on_position);
 }
 
-MoveArray* Board_GetMoves(Board* board, Side side) {
-    PieceId piece_id_start;
-    PieceId piece_id_end;
-    if (side == Side_White) {
-        piece_id_start = PieceId_BlackRook1;
-        piece_id_end = PieceId_BlackPawn8;
-    } else if (side == Side_Black) {
-        piece_id_start = PieceId_WhiteRook1;
-        piece_id_end = PieceId_WhitePawn8;
+MoveArray* board_get_moves(Board* board, Side side) {
+    PieceId pieceidstart;
+    PieceId pieceidend;
+    if (side == SIDE_WHITE) {
+        pieceidstart = PIECE_ID_WHITE_ROOK_QUEEN_SIDE;
+        pieceidend = PIECE_ID_WHITE_PAWN_8;
+    } else if (side == SIDE_BLACK) {
+        pieceidstart = PIECE_ID_BLACK_ROOK_QUEEN_SIDE;
+        pieceidend = PIECE_ID_BLACK_PAWN_8;
     }
 
-    MoveArray* all_moves = MoveArray_New();
-    for (PieceId piece_id = piece_id_start; piece_id <= piece_id_end; piece_id++) {
-        Piece* piece = Board_GetPieceById(board, piece_id);
+    MoveArray* allmoves = move_array_new();
+    for (PieceId pieceid = pieceidstart; pieceid <= pieceidend; pieceid++) {
+        Piece* piece = board_get_piece_by_id(board, pieceid);
 
-        MoveArray* positional_moves = piece->Piece_GetPositionalMoves(board, piece);
+        MoveArray* posmoves = piece->piece_get_positional_moves(board, piece);
 
-        for (size_t i = 0; i < positional_moves->length; i++) {
-            Move* move = MoveArray_GetIndex(positional_moves, i);
-            Board* cloned_board = Board_Clone(board);
-            Board_MakeMove(cloned_board, move);
-            if (Board_IsKingInDanger(cloned_board, side)) {
-                Move_Free(move);
-            } else {
-                MoveArray_Add(all_moves, move);
-            }
-            Board_Free(cloned_board);
+        for (size_t i = 0; i < posmoves->length; i++) {
+            Move* move = move_array_get_index(posmoves, i);
+            move_array_add(allmoves, move);
+            // Board* cloned_board = Board_Clone(board);
+            // Board_MakeMove(cloned_board, move);
+            // if (Board_IsKingInDanger(cloned_board, side)) {
+            //     Move_Free(move);
+            // } else {
+            //     MoveArray_Add(all_moves, move);
+            // }
+            // Board_Free(cloned_board);
         }
 
-        MoveArray_Free(positional_moves);
+        move_array_free(posmoves);
     }
 
-    return all_moves;
+    return allmoves;
 }
 
-void Board_MakeMove(Board* board, Move* move) {
-    // TODO: Transit state of board from move
+void board_apply_move(Board* board, Move* move) {
+    if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
+        PieceId pieceid = move->piece_id;
+        Piece* piece = board_get_piece_by_id(board, pieceid);
+        piece->position = move->position_to;
+    }
+    if (move->flags & MOVE_FLAGS_HAS_TAKING_PIECE) {
+        PieceId take_piece_id = move->take_piece_id;
+        Piece* take_piece = board_get_piece_by_id(board, take_piece_id);
+        take_piece->is_captured = 1;
+    }
+    if (move->flags & MOVE_FLAGS_HAS_PROMOTION) {
+        PieceId piece_id = move->piece_id;
+        Piece* piece = board_get_piece_by_id(board, piece_id);
+        switch (move->promote_to) {
+            case PIECE_TYPE_QUEEN:
+                board_register_piece(board, queen_new(piece_id, piece->side, move->position_to));
+                break;
+            case PIECE_TYPE_ROOK:
+                board_register_piece(board, rook_new(piece_id, piece->side, move->position_to));
+                break;
+            case PIECE_TYPE_BISHOP:
+                board_register_piece(board, bishop_new(piece_id, piece->side, move->position_to));
+                break;
+            case PIECE_TYPE_KNIGHT:
+                board_register_piece(board, knight_new(piece_id, piece->side, move->position_to));
+                break;
+        }
+        piece->piece_free(piece);
+    }
+    if (move->flags & MOVE_FLAGS_HAS_CASTLING) {
+
+    }
+    board_update_cells(board);
 }
 
-uint8_t Board_IsKingInDanger(Board* board, Side side) {
+uint8_t board_is_king_in_danger(Board* board, Side side) {
     // TODO: Check if king is checked from opposite side pieces
+    return 0;
 }
 
-void Board_Free(Board* board) {
+void board_free(Board* board) {
     for (PieceId piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
-        Piece* piece = Board_GetPieceById(board, piece_id);
-        piece->Piece_Free(piece);
+        Piece* piece = board_get_piece_by_id(board, piece_id);
+        piece->piece_free(piece);
     }
     free(board);
 }
 
-void Board_Debug(Board* board) {
+void board_debug(Board* board) {
     for (size_t i = 0; i < BOARD_HEIGHT; i++) {
         for (size_t j = 0; j < BOARD_WIDTH; j++) {
-            Piece* piece = Board_GetPieceByPosition(board, Position_Make(i, j));
+            Piece* piece = board_get_piece_by_position(board, vector2_make(i, j));
             if (!piece) {
                 printf(".");
                 continue;
             }
             switch (piece->type) {
-                case PieceType_Rook:
+                case PIECE_TYPE_ROOK:
                     printf("r");
                     break;
-                case PieceType_Knight:
+                case PIECE_TYPE_KNIGHT:
                     printf("k");
                     break;
-                case PieceType_Bishop:
+                case PIECE_TYPE_BISHOP:
                     printf("b");
                     break;
-                case PieceType_Queen:
+                case PIECE_TYPE_QUEEN:
                     printf("q");
                     break;
-                case PieceType_King:
+                case PIECE_TYPE_KING:
                     printf("K");
                     break;
-                case PieceType_Pawn:
+                case PIECE_TYPE_PAWN:
                     printf("p");
                     break;
             }

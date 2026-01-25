@@ -16,25 +16,25 @@ typedef struct Board {
     Piece* pieces[TOTAL_PIECES];
 } Board;
 
-Board* Board_New();
-Board* Board_Clone(Board*);
-void Board_ClearCells(Board*);
-void Board_UpdateCells(Board*);
-void Board_RegisterPiecesNewGame(Board*);
-void Board_RegisterPiecesFromBoard(Board*, Board*);
-void Board_RegisterPiece(Board*, Piece*);
-Piece* Board_GetPieceById(Board*, PieceId);
-Piece* Board_GetPieceByPosition(Board*, Position);
-uint8_t Board_HasPieceOnPosition(Board*, Position);
-uint8_t Board_CanTakePosition(Board*, Piece*, Position);
-MoveArray* Board_GetMoves(Board*, Side);
-void Board_MakeMove(Board*, Move*);
-uint8_t Board_IsKingInDanger(Board*, Side);
-void Board_Free(Board*);
-void Board_Debug(Board*);
-uint8_t Board_IsPieceIdValid(PieceId);
-uint8_t Board_IsPositionInBoundary(Position);
-uint8_t Board_IsPositionTop(Position);
-uint8_t Board_IsPositionBottom(Position);
+Board* board_new();
+Board* board_clone(Board*);
+void board_clear_cells(Board*);
+void board_update_cells(Board*);
+void board_register_pieces_new_game(Board*);
+void board_register_pieces_from_board(Board*, Board*);
+void board_register_piece(Board*, Piece*);
+Piece* board_get_piece_by_id(Board*, PieceId);
+Piece* board_get_piece_by_position(Board*, Vector2);
+uint8_t board_has_piece_on_position(Board*, Vector2);
+uint8_t board_can_take_position(Board*, Piece*, Vector2);
+MoveArray* board_get_moves(Board*, Side);
+void board_apply_move(Board*, Move*);
+uint8_t board_is_king_in_danger(Board*, Side);
+void board_free(Board*);
+void board_debug(Board*);
+uint8_t is_piece_id_valid(PieceId);
+uint8_t is_position_in_boundary(Vector2);
+uint8_t is_position_top(Vector2);
+uint8_t is_position_bottom(Vector2);
 
 #endif

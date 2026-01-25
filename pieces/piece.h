@@ -11,15 +11,15 @@ typedef struct Piece {
     enum PieceId id;
     enum PieceType type;
     enum Side side;
-    Position position;
+    Vector2 position;
     unsigned int is_captured : 1;
 
     // Virtual functions
-    void (*Piece_Free)(struct Piece*);
-    MoveArray* (*Piece_GetPositionalMoves)(struct Board*, struct Piece*);
+    void (*piece_free)(struct Piece*);
+    MoveArray* (*piece_get_positional_moves)(struct Board*, struct Piece*);
 } Piece;
 
-uint8_t Piece_IsAlias(Piece*, Piece*);
-uint8_t Piece_IsOpposite(Piece*, Piece*);
+uint8_t piece_is_alias(Piece*, Piece*);
+uint8_t piece_is_opposite(Piece*, Piece*);
 
 #endif

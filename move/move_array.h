@@ -11,9 +11,10 @@ typedef struct MoveArray {
     Move** array;
 } MoveArray;
 
-MoveArray* MoveArray_New();
-void MoveArray_Add(MoveArray*, Move*);
-Move* MoveArray_GetIndex(MoveArray*, size_t);
-void MoveArray_Free(MoveArray*);
+MoveArray* move_array_new();
+void move_array_add(MoveArray*, Move*);
+Move* move_array_get_index(MoveArray*, size_t);
+void move_array_debug(MoveArray*);
+void move_array_free(MoveArray*);
 
 #endif

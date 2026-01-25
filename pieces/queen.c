@@ -2,25 +2,25 @@
 
 #include <stdlib.h>
 
-Queen* Queen_New(PieceId piece_id, Side side, Position position) {
+Queen* queen_new(PieceId piece_id, Side side, Vector2 position) {
     Queen* queen = (Queen*)malloc(sizeof(Queen));
 
     // Set piece fields
     queen->piece.id = piece_id;
     queen->piece.side = side;
-    queen->piece.type = PieceType_Queen;
+    queen->piece.type = PIECE_TYPE_QUEEN;
     queen->piece.position = position;
     queen->piece.is_captured = 0;
 
     // Set functions
-    queen->piece.Piece_GetPositionalMoves = Queen_GetPositionalMoves;
-    queen->piece.Piece_Free = Queen_Free;
+    queen->piece.piece_get_positional_moves = queen_getposmoves;
+    queen->piece.piece_free = queen_free;
 
     return queen;
 }
 
-Queen* Queen_Clone(Queen* queen_src) {
-    Queen* queen = Queen_New(queen_src->piece.id, queen_src->piece.side, queen_src->piece.position);
+Queen* queen_clone(Queen* queen_src) {
+    Queen* queen = queen_new(queen_src->piece.id, queen_src->piece.side, queen_src->piece.position);
 
     // Set piece fields
     queen->piece.is_captured = queen_src->piece.is_captured;
@@ -28,12 +28,16 @@ Queen* Queen_Clone(Queen* queen_src) {
     return queen;
 }
 
-MoveArray* Queen_GetPositionalMoves(Board* board, Piece* piece) {
+MoveArray* queen_getposmoves(Board* board, Piece* piece) {
     Queen* queen = (Queen*)piece;
+
+    MoveArray* move_array = move_array_new();
+
     // TODO: Find queen positional moves on board
+    return move_array;
 }
 
-void Queen_Free(Piece* piece) {
+void queen_free(Piece* piece) {
     Queen* queen = (Queen*)piece;
     free(queen);
 }

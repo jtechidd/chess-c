@@ -5,12 +5,12 @@
 
 Chess* Chess_New() {
     Chess* chess = (Chess*)malloc(sizeof(Chess));
-    chess->turn = Side_White;
-    chess->board = Board_New();
+    chess->turn = SIDE_WHITE;
+    chess->board = board_new();
     return chess;
 }
 
 void Chess_Free(Chess* c) {
-    Board_Free(c->board);
+    board_free(c->board);
     free(c);
 }

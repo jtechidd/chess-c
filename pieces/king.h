@@ -8,10 +8,10 @@ typedef struct King {
     unsigned int has_been_moved : 1;
 } King;
 
-King* King_New(PieceId, Side, Position);
-King* King_Clone(King*);
+King* king_new(PieceId, Side, Vector2);
+King* king_clone(King*);
 
-MoveArray* King_GetPositionalMoves(Board*, Piece*);
-void King_Free(Piece*);
+MoveArray* king_get_positional_moves(Board*, Piece*);
+void king_free(Piece*);
 
 #endif

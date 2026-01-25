@@ -4,5 +4,8 @@
 int main(int argc, char* argv[]) {
     Chess* chess = Chess_New();
 
-    Board_Debug(chess->board);
+    board_debug(chess->board);
+
+    MoveArray *moves = board_get_moves(chess->board, chess->turn);
+    move_array_debug(moves);
 }

@@ -2,19 +2,19 @@
 
 #include <stdlib.h>
 
-King* King_New(PieceId piece_id, Side side, Position position) {
+King* king_new(PieceId piece_id, Side side, Vector2 position) {
     King* king = (King*)malloc(sizeof(King));
 
     // Set piece fields
     king->piece.id = piece_id;
     king->piece.side = side;
-    king->piece.type = PieceType_King;
+    king->piece.type = PIECE_TYPE_KING;
     king->piece.position = position;
     king->piece.is_captured = 0;
 
     // Set functions
-    king->piece.Piece_GetPositionalMoves = King_GetPositionalMoves;
-    king->piece.Piece_Free = King_Free;
+    king->piece.piece_get_positional_moves = king_get_positional_moves;
+    king->piece.piece_free = king_free;
 
     // Set fields
     king->has_been_moved = 0;
@@ -22,8 +22,8 @@ King* King_New(PieceId piece_id, Side side, Position position) {
     return king;
 }
 
-King* King_Clone(King* king_src) {
-    King* king = King_New(king_src->piece.id, king_src->piece.side, king_src->piece.position);
+King* king_clone(King* king_src) {
+    King* king = king_new(king_src->piece.id, king_src->piece.side, king_src->piece.position);
 
     // Set piece fields
     king->piece.is_captured = king_src->piece.is_captured;
@@ -34,12 +34,16 @@ King* King_Clone(King* king_src) {
     return king;
 }
 
-MoveArray* King_GetPositionalMoves(Board* board, Piece* piece) {
+MoveArray* king_get_positional_moves(Board* board, Piece* piece) {
     King* king = (King*)piece;
+
+    MoveArray* move_array = move_array_new();
+
     // TODO: Find king positional moves on board
+    return move_array;
 }
 
-void King_Free(Piece* piece) {
+void king_free(Piece* piece) {
     King* king = (King*)piece;
     free(king);
 }

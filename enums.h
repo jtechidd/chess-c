@@ -4,64 +4,64 @@
 #include <stdint.h>
 
 typedef enum Side : uint8_t {
-    Side_White,
-    Side_Black,
+    SIDE_WHITE,
+    SIDE_BLACK,
 } Side;
 
 typedef enum PieceType : uint8_t {
-    PieceType_Rook,
-    PieceType_Knight,
-    PieceType_Bishop,
-    PieceType_Queen,
-    PieceType_King,
-    PieceType_Pawn
+    PIECE_TYPE_ROOK,
+    PIECE_TYPE_KNIGHT,
+    PIECE_TYPE_BISHOP,
+    PIECE_TYPE_QUEEN,
+    PIECE_TYPE_KING,
+    PIECE_TYPE_PAWN
 } PieceType;
 
 typedef enum PieceId : uint8_t {
-    PieceId_BlackRook1,
-    PieceId_BlackKnight1,
-    PieceId_BlackBishop1,
-    PieceId_BlackQueen,
-    PieceId_BlackKing,
-    PieceId_BlackBishop2,
-    PieceId_BlackKnight2,
-    PieceId_BlackRook2,
-    PieceId_BlackPawn1,
-    PieceId_BlackPawn2,
-    PieceId_BlackPawn3,
-    PieceId_BlackPawn4,
-    PieceId_BlackPawn5,
-    PieceId_BlackPawn6,
-    PieceId_BlackPawn7,
-    PieceId_BlackPawn8,
-    PieceId_WhiteRook1,
-    PieceId_WhiteKnight1,
-    PieceId_WhiteBishop1,
-    PieceId_WhiteQueen,
-    PieceId_WhiteKing,
-    PieceId_WhiteBishop2,
-    PieceId_WhiteKnight2,
-    PieceId_WhiteRook2,
-    PieceId_WhitePawn1,
-    PieceId_WhitePawn2,
-    PieceId_WhitePawn3,
-    PieceId_WhitePawn4,
-    PieceId_WhitePawn5,
-    PieceId_WhitePawn6,
-    PieceId_WhitePawn7,
-    PieceId_WhitePawn8,
+    PIECE_ID_BLACK_ROOK_QUEEN_SIDE,
+    PIECE_ID_BLACK_KNIGHT_QUEEN_SIDE,
+    PIECE_ID_BLACK_BISHOP_QUEEN_SIDE,
+    PIECE_ID_BLACK_QUEEN,
+    PIECE_ID_BLACK_KING,
+    PIECE_ID_BLACK_BISHOP_KING_SIDE,
+    PIECE_ID_BLACK_KNIGHT_KING_SIDE,
+    PIECE_ID_BLACK_ROOK_KING_SIDE,
+    PIECE_ID_BLACK_PAWN_1,
+    PIECE_ID_BLACK_PAWN_2,
+    PIECE_ID_BLACK_PAWN_3,
+    PIECE_ID_BLACK_PAWN_4,
+    PIECE_ID_BLACK_PAWN_5,
+    PIECE_ID_BLACK_PAWN_6,
+    PIECE_ID_BLACK_PAWN_7,
+    PIECE_ID_BLACK_PAWN_8,
+    PIECE_ID_WHITE_ROOK_QUEEN_SIDE,
+    PIECE_ID_WHITE_KNIGHT_QUEEN_SIDE,
+    PIECE_ID_WHITE_BISHOP_QUEEN_SIDE,
+    PIECE_ID_WHITE_QUEEN,
+    PIECE_ID_WHITE_KING,
+    PIECE_ID_WHITE_BISHOP_KING_SIDE,
+    PIECE_ID_WHITE_KNIGHT_KING_SIDE,
+    PIECE_ID_WHITE_ROOK_KING_SIDE,
+    PIECE_ID_WHITE_PAWN_1,
+    PIECE_ID_WHITE_PAWN_2,
+    PIECE_ID_WHITE_PAWN_3,
+    PIECE_ID_WHITE_PAWN_4,
+    PIECE_ID_WHITE_PAWN_5,
+    PIECE_ID_WHITE_PAWN_6,
+    PIECE_ID_WHITE_PAWN_7,
+    PIECE_ID_WHITE_PAWN_8,
 } PieceId;
 
 typedef enum MoveFlags : uint8_t {
-    MoveFlags_HasMovingPiece = 1 << 0,
-    MoveFlags_HasTakingPiece = 1 << 1,
-    MoveFlags_HasPromotion = 1 << 2,
-    MoveFlags_HasCastling = 1 << 3,
+    MOVE_FLAGS_HAS_MOVING_PIECE = 1 << 0,
+    MOVE_FLAGS_HAS_TAKING_PIECE = 1 << 1,
+    MOVE_FLAGS_HAS_PROMOTION = 1 << 2,
+    MOVE_FLAGS_HAS_CASTLING = 1 << 3,
 } MoveFlags;
 
 typedef enum MoveCastlingType : uint8_t {
-    MoveCastlingType_KingSide,
-    MoveCastlingType_QueenSide
+    MOVE_CASTLING_TYPE_KING_SIDE,
+    MOVE_CASTLING_TYPE_QUEEN_SIDE
 } MoveCastlingType;
 
 #endif
