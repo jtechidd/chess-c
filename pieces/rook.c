@@ -1,7 +1,7 @@
 #include "rook.h"
 
 #include "../board.h"
-#include "../vector2.h"
+#include "../utils.h"
 
 const Vector2 ROOK_DIRECTIONS[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
@@ -44,7 +44,7 @@ Rook* rook_cast(Piece* piece) {
     return NULL;
 }
 
-MoveArray* rook_get_positional_moves(Board* board, Piece* piece) {
+MoveArray* rook_get_positional_moves(Piece* piece, Board* board) {
     Rook* rook;
     MoveArray* move_array = move_array_new();
 
@@ -80,4 +80,28 @@ void rook_free(Piece* piece) {
         return;
     }
     free(rook);
+}
+
+uint8_t board_is_position_get_attacked_by_rook(Board* board, Side side, Vector2 position) {
+    for (size_t k = 0; k < ROOK_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = ROOK_DIRECTIONS[k];
+        for (uint8_t scale = 1;; scale++) {
+            Vector2 position_to = vector2_add2(position, vector2_scalar_multiply(direction, scale));
+            if (!is_position_in_boundary(position_to)) {
+                break;
+            }
+            if (!board_has_piece_on_position(board, position_to)) {
+                continue;
+            }
+            Piece* piece = board_get_piece_by_position(board, position_to);
+            Rook* rook;
+            if (!(rook = rook_cast(piece))) {
+                break;
+            }
+            if (is_opposite_side(side, rook->piece.side)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }

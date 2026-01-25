@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../utils.h"
 
 const Vector2 KNIGHT_DIRECTIONS[] = {{-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, -1}, {2, 1}, {-1, -2}, {1, -2}};
 
@@ -39,7 +40,7 @@ Knight* knight_cast(Piece* piece) {
     return NULL;
 }
 
-MoveArray* knight_get_positional_moves(Board* board, Piece* piece) {
+MoveArray* knight_get_positional_moves(Piece* piece, Board* board) {
     Knight* knight;
     MoveArray* move_array = move_array_new();
 
@@ -71,4 +72,26 @@ void knight_free(Piece* piece) {
         return;
     }
     free(knight);
+}
+
+uint8_t board_is_position_get_attacked_by_knight(Board* board, Side side, Vector2 position) {
+    for (size_t k = 0; k < KNIGHT_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = KNIGHT_DIRECTIONS[k];
+        Vector2 position_to = vector2_add2(position, direction);
+        if (!is_position_in_boundary(position_to)) {
+            continue;
+        }
+        if (!board_has_piece_on_position(board, position_to)) {
+            continue;
+        }
+        Piece* piece = board_get_piece_by_position(board, position_to);
+        Knight* knight;
+        if (!(knight = knight_cast(piece))) {
+            continue;
+        }
+        if (is_opposite_side(side, knight->piece.side)) {
+            return 1;
+        }
+    }
+    return 0;
 }

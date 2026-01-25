@@ -13,7 +13,9 @@ typedef struct Knight {
 Knight* knight_new(PieceId, Side, Vector2);
 Knight* knight_clone(Knight*);
 Knight* knight_cast(Piece*);
-MoveArray* knight_get_positional_moves(Board*, Piece*);
+MoveArray* knight_get_positional_moves(Piece*, Board*);
 void knight_free(Piece*);
+
+uint8_t board_is_position_get_attacked_by_knight(Board*, Side, Vector2);
 
 #endif

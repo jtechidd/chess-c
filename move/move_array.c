@@ -1,6 +1,6 @@
-#include <stdio.h>
-
 #include "move_array.h"
+
+#include <stdio.h>
 
 MoveArray* move_array_new() {
     MoveArray* move_array = (MoveArray*)malloc(sizeof(MoveArray));
@@ -33,13 +33,20 @@ Move* move_array_get_index(MoveArray* move_array, size_t index) {
 }
 
 void move_array_debug(MoveArray* move_array) {
-    for(size_t i = 0; i < move_array->length; i++) {
+    for (size_t i = 0; i < move_array->length; i++) {
         Move* move = move_array_get_index(move_array, i);
+        printf("move[%ld]: ", i);
         move_debug(move);
     }
 }
 
+void move_array_shallow_free(MoveArray* move_array) {
+    free(move_array);
+}
+
 void move_array_free(MoveArray* move_array) {
-    // NOTE: This will not free move elements
+    for (size_t i = 0; i < move_array->length; i++) {
+        free(move_array_get_index(move_array, i));
+    }
     free(move_array);
 }

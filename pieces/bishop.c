@@ -3,14 +3,15 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../utils.h"
 
 const Vector2 BISHOP_DIRECTIONS[] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
-Bishop* bishop_new(PieceId pieceid, Side side, Vector2 position) {
+Bishop* bishop_new(PieceId piece_id, Side side, Vector2 position) {
     Bishop* bishop = (Bishop*)malloc(sizeof(Bishop));
 
     // Set piece fields
-    bishop->piece.id = pieceid;
+    bishop->piece.id = piece_id;
     bishop->piece.side = side;
     bishop->piece.type = PIECE_TYPE_BISHOP;
     bishop->piece.position = position;
@@ -39,7 +40,7 @@ Bishop* bishop_cast(Piece* piece) {
     return NULL;
 }
 
-MoveArray* bishop_get_positional_moves(Board* board, Piece* piece) {
+MoveArray* bishop_get_positional_moves(Piece* piece, Board* board) {
     Bishop* bishop;
     MoveArray* move_array = move_array_new();
 
@@ -75,4 +76,28 @@ void bishop_free(Piece* piece) {
         return;
     }
     free(bishop);
+}
+
+uint8_t board_is_position_get_attacked_by_bishop(Board* board, Side side, Vector2 position) {
+    for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = BISHOP_DIRECTIONS[k];
+        for (uint8_t scale = 1;; scale++) {
+            Vector2 position_to = vector2_add2(position, vector2_scalar_multiply(direction, scale));
+            if (!is_position_in_boundary(position_to)) {
+                break;
+            }
+            if (!board_has_piece_on_position(board, position_to)) {
+                continue;
+            }
+            Piece* piece = board_get_piece_by_position(board, position_to);
+            Bishop* bishop;
+            if (!(bishop = bishop_cast(piece))) {
+                break;
+            }
+            if (is_opposite_side(side, bishop->piece.side)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }

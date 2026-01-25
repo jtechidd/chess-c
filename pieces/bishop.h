@@ -14,7 +14,9 @@ Vector2* bishop_get_directions(size_t*);
 Bishop* bishop_new(PieceId, Side, Vector2);
 Bishop* bishop_clone(Bishop*);
 Bishop* bishop_cast(Piece*);
-MoveArray* bishop_get_positional_moves(Board*, Piece*);
+MoveArray* bishop_get_positional_moves(Piece*, Board*);
 void bishop_free(Piece*);
+
+uint8_t board_is_position_get_attacked_by_bishop(Board*, Side, Vector2);
 
 #endif

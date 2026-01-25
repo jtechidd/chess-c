@@ -4,9 +4,10 @@
 
 #include "../board.h"
 #include "../move/move.h"
+#include "../utils.h"
 
-const Vector2 PAWN_MOVE_UP_DIRECTIONS[] = {{-1, 0}, {-2, 0}};
-const Vector2 PAWN_MOVE_TAKE_DIRECTIONS[] = {{-1, -1}, {-1, 1}};
+const Vector2 PAWN_UP_DIRECTIONS[] = {{-1, 0}, {-2, 0}};
+const Vector2 PAWN_TAKE_DIRECTIONS[] = {{-1, -1}, {-1, 1}};
 
 void pawn_add_moves_up(Pawn*, Board*, MoveArray*);
 void pawn_add_moves_take(Pawn*, Board*, MoveArray*);
@@ -54,7 +55,7 @@ Pawn* pawn_cast(Piece* piece) {
     return NULL;
 }
 
-MoveArray* pawn_get_positional_moves(Board* board, Piece* piece) {
+MoveArray* pawn_get_positional_moves(Piece* piece, Board* board) {
     Pawn* pawn;
     MoveArray* move_array = move_array_new();
 
@@ -73,14 +74,14 @@ void pawn_add_moves_up(Pawn* pawn, Board* board, MoveArray* move_array) {
     Side side = pawn->piece.side;
     Vector2 position = pawn->piece.position;
 
-    size_t total_directions = PAWN_MOVE_UP_TOTAL_DIRECTIONS;
+    size_t total_directions = PAWN_UP_TOTAL_DIRECTIONS;
 
     if (pawn->has_been_moved) {
         total_directions--;
     }
 
     for (size_t k = 0; k < total_directions; k++) {
-        Vector2 direction = PAWN_MOVE_UP_DIRECTIONS[k];
+        Vector2 direction = PAWN_UP_DIRECTIONS[k];
         if (side == SIDE_BLACK) {
             direction = vector2_horizontal_flip(direction);
         }
@@ -100,8 +101,8 @@ void pawn_add_moves_take(Pawn* pawn, Board* board, MoveArray* move_array) {
     Side side = pawn->piece.side;
     Vector2 position = pawn->piece.position;
 
-    for (size_t k = 0; k < PAWN_MOVE_TAKE_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = PAWN_MOVE_TAKE_DIRECTIONS[k];
+    for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = PAWN_TAKE_DIRECTIONS[k];
         if (side == SIDE_BLACK) {
             direction = vector2_horizontal_flip(direction);
         }
@@ -122,8 +123,8 @@ void pawn_add_moves_en_passant(Pawn* pawn, Board* board, MoveArray* move_array) 
     Side side = pawn->piece.side;
     Vector2 position = pawn->piece.position;
 
-    for (size_t k = 0; k < PAWN_MOVE_TAKE_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = PAWN_MOVE_TAKE_DIRECTIONS[k];
+    for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = PAWN_TAKE_DIRECTIONS[k];
         Vector2 direction_side_pawn = vector2_make(0, direction.j);
         if (side == SIDE_BLACK) {
             direction = vector2_horizontal_flip(direction);
@@ -195,4 +196,29 @@ void pawn_free(Piece* piece) {
         return;
     }
     free(pawn);
+}
+
+uint8_t board_is_position_get_attacked_by_pawn(Board* board, Side side, Vector2 position) {
+    for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
+        Vector2 direction = PAWN_TAKE_DIRECTIONS[k];
+        if (side == SIDE_BLACK) {
+            direction = vector2_horizontal_flip(direction);
+        }
+        Vector2 position_to = vector2_add2(position, direction);
+        if (!is_position_in_boundary(position_to)) {
+            continue;
+        }
+        if (!board_has_piece_on_position(board, position_to)) {
+            continue;
+        }
+        Piece* piece = board_get_piece_by_position(board, position_to);
+        Pawn* pawn;
+        if (!(pawn = pawn_cast(piece))) {
+            continue;
+        }
+        if (is_opposite_side(side, pawn->piece.side)) {
+            return 1;
+        }
+    }
+    return 0;
 }

@@ -16,7 +16,9 @@ typedef struct Rook {
 Rook* rook_new(PieceId, Side, Vector2);
 Rook* rook_clone(Rook*);
 Rook* rook_cast(Piece*);
-MoveArray* rook_get_positional_moves(Board*, Piece*);
+MoveArray* rook_get_positional_moves(Piece*, Board*);
 void rook_free(Piece*);
+
+uint8_t board_is_position_get_attacked_by_rook(Board*, Side, Vector2);
 
 #endif

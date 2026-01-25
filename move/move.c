@@ -62,7 +62,6 @@ void move_with_promotion(Move* move, PieceType promote_to) {
 }
 
 void move_debug(Move* move) {
-    printf("move: ");
     if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
         printf("piece_id=%d position=(%d,%d) ", move->piece_id, move->position_to.i, move->position_to.j);
     }

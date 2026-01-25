@@ -10,22 +10,7 @@
 #include "pieces/pawn.h"
 #include "pieces/queen.h"
 #include "pieces/rook.h"
-
-uint8_t is_piece_id_valid(PieceId pieceid) {
-    return pieceid >= 0 && pieceid < TOTAL_PIECES;
-}
-
-uint8_t is_position_in_boundary(Vector2 position) {
-    return position.i >= 0 && position.i < BOARD_HEIGHT && position.j >= 0 && position.j < BOARD_WIDTH;
-}
-
-uint8_t is_position_top(Vector2 position) {
-    return position.i == 0;
-}
-
-uint8_t is_position_bottom(Vector2 position) {
-    return position.i == BOARD_HEIGHT - 1;
-}
+#include "utils.h"
 
 Board* board_new() {
     Board* board = (Board*)malloc(sizeof(Board));
@@ -145,46 +130,69 @@ uint8_t board_can_take_position(Board* board, Piece* piece, Vector2 position) {
 }
 
 MoveArray* board_get_moves(Board* board, Side side) {
-    PieceId pieceidstart;
-    PieceId pieceidend;
+    PieceId piece_id_start;
+    PieceId piece_id_end;
     if (side == SIDE_WHITE) {
-        pieceidstart = PIECE_ID_WHITE_ROOK_QUEEN_SIDE;
-        pieceidend = PIECE_ID_WHITE_PAWN_8;
+        piece_id_start = PIECE_ID_WHITE_ROOK_QUEEN_SIDE;
+        piece_id_end = PIECE_ID_WHITE_PAWN_8;
     } else if (side == SIDE_BLACK) {
-        pieceidstart = PIECE_ID_BLACK_ROOK_QUEEN_SIDE;
-        pieceidend = PIECE_ID_BLACK_PAWN_8;
+        piece_id_start = PIECE_ID_BLACK_ROOK_QUEEN_SIDE;
+        piece_id_end = PIECE_ID_BLACK_PAWN_8;
     }
 
-    MoveArray* allmoves = move_array_new();
-    for (PieceId pieceid = pieceidstart; pieceid <= pieceidend; pieceid++) {
+    MoveArray* all_moves = move_array_new();
+    for (PieceId pieceid = piece_id_start; pieceid <= piece_id_end; pieceid++) {
         Piece* piece = board_get_piece_by_id(board, pieceid);
-
-        MoveArray* posmoves = piece->piece_get_positional_moves(board, piece);
-
-        for (size_t i = 0; i < posmoves->length; i++) {
-            Move* move = move_array_get_index(posmoves, i);
-            move_array_add(allmoves, move);
-            // Board* cloned_board = Board_Clone(board);
-            // Board_MakeMove(cloned_board, move);
-            // if (Board_IsKingInDanger(cloned_board, side)) {
-            //     Move_Free(move);
-            // } else {
-            //     MoveArray_Add(all_moves, move);
-            // }
-            // Board_Free(cloned_board);
+        if (piece->is_captured) {
+            continue;
+        }
+        MoveArray* positional_moves = piece->piece_get_positional_moves(piece, board);
+        for (size_t i = 0; i < positional_moves->length; i++) {
+            Move* move = move_array_get_index(positional_moves, i);
+            Board* cloned_board = board_clone(board);
+            board_apply_move(cloned_board, move);
+            if (board_is_king_get_attacked(cloned_board, side)) {
+                move_free(move);
+            } else {
+                move_array_add(all_moves, move);
+            }
+            board_free(cloned_board);
         }
 
-        move_array_free(posmoves);
+        move_array_shallow_free(positional_moves);
     }
 
-    return allmoves;
+    // TODO: add castling
+
+    return all_moves;
 }
 
 void board_apply_move(Board* board, Move* move) {
     if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
-        PieceId pieceid = move->piece_id;
-        Piece* piece = board_get_piece_by_id(board, pieceid);
+        PieceId piece_id = move->piece_id;
+        Piece* piece = board_get_piece_by_id(board, piece_id);
         piece->position = move->position_to;
+
+        Pawn* pawn;
+        if (pawn = pawn_cast(piece)) {
+            if (!pawn->has_been_moved) {
+                pawn->has_been_moved = 1;
+                pawn->first_time_moved = 1;
+            }
+            if (pawn->first_time_moved) {
+                pawn->first_time_moved = 0;
+            }
+        }
+
+        Rook* rook;
+        if ((rook = pawn_cast(piece)) && !rook->has_been_moved) {
+            rook->has_been_moved = 1;
+        }
+
+        King* king;
+        if ((king = king_cast(piece)) && !king->has_been_moved) {
+            king->has_been_moved = 1;
+        }
     }
     if (move->flags & MOVE_FLAGS_HAS_TAKING_PIECE) {
         PieceId take_piece_id = move->take_piece_id;
@@ -196,29 +204,64 @@ void board_apply_move(Board* board, Move* move) {
         Piece* piece = board_get_piece_by_id(board, piece_id);
         switch (move->promote_to) {
             case PIECE_TYPE_QUEEN:
-                board_register_piece(board, queen_new(piece_id, piece->side, move->position_to));
+                board_register_piece(board, (Piece*)queen_new(piece_id, piece->side, move->position_to));
                 break;
             case PIECE_TYPE_ROOK:
-                board_register_piece(board, rook_new(piece_id, piece->side, move->position_to));
+                board_register_piece(board, (Piece*)rook_new(piece_id, piece->side, move->position_to));
                 break;
             case PIECE_TYPE_BISHOP:
-                board_register_piece(board, bishop_new(piece_id, piece->side, move->position_to));
+                board_register_piece(board, (Piece*)bishop_new(piece_id, piece->side, move->position_to));
                 break;
             case PIECE_TYPE_KNIGHT:
-                board_register_piece(board, knight_new(piece_id, piece->side, move->position_to));
+                board_register_piece(board, (Piece*)knight_new(piece_id, piece->side, move->position_to));
                 break;
         }
         piece->piece_free(piece);
     }
     if (move->flags & MOVE_FLAGS_HAS_CASTLING) {
-
+        // TODO: add handle castling
     }
     board_update_cells(board);
 }
 
-uint8_t board_is_king_in_danger(Board* board, Side side) {
-    // TODO: Check if king is checked from opposite side pieces
+uint8_t board_is_position_get_attacked(Board* board, Side side, Vector2 position) {
+    if (board_is_position_get_attacked_by_pawn(board, side, position)) {
+        return 1;
+    }
+    if (board_is_position_get_attacked_by_rook(board, side, position)) {
+        return 1;
+    }
+    if (board_is_position_get_attacked_by_knight(board, side, position)) {
+        return 1;
+    }
+    if (board_is_position_get_attacked_by_bishop(board, side, position)) {
+        return 1;
+    }
+    if (board_is_position_get_attacked_by_queen(board, side, position)) {
+        return 1;
+    }
+    if (board_is_position_get_attacked_by_king(board, side, position)) {
+        return 1;
+    }
     return 0;
+}
+
+uint8_t board_is_king_get_attacked(Board* board, Side side) {
+    PieceId king_piece_id;
+    if (side == SIDE_WHITE) {
+        king_piece_id = PIECE_ID_WHITE_KING;
+    } else if (side == SIDE_BLACK) {
+        king_piece_id = PIECE_ID_BLACK_KING;
+    }
+
+    Piece* king_piece = board_get_piece_by_id(board, king_piece_id);
+
+    King* king;
+    if (!(king = king_cast(king_piece))) {
+        return 0;
+    }
+
+    return board_is_position_get_attacked(board, king->piece.side, king->piece.position);
 }
 
 void board_free(Board* board) {

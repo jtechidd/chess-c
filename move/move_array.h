@@ -15,6 +15,7 @@ MoveArray* move_array_new();
 void move_array_add(MoveArray*, Move*);
 Move* move_array_get_index(MoveArray*, size_t);
 void move_array_debug(MoveArray*);
+void move_array_shallow_free(MoveArray*);
 void move_array_free(MoveArray*);
 
 #endif
