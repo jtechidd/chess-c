@@ -2,6 +2,6 @@
 
 #include "../utils.h"
 
-uint8_t piece_is_opposite(Piece* p1, Piece* p2) {
-    return is_opposite_side(p1->side, p2->side);
+uint8_t piece_is_opposite(piece_t* piece_a, piece_t* piece_b) {
+    return is_opposite_side(piece_a->side, piece_b->side);
 }

@@ -4,15 +4,16 @@
 #include "chess.h"
 
 int main(int argc, char* argv[]) {
-    Chess* chess = Chess_New();
+    chess_t* chess = Chess_New();
     board_debug(chess->board);
     printf("\n");
 
-    MoveArray* moves = board_get_moves(chess->board, chess->turn);
+    move_array_t* moves = board_get_moves(chess->board, chess->turn);
     move_array_debug(moves);
     printf("applying move %d\n", 9);
     board_apply_move(chess->board, move_array_get_index(moves, 9));
     move_array_free(moves);
+    board_debug(chess->board);
     printf("\n");
     
     chess->turn = SIDE_BLACK;

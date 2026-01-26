@@ -4,22 +4,20 @@
 #include "piece.h"
 
 #define PAWN_UP_TOTAL_DIRECTIONS 2
-extern const Vector2 PAWN_UP_DIRECTIONS[];
+extern const vector2_t PAWN_UP_DIRECTIONS[];
 #define PAWN_TAKE_TOTAL_DIRECTIONS 2
-extern const Vector2 PAWN_TAKE_DIRECTIONS[];
+extern const vector2_t PAWN_TAKE_DIRECTIONS[];
 
-typedef struct Pawn {
-    Piece piece;
-    unsigned int has_been_moved : 1;
-    unsigned int first_time_moved : 1;
-} Pawn;
+typedef struct pawn_t {
+    piece_t piece;
+} pawn_t;
 
-Pawn* pawn_new(PieceId, Side, Vector2);
-Pawn* pawn_clone(Pawn*);
-Pawn* pawn_cast(Piece*);
-MoveArray* pawn_get_positional_moves(Piece*, Board*);
-void pawn_free(Piece*);
+pawn_t* pawn_new(piece_id_t, side_t, vector2_t);
+pawn_t* pawn_clone(pawn_t*);
+pawn_t* pawn_cast(piece_t*);
+move_array_t* pawn_get_positional_moves(piece_t*, board_t*);
+void pawn_free(piece_t*);
 
-uint8_t board_is_position_get_attacked_by_pawn(Board*, Side, Vector2);
+uint8_t board_is_position_get_attacked_by_pawn(board_t*, side_t, vector2_t);
 
 #endif

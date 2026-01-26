@@ -5,17 +5,17 @@
 
 #include "move.h"
 
-typedef struct MoveArray {
+typedef struct move_array_t {
     size_t capacity;
     size_t length;
-    Move** array;
-} MoveArray;
+    move_t** array;
+} move_array_t;
 
-MoveArray* move_array_new();
-void move_array_add(MoveArray*, Move*);
-Move* move_array_get_index(MoveArray*, size_t);
-void move_array_debug(MoveArray*);
-void move_array_shallow_free(MoveArray*);
-void move_array_free(MoveArray*);
+move_array_t* move_array_new();
+void move_array_add(move_array_t*, move_t*);
+move_t* move_array_get_index(move_array_t*, size_t);
+void move_array_debug(move_array_t*);
+void move_array_shallow_free(move_array_t*);
+void move_array_free(move_array_t*);
 
 #endif

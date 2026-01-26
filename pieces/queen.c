@@ -5,10 +5,10 @@
 #include "../board.h"
 #include "../utils.h"
 
-const Vector2 QUEEN_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+const vector2_t QUEEN_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
 
-Queen* queen_new(PieceId piece_id, Side side, Vector2 position) {
-    Queen* queen = (Queen*)malloc(sizeof(Queen));
+queen_t* queen_new(piece_id_t piece_id, side_t side, vector2_t position) {
+    queen_t* queen = (queen_t*)malloc(sizeof(queen_t));
 
     // Set piece fields
     queen->piece.id = piece_id;
@@ -16,6 +16,7 @@ Queen* queen_new(PieceId piece_id, Side side, Vector2 position) {
     queen->piece.type = PIECE_TYPE_QUEEN;
     queen->piece.position = position;
     queen->piece.is_captured = 0;
+    queen->piece.moving_count = 0;
 
     // Set functions
     queen->piece.piece_get_positional_moves = queen_get_positional_moves;
@@ -24,34 +25,35 @@ Queen* queen_new(PieceId piece_id, Side side, Vector2 position) {
     return queen;
 }
 
-Queen* queen_clone(Queen* queen_src) {
-    Queen* queen = queen_new(queen_src->piece.id, queen_src->piece.side, queen_src->piece.position);
+queen_t* queen_clone(queen_t* queen_src) {
+    queen_t* queen = queen_new(queen_src->piece.id, queen_src->piece.side, queen_src->piece.position);
 
     // Set piece fields
     queen->piece.is_captured = queen_src->piece.is_captured;
+    queen->piece.moving_count = queen_src->piece.moving_count;
 
     return queen;
 }
 
-Queen* queen_cast(Piece* piece) {
+queen_t* queen_cast(piece_t* piece) {
     if (piece && piece->type == PIECE_TYPE_QUEEN) {
-        return (Queen*)piece;
+        return (queen_t*)piece;
     }
     return NULL;
 }
 
-MoveArray* queen_get_positional_moves(Piece* piece, Board* board) {
-    Queen* queen;
-    MoveArray* move_array = move_array_new();
+move_array_t* queen_get_positional_moves(piece_t* piece, board_t* board) {
+    queen_t* queen;
+    move_array_t* move_array = move_array_new();
 
     if (!(queen = queen_cast(piece))) {
         return move_array;
     }
 
     for (size_t k = 0; k < QUEEN_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = QUEEN_DIRECTIONS[k];
+        vector2_t direction = QUEEN_DIRECTIONS[k];
         for (uint8_t scale = 1;; scale++) {
-            Vector2 position_to = vector2_add2(queen->piece.position, vector2_scalar_multiply(direction, scale));
+            vector2_t position_to = vector2_add2(queen->piece.position, vector2_scalar_multiply(direction, scale));
             if (!is_position_in_boundary(position_to)) {
                 break;
             }
@@ -59,7 +61,7 @@ MoveArray* queen_get_positional_moves(Piece* piece, Board* board) {
                 move_array_add(move_array, move_new_moving_piece(queen->piece.id, position_to));
                 continue;
             }
-            Piece* piece = board_get_piece_by_position(board, position_to);
+            piece_t* piece = board_get_piece_by_position(board, position_to);
             if (piece_is_opposite(&queen->piece, piece)) {
                 move_array_add(move_array, move_new_taking_piece(queen->piece.id, position_to, piece->id));
             }
@@ -69,27 +71,27 @@ MoveArray* queen_get_positional_moves(Piece* piece, Board* board) {
     return move_array;
 }
 
-void queen_free(Piece* piece) {
-    Queen* queen;
+void queen_free(piece_t* piece) {
+    queen_t* queen;
     if (!(queen = queen_cast(piece))) {
         return;
     }
     free(queen);
 }
 
-uint8_t board_is_position_get_attacked_by_queen(Board* board, Side side, Vector2 position) {
+uint8_t board_is_position_get_attacked_by_queen(board_t* board, side_t side, vector2_t position) {
     for (size_t k = 0; k < QUEEN_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = QUEEN_DIRECTIONS[k];
+        vector2_t direction = QUEEN_DIRECTIONS[k];
         for (uint8_t scale = 1;; scale++) {
-            Vector2 position_to = vector2_add2(position, vector2_scalar_multiply(direction, scale));
+            vector2_t position_to = vector2_add2(position, vector2_scalar_multiply(direction, scale));
             if (!is_position_in_boundary(position_to)) {
                 break;
             }
             if (!board_has_piece_on_position(board, position_to)) {
                 continue;
             }
-            Piece* piece = board_get_piece_by_position(board, position_to);
-            Queen* queen;
+            piece_t* piece = board_get_piece_by_position(board, position_to);
+            queen_t* queen;
             if (!(queen = queen_cast(piece))) {
                 break;
             }

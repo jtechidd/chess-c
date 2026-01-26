@@ -3,12 +3,12 @@
 
 #include "board.h"
 
-typedef struct Chess {
-    Side turn;
-    Board* board;
-} Chess;
+typedef struct chess_t {
+    side_t turn;
+    board_t* board;
+} chess_t;
 
-Chess* Chess_New();
-void Chess_Free(Chess*);
+chess_t* Chess_New();
+void Chess_Free(chess_t*);
 
 #endif

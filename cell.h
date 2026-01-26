@@ -3,10 +3,10 @@
 
 #include "./enums.h"
 
-typedef struct Cell {
+typedef struct cell_t {
     unsigned int has_piece : 1;
-    PieceId piece_id;
-} Cell;
+    piece_id_t piece_id;
+} cell_t;
 
-Cell Cell_Make(uint8_t has_piece, PieceId piece_id);
+cell_t cell_make(uint8_t has_piece, piece_id_t piece_id);
 #endif

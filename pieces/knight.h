@@ -4,18 +4,18 @@
 #include "piece.h"
 
 #define KNIGHT_TOTAL_DIRECTIONS 8
-extern const Vector2 KNIGHT_DIRECTIONS[];
+extern const vector2_t KNIGHT_DIRECTIONS[];
 
-typedef struct Knight {
-    Piece piece;
-} Knight;
+typedef struct knight_t {
+    piece_t piece;
+} knight_t;
 
-Knight* knight_new(PieceId, Side, Vector2);
-Knight* knight_clone(Knight*);
-Knight* knight_cast(Piece*);
-MoveArray* knight_get_positional_moves(Piece*, Board*);
-void knight_free(Piece*);
+knight_t* knight_new(piece_id_t, side_t, vector2_t);
+knight_t* knight_clone(knight_t*);
+knight_t* knight_cast(piece_t*);
+move_array_t* knight_get_positional_moves(piece_t*, board_t*);
+void knight_free(piece_t*);
 
-uint8_t board_is_position_get_attacked_by_knight(Board*, Side, Vector2);
+uint8_t board_is_position_get_attacked_by_knight(board_t*, side_t, vector2_t);
 
 #endif

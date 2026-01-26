@@ -6,19 +6,18 @@
 #include "piece.h"
 
 #define ROOK_TOTAL_DIRECTIONS 4
-extern const Vector2 ROOK_DIRECTIONS[];
+extern const vector2_t ROOK_DIRECTIONS[];
 
-typedef struct Rook {
-    Piece piece;
-    unsigned int has_been_moved : 1;
-} Rook;
+typedef struct rook_t {
+    piece_t piece;
+} rook_t;
 
-Rook* rook_new(PieceId, Side, Vector2);
-Rook* rook_clone(Rook*);
-Rook* rook_cast(Piece*);
-MoveArray* rook_get_positional_moves(Piece*, Board*);
-void rook_free(Piece*);
+rook_t* rook_new(piece_id_t, side_t, vector2_t);
+rook_t* rook_clone(rook_t*);
+rook_t* rook_cast(piece_t*);
+move_array_t* rook_get_positional_moves(piece_t*, board_t*);
+void rook_free(piece_t*);
 
-uint8_t board_is_position_get_attacked_by_rook(Board*, Side, Vector2);
+uint8_t board_is_position_get_attacked_by_rook(board_t*, side_t, vector2_t);
 
 #endif

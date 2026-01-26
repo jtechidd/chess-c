@@ -5,10 +5,10 @@
 #include "../board.h"
 #include "../utils.h"
 
-const Vector2 KING_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+const vector2_t KING_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
 
-King* king_new(PieceId piece_id, Side side, Vector2 position) {
-    King* king = (King*)malloc(sizeof(King));
+king_t* king_new(piece_id_t piece_id, side_t side, vector2_t position) {
+    king_t* king = (king_t*)malloc(sizeof(king_t));
 
     // Set piece fields
     king->piece.id = piece_id;
@@ -16,47 +16,43 @@ King* king_new(PieceId piece_id, Side side, Vector2 position) {
     king->piece.type = PIECE_TYPE_KING;
     king->piece.position = position;
     king->piece.is_captured = 0;
+    king->piece.moving_count = 0;
 
     // Set functions
     king->piece.piece_get_positional_moves = king_get_positional_moves;
     king->piece.piece_free = king_free;
 
-    // Set fields
-    king->has_been_moved = 0;
-
     return king;
 }
 
-King* king_clone(King* king_src) {
-    King* king = king_new(king_src->piece.id, king_src->piece.side, king_src->piece.position);
+king_t* king_clone(king_t* king_src) {
+    king_t* king = king_new(king_src->piece.id, king_src->piece.side, king_src->piece.position);
 
     // Set piece fields
     king->piece.is_captured = king_src->piece.is_captured;
-
-    // Set fields
-    king->has_been_moved = king_src->has_been_moved;
+    king->piece.moving_count = king_src->piece.moving_count;
 
     return king;
 }
 
-King* king_cast(Piece* piece) {
+king_t* king_cast(piece_t* piece) {
     if (piece && piece->type == PIECE_TYPE_KING) {
-        return (King*)piece;
+        return (king_t*)piece;
     }
     return NULL;
 }
 
-MoveArray* king_get_positional_moves(Piece* piece, Board* board) {
-    King* king;
-    MoveArray* move_array = move_array_new();
+move_array_t* king_get_positional_moves(piece_t* piece, board_t* board) {
+    king_t* king;
+    move_array_t* move_array = move_array_new();
 
     if (!(king = king_cast(piece))) {
         return move_array;
     }
 
     for (size_t k = 0; k < KING_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = KING_DIRECTIONS[k];
-        Vector2 position_to = vector2_add2(king->piece.position, direction);
+        vector2_t direction = KING_DIRECTIONS[k];
+        vector2_t position_to = vector2_add2(king->piece.position, direction);
         if (!is_position_in_boundary(position_to)) {
             continue;
         }
@@ -64,7 +60,7 @@ MoveArray* king_get_positional_moves(Piece* piece, Board* board) {
             move_array_add(move_array, move_new_moving_piece(king->piece.id, position_to));
             continue;
         }
-        Piece* piece = board_get_piece_by_position(board, position_to);
+        piece_t* piece = board_get_piece_by_position(board, position_to);
         if (piece_is_opposite(&king->piece, piece)) {
             move_array_add(move_array, move_new_taking_piece(king->piece.id, position_to, piece->id));
         }
@@ -72,26 +68,26 @@ MoveArray* king_get_positional_moves(Piece* piece, Board* board) {
     return move_array;
 }
 
-void king_free(Piece* piece) {
-    King* king;
+void king_free(piece_t* piece) {
+    king_t* king;
     if (!(king = king_cast(piece))) {
         return;
     }
     free(king);
 }
 
-uint8_t board_is_position_get_attacked_by_king(Board* board, Side side, Vector2 position) {
+uint8_t board_is_position_get_attacked_by_king(board_t* board, side_t side, vector2_t position) {
     for (size_t k = 0; k < KING_TOTAL_DIRECTIONS; k++) {
-        Vector2 direction = KING_DIRECTIONS[k];
-        Vector2 position_to = vector2_add2(position, direction);
+        vector2_t direction = KING_DIRECTIONS[k];
+        vector2_t position_to = vector2_add2(position, direction);
         if (!is_position_in_boundary(position_to)) {
             continue;
         }
         if (!board_has_piece_on_position(board, position_to)) {
             continue;
         }
-        Piece* piece = board_get_piece_by_position(board, position_to);
-        King* king;
+        piece_t* piece = board_get_piece_by_position(board, position_to);
+        king_t* king;
         if (!(king = king_cast(piece))) {
             continue;
         }

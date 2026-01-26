@@ -3,21 +3,21 @@
 
 #include <stdint.h>
 
-typedef enum Side : uint8_t {
+typedef enum side_t : uint8_t {
     SIDE_WHITE,
     SIDE_BLACK,
-} Side;
+} side_t;
 
-typedef enum PieceType : uint8_t {
+typedef enum piece_type_t : uint8_t {
     PIECE_TYPE_ROOK,
     PIECE_TYPE_KNIGHT,
     PIECE_TYPE_BISHOP,
     PIECE_TYPE_QUEEN,
     PIECE_TYPE_KING,
     PIECE_TYPE_PAWN
-} PieceType;
+} piece_type_t;
 
-typedef enum PieceId : uint8_t {
+typedef enum piece_id_t : uint8_t {
     PIECE_ID_BLACK_ROOK_QUEEN_SIDE,
     PIECE_ID_BLACK_KNIGHT_QUEEN_SIDE,
     PIECE_ID_BLACK_BISHOP_QUEEN_SIDE,
@@ -50,18 +50,18 @@ typedef enum PieceId : uint8_t {
     PIECE_ID_WHITE_PAWN_6,
     PIECE_ID_WHITE_PAWN_7,
     PIECE_ID_WHITE_PAWN_8,
-} PieceId;
+} piece_id_t;
 
-typedef enum MoveFlags : uint8_t {
+typedef enum move_flags_t : uint8_t {
     MOVE_FLAGS_HAS_MOVING_PIECE = 1 << 0,
     MOVE_FLAGS_HAS_TAKING_PIECE = 1 << 1,
     MOVE_FLAGS_HAS_PROMOTION = 1 << 2,
     MOVE_FLAGS_HAS_CASTLING = 1 << 3,
-} MoveFlags;
+} move_flags_t;
 
-typedef enum MoveCastlingType : uint8_t {
+typedef enum move_castling_type_t : uint8_t {
     MOVE_CASTLING_TYPE_KING_SIDE,
     MOVE_CASTLING_TYPE_QUEEN_SIDE
-} MoveCastlingType;
+} move_castling_type_t;
 
 #endif

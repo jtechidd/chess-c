@@ -4,28 +4,28 @@
 #include "../enums.h"
 #include "../vector2.h"
 
-typedef struct Move {
-    MoveFlags flags;
+typedef struct move_t {
+    move_flags_t flags;
 
-    PieceId piece_id;
-    Vector2 position_to;
+    piece_id_t piece_id;
+    vector2_t position_to;
 
-    PieceId take_piece_id;
+    piece_id_t take_piece_id;
 
-    PieceType promote_to;
+    piece_type_t promote_to;
 
-    MoveCastlingType castling_type;
-} Move;
+    move_castling_type_t castling_type;
+} move_t;
 
-Move* move_new();
-Move* move_clone(Move*);
-Move* move_new_moving_piece(PieceId, Vector2);
-Move* move_new_taking_piece(PieceId, Vector2, PieceId);
-Move* move_new_castling(MoveCastlingType);
-void move_with_moving_piece(Move*, PieceId, Vector2);
-void move_with_taking_piece(Move*, PieceId);
-void move_with_promotion(Move*, PieceType);
-void move_debug(Move*);
-void move_free(Move*);
+move_t* move_new();
+move_t* move_clone(move_t*);
+move_t* move_new_moving_piece(piece_id_t, vector2_t);
+move_t* move_new_taking_piece(piece_id_t, vector2_t, piece_id_t);
+move_t* move_new_castling(move_castling_type_t);
+void move_with_moving_piece(move_t*, piece_id_t, vector2_t);
+void move_with_taking_piece(move_t*, piece_id_t);
+void move_with_promotion(move_t*, piece_type_t);
+void move_debug(move_t*);
+void move_free(move_t*);
 
 #endif
