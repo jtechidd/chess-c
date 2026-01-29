@@ -130,7 +130,13 @@ uint8_t board_can_take_position(board_t *board, piece_t *piece, vector2_t positi
 
 move_array_t *board_get_moves(board_t *board, side_t side) {
   piece_id_t piece_id_start, piece_id_end;
-  get_all_piece_ids_range_by_side(side, &piece_id_start, &piece_id_end);
+  if (side == SIDE_WHITE) {
+    piece_id_start = PIECE_ID_WHITE_ROOK_1;
+    piece_id_end = PIECE_ID_WHITE_PAWN_8;
+  } else if (side == SIDE_BLACK) {
+    piece_id_start = PIECE_ID_BLACK_ROOK_1;
+    piece_id_end = PIECE_ID_BLACK_PAWN_8;
+  }
 
   move_array_t *all_moves = move_array_new();
   for (piece_id_t pieceid = piece_id_start; pieceid <= piece_id_end; pieceid++) {
@@ -199,19 +205,22 @@ uint8_t board_is_position_get_attacked(board_t *board, side_t side, vector2_t po
   return 0;
 }
 
-uint8_t board_is_position_safe_to_move_to(board_t* board, side_t side, vector2_t position) {
+uint8_t board_is_position_safe_to_move_to(board_t *board, side_t side, vector2_t position) {
   return !board_has_piece_on_position(board, position) && !board_is_position_get_attacked(board, side, position);
 }
 
 uint8_t board_is_king_get_attacked(board_t *board, side_t side) {
-  piece_id_t king_piece_id = get_king_piece_id_by_side(side);
+  piece_id_t king_piece_id;
+  if (side == SIDE_WHITE) {
+    king_piece_id = PIECE_ID_WHITE_KING;
+  } else if (side == SIDE_BLACK) {
+    king_piece_id = PIECE_ID_BLACK_KING;
+  }
   piece_t *king_piece = board_get_piece_by_id(board, king_piece_id);
-
   king_t *king;
   if (!(king = king_cast(king_piece))) {
     return 0;
   }
-
   return board_is_position_get_attacked(board, king->piece.side, king->piece.position);
 }
 
