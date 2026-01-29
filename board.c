@@ -199,6 +199,10 @@ uint8_t board_is_position_get_attacked(board_t *board, side_t side, vector2_t po
   return 0;
 }
 
+uint8_t board_is_position_safe_to_move_to(board_t* board, side_t side, vector2_t position) {
+  return !board_has_piece_on_position(board, position) && !board_is_position_get_attacked(board, side, position);
+}
+
 uint8_t board_is_king_get_attacked(board_t *board, side_t side) {
   piece_id_t king_piece_id = get_king_piece_id_by_side(side);
   piece_t *king_piece = board_get_piece_by_id(board, king_piece_id);

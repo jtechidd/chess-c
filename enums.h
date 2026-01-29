@@ -1,5 +1,5 @@
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef ENUMS_H
+#define ENUMS_H
 
 #include <stdint.h>
 
@@ -8,12 +8,14 @@ typedef enum side_t : uint8_t {
   SIDE_BLACK,
 } side_t;
 
-typedef enum piece_type_t : uint8_t { PIECE_TYPE_ROOK,
-                                      PIECE_TYPE_KNIGHT,
-                                      PIECE_TYPE_BISHOP,
-                                      PIECE_TYPE_QUEEN,
-                                      PIECE_TYPE_KING,
-                                      PIECE_TYPE_PAWN } piece_type_t;
+typedef enum piece_type_t : uint8_t {
+  PIECE_TYPE_ROOK,
+  PIECE_TYPE_KNIGHT,
+  PIECE_TYPE_BISHOP,
+  PIECE_TYPE_QUEEN,
+  PIECE_TYPE_KING,
+  PIECE_TYPE_PAWN
+} piece_type_t;
 
 typedef enum piece_id_t : uint8_t {
   PIECE_ID_BLACK_ROOK_1,
@@ -58,7 +60,9 @@ typedef enum move_flags_t : uint8_t {
   MOVE_FLAGS_HAS_CASTLING = 1 << 3,
 } move_flags_t;
 
-typedef enum move_castling_type_t : uint8_t { MOVE_CASTLING_TYPE_KING_SIDE,
-                                              MOVE_CASTLING_TYPE_QUEEN_SIDE } move_castling_type_t;
+typedef enum move_castling_type_t : uint8_t {
+  MOVE_CASTLING_TYPE_KING_SIDE,
+  MOVE_CASTLING_TYPE_QUEEN_SIDE
+} move_castling_type_t;
 
 #endif

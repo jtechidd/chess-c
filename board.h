@@ -7,6 +7,7 @@
 #include "enums.h"
 #include "move/move.h"
 #include "pieces/piece.h"
+#include "vector2.h"
 
 #define BOARD_WIDTH 8
 #define BOARD_HEIGHT 8
@@ -27,6 +28,8 @@ piece_t *board_get_piece_by_id(board_t *, piece_id_t);
 piece_t *board_get_piece_by_position(board_t *, vector2_t);
 uint8_t board_has_piece_on_position(board_t *, vector2_t);
 uint8_t board_can_take_position(board_t *, piece_t *, vector2_t);
+uint8_t board_is_position_get_attacked(board_t *, side_t, vector2_t);
+uint8_t board_is_position_safe_to_move_to(board_t*, side_t, vector2_t);
 uint8_t board_is_king_get_attacked(board_t *, side_t);
 move_array_t *board_get_moves(board_t *, side_t);
 void board_apply_move(board_t *, move_t *);
