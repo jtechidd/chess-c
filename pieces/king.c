@@ -13,6 +13,8 @@ const vector2_t KING_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {
 
 void king_add_moves_positional(king_t *, board_t *, move_array_t *);
 void king_add_moves_castle(king_t *, board_t *, move_array_t *, move_castling_type_t);
+void king_free(piece_t *piece);
+move_array_t *king_get_moves(piece_t *piece, board_t *board);
 
 king_t *king_new(piece_id_t piece_id, side_t side, vector2_t position) {
   king_t *king = (king_t *)malloc(sizeof(king_t));

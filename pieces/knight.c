@@ -9,6 +9,9 @@
 #define KNIGHT_TOTAL_DIRECTIONS 8
 const vector2_t KNIGHT_DIRECTIONS[] = {{-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, -1}, {2, 1}, {-1, -2}, {1, -2}};
 
+move_array_t *knight_get_moves(piece_t *piece, board_t *board);
+void knight_free(piece_t *piece);
+
 knight_t *knight_new(piece_id_t piece_id, side_t side, vector2_t position) {
   knight_t *knight = (knight_t *)malloc(sizeof(knight_t));
 

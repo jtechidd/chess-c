@@ -14,6 +14,11 @@
 #include "pieces/rook.h"
 #include "utils.h"
 
+void board_register_pieces_new_game(board_t *board);
+void board_register_pieces_from_board(board_t *board_dst, board_t *board_src);
+void board_update_cells(board_t *board);
+void board_apply_move(board_t *board, move_t *move);
+
 board_t *board_new() {
   board_t *board = (board_t *)malloc(sizeof(board_t));
 

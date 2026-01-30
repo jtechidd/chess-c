@@ -9,6 +9,9 @@
 #define BISHOP_TOTAL_DIRECTIONS 4
 const vector2_t BISHOP_DIRECTIONS[] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
+move_array_t* bishop_get_moves(piece_t* piece, board_t* board);
+void bishop_free(piece_t* piece);
+
 bishop_t* bishop_new(piece_id_t piece_id, side_t side, vector2_t position) {
   bishop_t* bishop = (bishop_t*)malloc(sizeof(bishop_t));
 

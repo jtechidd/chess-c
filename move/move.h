@@ -14,7 +14,6 @@ typedef struct move_t {
   move_castling_type_t castling_type;
 } move_t;
 
-move_t *move_new();
 move_t *move_clone(move_t *);
 move_t *move_new_moving_piece(piece_id_t, vector2_t);
 move_t *move_new_taking_piece(piece_id_t, vector2_t, piece_id_t);

@@ -9,9 +9,6 @@ typedef struct queen_t {
 
 queen_t *queen_new(piece_id_t, side_t, vector2_t);
 queen_t *queen_clone(queen_t *);
-queen_t *queen_cast(piece_t *);
-move_array_t *queen_get_moves(piece_t *, board_t *);
-void queen_free(piece_t *);
 
 uint8_t board_is_position_get_attacked_by_queen(board_t *, side_t, vector2_t);
 

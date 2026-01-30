@@ -16,11 +16,13 @@ const vector2_t PAWN_UP_DIRECTIONS[] = {{-1, 0}, {-2, 0}};
 #define PAWN_TAKE_TOTAL_DIRECTIONS 2
 const vector2_t PAWN_TAKE_DIRECTIONS[] = {{-1, -1}, {-1, 1}};
 
+move_array_t *pawn_get_moves(piece_t *piece, board_t *board);
 void pawn_add_moves_up(pawn_t *, board_t *, move_array_t *);
 void pawn_add_moves_take(pawn_t *, board_t *, move_array_t *);
 void pawn_add_moves_en_passant(pawn_t *, board_t *, move_array_t *);
 void pawn_add_move(pawn_t *, move_array_t *, move_t *);
 void pawn_add_promotion_moves(move_array_t *, move_t *);
+void pawn_free(piece_t *piece);
 
 pawn_t *pawn_new(piece_id_t piece_id, side_t side, vector2_t position) {
   pawn_t *pawn = (pawn_t *)malloc(sizeof(pawn_t));

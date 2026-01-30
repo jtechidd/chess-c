@@ -9,6 +9,9 @@
 #define ROOK_TOTAL_DIRECTIONS 4
 const vector2_t ROOK_DIRECTIONS[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
+move_array_t *rook_get_moves(piece_t *piece, board_t *board);
+void rook_free(piece_t *piece);
+
 rook_t *rook_new(piece_id_t piece_id, side_t side, vector2_t position) {
   rook_t *rook = (rook_t *)malloc(sizeof(rook_t));
 

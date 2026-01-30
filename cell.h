@@ -9,4 +9,5 @@ typedef struct cell_t {
 } cell_t;
 
 cell_t cell_make(uint8_t has_piece, piece_id_t piece_id);
+
 #endif

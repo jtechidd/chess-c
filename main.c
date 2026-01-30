@@ -4,4 +4,5 @@
 int main(int argc, char *argv[]) {
   chess_t *chess = chess_new();
   board_debug(chess->board);
+  chess_free(chess);
 }

@@ -9,6 +9,9 @@
 #define QUEEN_TOTAL_DIRECTIONS 8
 const vector2_t QUEEN_DIRECTIONS[] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
 
+move_array_t *queen_get_moves(piece_t *piece, board_t *board);
+void queen_free(piece_t *piece);
+
 queen_t *queen_new(piece_id_t piece_id, side_t side, vector2_t position) {
   queen_t *queen = (queen_t *)malloc(sizeof(queen_t));
 
