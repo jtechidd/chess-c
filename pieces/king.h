@@ -3,6 +3,8 @@
 
 #include "piece.h"
 
+typedef struct move_t move_t;
+
 typedef struct king_t {
   piece_t piece;
 } king_t;

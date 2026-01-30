@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../move/move_array.h"
 #include "../utils.h"
 
 #define KNIGHT_TOTAL_DIRECTIONS 8

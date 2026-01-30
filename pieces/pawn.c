@@ -4,6 +4,7 @@
 
 #include "../board.h"
 #include "../move/move.h"
+#include "../move/move_array.h"
 #include "../utils.h"
 #include "bishop.h"
 #include "knight.h"

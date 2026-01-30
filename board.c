@@ -1,9 +1,11 @@
 #include "board.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "enums.h"
+#include "move/move_array.h"
 #include "pieces/bishop.h"
 #include "pieces/king.h"
 #include "pieces/knight.h"

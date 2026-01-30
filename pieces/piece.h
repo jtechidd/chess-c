@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 
-#include "../move/move_array.h"
+#include "../enums.h"
+#include "../vector2.h"
 
 typedef struct board_t board_t;
 typedef struct piece_t piece_t;
+typedef struct move_array_t move_array_t;
 
 typedef void (*piece_free_t)(struct piece_t *);
-typedef move_array_t *(*get_moves)(piece_t *, board_t *);
+typedef move_array_t *(*piece_get_moves_t)(piece_t *, board_t *);
 
 typedef struct piece_t {
   enum piece_id_t id;
@@ -21,7 +23,7 @@ typedef struct piece_t {
 
   // Virtual functions
   piece_free_t piece_free;
-  get_moves piece_get_moves;
+  piece_get_moves_t piece_get_moves;
 } piece_t;
 
 uint8_t piece_is_opposite(piece_t *, piece_t *);

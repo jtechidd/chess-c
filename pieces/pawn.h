@@ -3,6 +3,8 @@
 
 #include "piece.h"
 
+typedef struct move_t move_t;
+
 typedef struct pawn_t {
   piece_t piece;
   unsigned int can_get_en_passant : 1;
