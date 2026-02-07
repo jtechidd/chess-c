@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../errno.h"
 #include "../move/move_array.h"
 #include "../utils.h"
 
@@ -49,6 +50,7 @@ rook_t *rook_cast(piece_t *piece) {
 }
 
 move_array_t *rook_get_moves(piece_t *piece, board_t *board) {
+  int err;
   rook_t *rook;
   move_array_t *move_array = move_array_new();
 
@@ -69,7 +71,11 @@ move_array_t *rook_get_moves(piece_t *piece, board_t *board) {
                        move_new_moving_piece(rook->piece.id, position_to));
         continue;
       }
-      piece_t *piece = board_get_piece_by_position(board, position_to);
+      piece_t *piece;
+      if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+          CHESS_OK) {
+        // return err;
+      }
       if (piece_is_opposite(&rook->piece, piece)) {
         move_array_add(move_array, move_new_taking_piece(
                                        rook->piece.id, position_to, piece->id));
@@ -91,6 +97,7 @@ void rook_free(piece_t *piece) {
 
 bool board_is_position_being_attacked_by_rook(board_t *board, side_t side,
                                               vector2_t position) {
+  int err;
   for (size_t k = 0; k < ROOK_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = ROOK_DIRECTIONS[k];
     for (int scale = 1;; scale++) {
@@ -102,7 +109,11 @@ bool board_is_position_being_attacked_by_rook(board_t *board, side_t side,
       if (!board_has_piece_on_position(board, position_to)) {
         continue;
       }
-      piece_t *piece = board_get_piece_by_position(board, position_to);
+      piece_t *piece;
+      if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+          CHESS_OK) {
+        // return err;
+      }
       rook_t *rook;
       if (!(rook = rook_cast(piece))) {
         break;

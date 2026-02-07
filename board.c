@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "enums.h"
+#include "errno.h"
 #include "move/move_array.h"
 #include "pieces/bishop.h"
 #include "pieces/king.h"
@@ -19,13 +20,17 @@ void board_register_pieces_from_board(board_t *board_dst, board_t *board_src);
 void board_update_cells(board_t *board);
 void board_apply_move(board_t *board, move_t *move);
 
-board_t *board_new() {
+int board_new(board_t **board_out) {
   board_t *board = (board_t *)malloc(sizeof(board_t));
+  if (!board) {
+    return CHESS_ERROR_NO_MEMORY;
+  }
 
   board_register_pieces_new_game(board);
   board_update_cells(board);
 
-  return board;
+  *board_out = board;
+  return CHESS_OK;
 }
 
 board_t *board_clone(board_t *board_src) {
@@ -40,9 +45,13 @@ board_t *board_clone(board_t *board_src) {
 void board_clear_cells(board_t *b) { memset(b->cells, 0, sizeof(b->cells)); }
 
 void board_update_cells(board_t *board) {
+  int err;
   board_clear_cells(board);
   for (piece_id_t id = 0; id < TOTAL_PIECES; id++) {
-    piece_t *piece = board_get_piece_by_id(board, id);
+    piece_t *piece;
+    if ((err = board_get_piece_by_id(&piece, board, id)) != CHESS_OK) {
+      // return err;
+    }
     if (piece->is_captured) {
       continue;
     }
@@ -114,8 +123,13 @@ void board_register_pieces_new_game(board_t *board) {
 }
 
 void board_register_pieces_from_board(board_t *board_dst, board_t *board_src) {
+  int err;
+  piece_t *piece;
   for (piece_id_t piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
-    piece_t *piece = board_get_piece_by_id(board_src, piece_id);
+    if ((err = board_get_piece_by_id(&piece, board_src, piece_id)) !=
+        CHESS_OK) {
+      // return err;
+    }
     piece_t *new_piece;
     switch (piece->type) {
     case PIECE_TYPE_ROOK:
@@ -141,43 +155,61 @@ void board_register_pieces_from_board(board_t *board_dst, board_t *board_src) {
   }
 }
 
-void board_register_piece(board_t *board, piece_t *piece) {
+int board_register_piece(board_t *board, piece_t *piece) {
   board->pieces[piece->id] = piece;
+  return CHESS_OK;
 }
 
-piece_t *board_get_piece_by_id(board_t *board, piece_id_t piece_id) {
-  if (!is_piece_id_valid(piece_id)) {
-    return NULL;
+int board_get_piece_by_id(piece_t **piece_out, board_t *board,
+                          piece_id_t piece_id) {
+  if (!(piece_out && board && is_piece_id_valid(piece_id))) {
+    return CHESS_ERROR_INVALID_ARGS;
   }
-  return board->pieces[piece_id];
+  *piece_out = board->pieces[piece_id];
+  return CHESS_OK;
 }
 
-piece_t *board_get_piece_by_position(board_t *board, vector2_t position) {
-  if (!is_position_in_bound(position)) {
-    return NULL;
+int board_get_piece_by_position(piece_t **piece_out, board_t *board,
+                                vector2_t position) {
+  if (!(piece_out && board && is_position_in_bound(position))) {
+    return CHESS_ERROR_INVALID_ARGS;
   }
   cell_t cell = board->cells[position.i][position.j];
   if (!cell.has_piece) {
-    return NULL;
+    *piece_out = NULL;
+    return CHESS_OK;
   }
   piece_id_t piece_id = cell.piece_id;
   if (!is_piece_id_valid(piece_id)) {
-    return NULL;
+    return CHESS_ERROR_INVALID_STATE;
   }
-  return board->pieces[piece_id];
+  *piece_out = board->pieces[piece_id];
+  return CHESS_OK;
 }
 
 bool board_has_piece_on_position(board_t *board, vector2_t position) {
-  return board_get_piece_by_position(board, position) != NULL;
+  int err;
+  piece_t *piece;
+  if ((err = board_get_piece_by_position(&piece, board, position)) !=
+      CHESS_OK) {
+    // return err;
+  }
+  return piece != NULL;
 }
 
 bool board_can_take_position(board_t *board, piece_t *piece,
                              vector2_t position) {
-  piece_t *piece_on_position = board_get_piece_by_position(board, position);
+  int err;
+  piece_t *piece_on_position;
+  if ((err = board_get_piece_by_position(&piece_on_position, board,
+                                         position)) != CHESS_OK) {
+    // return err;
+  }
   return piece_on_position && piece_is_opposite(piece, piece_on_position);
 }
 
 move_array_t *board_get_moves(board_t *board, side_t side) {
+  int err;
   piece_id_t piece_id_start, piece_id_end;
   if (side == SIDE_WHITE) {
     piece_id_start = PIECE_ID_WHITE_ROOK_1;
@@ -186,11 +218,13 @@ move_array_t *board_get_moves(board_t *board, side_t side) {
     piece_id_start = PIECE_ID_BLACK_ROOK_1;
     piece_id_end = PIECE_ID_BLACK_PAWN_8;
   }
-
+  piece_t *piece;
   move_array_t *all_moves = move_array_new();
   for (piece_id_t pieceid = piece_id_start; pieceid <= piece_id_end;
        pieceid++) {
-    piece_t *piece = board_get_piece_by_id(board, pieceid);
+    if ((err = board_get_piece_by_id(&piece, board, pieceid)) != CHESS_OK) {
+      // return err;
+    }
     if (piece->is_captured) {
       continue;
     }
@@ -214,8 +248,12 @@ move_array_t *board_get_moves(board_t *board, side_t side) {
 }
 
 void board_apply_move(board_t *board, move_t *move) {
+  int err;
   piece_id_t piece_id = move->piece_id;
-  piece_t *piece = board_get_piece_by_id(board, piece_id);
+  piece_t *piece, *take_piece;
+  if ((err = board_get_piece_by_id(&piece, board, piece_id)) != CHESS_OK) {
+    // return err;
+  }
   if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
     pawn_flag_can_get_en_passant(piece, move);
 
@@ -224,7 +262,10 @@ void board_apply_move(board_t *board, move_t *move) {
   }
   if (move->flags & MOVE_FLAGS_HAS_TAKING_PIECE) {
     piece_id_t take_piece_id = move->take_piece_id;
-    piece_t *take_piece = board_get_piece_by_id(board, take_piece_id);
+    if ((err = board_get_piece_by_id(&take_piece, board, take_piece_id)) !=
+        CHESS_OK) {
+      // return err;
+    }
 
     take_piece->is_captured = 1;
   }
@@ -269,7 +310,12 @@ bool board_is_king_get_attacked(board_t *board, side_t side) {
   } else if (side == SIDE_BLACK) {
     king_piece_id = PIECE_ID_BLACK_KING;
   }
-  piece_t *king_piece = board_get_piece_by_id(board, king_piece_id);
+  int err;
+  piece_t *king_piece;
+  if ((err = board_get_piece_by_id(&king_piece, board, king_piece_id)) !=
+      CHESS_OK) {
+    // return err;
+  }
   king_t *king;
   if (!(king = king_cast(king_piece))) {
     return 0;
@@ -279,17 +325,26 @@ bool board_is_king_get_attacked(board_t *board, side_t side) {
 }
 
 void board_free(board_t *board) {
+  int err;
   for (piece_id_t piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
-    piece_t *piece = board_get_piece_by_id(board, piece_id);
+    piece_t *piece;
+    if ((err = board_get_piece_by_id(&piece, board, piece_id)) != CHESS_OK) {
+      // return err;
+    }
     piece->piece_free(piece);
   }
   free(board);
 }
 
 void board_debug(board_t *board) {
+  int err;
   for (size_t i = 0; i < BOARD_HEIGHT; i++) {
     for (size_t j = 0; j < BOARD_WIDTH; j++) {
-      piece_t *piece = board_get_piece_by_position(board, vector2_make(i, j));
+      piece_t *piece;
+      if ((err = board_get_piece_by_position(&piece, board,
+                                             vector2_make(i, j))) != CHESS_OK) {
+        // return err;
+      }
       if (!piece) {
         printf(".");
         continue;

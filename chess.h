@@ -10,7 +10,7 @@ typedef struct chess_t {
   board_t *board;
 } chess_t;
 
-chess_t *chess_new();
-void chess_free(chess_t *);
+int chess_new(chess_t **);
+int chess_free(chess_t *);
 
 #endif

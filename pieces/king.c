@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../errno.h"
 #include "../move/move_array.h"
 #include "../utils.h"
 #include "rook.h"
@@ -71,6 +72,7 @@ move_array_t *king_get_moves(piece_t *piece, board_t *board) {
 
 void king_add_moves_positional(king_t *king, board_t *board,
                                move_array_t *move_array) {
+  int err;
   for (size_t k = 0; k < KING_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = KING_DIRECTIONS[k];
     vector2_t position_to = vector2_add2(king->piece.position, direction);
@@ -82,7 +84,11 @@ void king_add_moves_positional(king_t *king, board_t *board,
                      move_new_moving_piece(king->piece.id, position_to));
       continue;
     }
-    piece_t *piece = board_get_piece_by_position(board, position_to);
+    piece_t *piece;
+    if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+        CHESS_OK) {
+      // return err;
+    }
     if (piece_is_opposite(&king->piece, piece)) {
       move_array_add(move_array, move_new_taking_piece(king->piece.id,
                                                        position_to, piece->id));
@@ -92,6 +98,7 @@ void king_add_moves_positional(king_t *king, board_t *board,
 
 rook_t *king_get_rook_to_castle_with(king_t *king, board_t *board,
                                      move_castling_type_t move_castling_type) {
+  int err;
   piece_id_t rook_piece_id;
   if (king->piece.side == SIDE_WHITE) {
     if (move_castling_type == MOVE_CASTLING_TYPE_KING_SIDE) {
@@ -107,7 +114,10 @@ rook_t *king_get_rook_to_castle_with(king_t *king, board_t *board,
     }
   }
   piece_t *piece_rook;
-  piece_rook = board_get_piece_by_id(board, rook_piece_id);
+  if ((err = board_get_piece_by_id(&piece_rook, board, rook_piece_id)) !=
+      CHESS_OK) {
+    // return err;
+  }
   rook_t *rook;
   if (!(rook = rook_cast(piece_rook))) {
     return NULL;
@@ -177,6 +187,7 @@ void king_free(piece_t *piece) {
 
 bool board_is_position_being_attacked_by_king(board_t *board, side_t side,
                                               vector2_t position) {
+  int err;
   for (size_t k = 0; k < KING_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = KING_DIRECTIONS[k];
     vector2_t position_to = vector2_add2(position, direction);
@@ -186,7 +197,11 @@ bool board_is_position_being_attacked_by_king(board_t *board, side_t side,
     if (!board_has_piece_on_position(board, position_to)) {
       continue;
     }
-    piece_t *piece = board_get_piece_by_position(board, position_to);
+    piece_t *piece;
+    if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+        CHESS_OK) {
+      // return err;
+    }
     king_t *king;
     if (!(king = king_cast(piece))) {
       continue;

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "../board.h"
+#include "../errno.h"
 #include "../move/move.h"
 #include "../move/move_array.h"
 #include "../utils.h"
@@ -110,6 +111,7 @@ void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
 
 void pawn_add_moves_take(pawn_t *pawn, board_t *board,
                          move_array_t *move_array) {
+  int err;
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -125,7 +127,10 @@ void pawn_add_moves_take(pawn_t *pawn, board_t *board,
     if (!board_can_take_position(board, &pawn->piece, position_to)) {
       continue;
     }
-    piece_t *take_piece = board_get_piece_by_position(board, position_to);
+    piece_t *take_piece;
+    if((err = board_get_piece_by_position(&take_piece, board, position_to)) != CHESS_OK) {
+      // return err;
+    }
     move_t *move =
         move_new_taking_piece(pawn->piece.id, position_to, take_piece->id);
     pawn_add_move(pawn, move_array, move);
@@ -134,6 +139,7 @@ void pawn_add_moves_take(pawn_t *pawn, board_t *board,
 
 void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
                                move_array_t *move_array) {
+  int err;
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -152,7 +158,11 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
     if (!is_position_in_bound(position_side_pawn)) {
       continue;
     }
-    piece_t *piece = board_get_piece_by_position(board, position_side_pawn);
+    piece_t *piece;
+    if ((err = board_get_piece_by_position(&piece, board,
+                                           position_side_pawn)) != CHESS_OK) {
+      // return err;
+    }
     pawn_t *side_pawn;
     if (!(side_pawn = pawn_cast(piece))) {
       return;
@@ -278,6 +288,7 @@ void pawn_free(piece_t *piece) {
 
 bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
                                               vector2_t position) {
+  int err;
   for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = PAWN_TAKE_DIRECTIONS[k];
     if (side == SIDE_BLACK) {
@@ -290,7 +301,11 @@ bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
     if (!board_has_piece_on_position(board, position_to)) {
       continue;
     }
-    piece_t *piece = board_get_piece_by_position(board, position_to);
+    piece_t *piece;
+    if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+        CHESS_OK) {
+      // return err;
+    }
     pawn_t *pawn;
     if (!(pawn = pawn_cast(piece))) {
       continue;
