@@ -85,8 +85,8 @@ void knight_free(piece_t *piece) {
   free(knight);
 }
 
-uint8_t board_is_position_get_attacked_by_knight(board_t *board, side_t side,
-                                                 vector2_t position) {
+uint8_t board_is_position_being_attacked_by_knight(board_t *board, side_t side,
+                                                   vector2_t position) {
   for (size_t k = 0; k < KNIGHT_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = KNIGHT_DIRECTIONS[k];
     vector2_t position_to = vector2_add2(position, direction);

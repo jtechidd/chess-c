@@ -239,16 +239,16 @@ void board_apply_move(board_t *board, move_t *move) {
 
 uint8_t board_is_position_get_attacked(board_t *board, side_t side,
                                        vector2_t position) {
-  board_is_position_get_attacked_by_piece_t check_fns[] = {
-      board_is_position_get_attacked_by_pawn,
-      board_is_position_get_attacked_by_rook,
-      board_is_position_get_attacked_by_knight,
-      board_is_position_get_attacked_by_bishop,
-      board_is_position_get_attacked_by_queen,
-      board_is_position_get_attacked_by_king,
+  board_is_position_being_attacked_by_piece_t *check_fns[] = {
+      board_is_position_being_attacked_by_pawn,
+      board_is_position_being_attacked_by_rook,
+      board_is_position_being_attacked_by_knight,
+      board_is_position_being_attacked_by_bishop,
+      board_is_position_being_attacked_by_queen,
+      board_is_position_being_attacked_by_king,
   };
   for (size_t i = 0; i < 6; i++) {
-    board_is_position_get_attacked_by_piece_t check_fn = check_fns[i];
+    board_is_position_being_attacked_by_piece_t *check_fn = check_fns[i];
     if (check_fn(board, side, position)) {
       return 1;
     }

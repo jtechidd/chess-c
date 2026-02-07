@@ -10,6 +10,7 @@ typedef struct knight_t {
 knight_t *knight_new(piece_id_t, side_t, vector2_t);
 knight_t *knight_clone(knight_t *);
 
-uint8_t board_is_position_get_attacked_by_knight(board_t *, side_t, vector2_t);
+board_is_position_being_attacked_by_piece_t
+    board_is_position_being_attacked_by_knight;
 
 #endif

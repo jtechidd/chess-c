@@ -90,8 +90,8 @@ void bishop_free(piece_t *piece) {
   free(bishop);
 }
 
-uint8_t board_is_position_get_attacked_by_bishop(board_t *board, side_t side,
-                                                 vector2_t position) {
+uint8_t board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
+                                                   vector2_t position) {
   for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = BISHOP_DIRECTIONS[k];
     for (uint8_t scale = 1;; scale++) {
