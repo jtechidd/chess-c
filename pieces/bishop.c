@@ -58,7 +58,7 @@ move_array_t *bishop_get_moves(piece_t *piece, board_t *board) {
 
   for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = BISHOP_DIRECTIONS[k];
-    for (uint8_t scale = 1;; scale++) {
+    for (int scale = 1;; scale++) {
       vector2_t position_to = vector2_add2(bishop->piece.position,
                                            vector2_scaled(direction, scale));
       if (!is_position_in_bound(position_to)) {
@@ -90,11 +90,11 @@ void bishop_free(piece_t *piece) {
   free(bishop);
 }
 
-uint8_t board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
-                                                   vector2_t position) {
+bool board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
+                                                vector2_t position) {
   for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = BISHOP_DIRECTIONS[k];
-    for (uint8_t scale = 1;; scale++) {
+    for (int scale = 1;; scale++) {
       vector2_t position_to =
           vector2_add2(position, vector2_scaled(direction, scale));
       if (!is_position_in_bound(position_to)) {

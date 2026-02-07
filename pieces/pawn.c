@@ -173,7 +173,7 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
 void pawn_add_move(pawn_t *pawn, move_array_t *move_array, move_t *move) {
   side_t side = pawn->piece.side;
 
-  uint8_t can_be_promoted = 0;
+  bool can_be_promoted = 0;
   if (side == SIDE_WHITE) {
     can_be_promoted = is_position_top(move->position_to);
   } else if (side == SIDE_BLACK) {
@@ -276,8 +276,8 @@ void pawn_free(piece_t *piece) {
   free(pawn);
 }
 
-uint8_t board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
-                                                 vector2_t position) {
+bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
+                                              vector2_t position) {
   for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = PAWN_TAKE_DIRECTIONS[k];
     if (side == SIDE_BLACK) {

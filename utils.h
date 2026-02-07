@@ -1,15 +1,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdint.h>
+#include <stdbool.h>
 
 #include "enums.h"
 #include "vector2.h"
 
-uint8_t is_piece_id_valid(piece_id_t);
-uint8_t is_position_in_bound(vector2_t);
-uint8_t is_position_top(vector2_t);
-uint8_t is_position_bottom(vector2_t);
-uint8_t is_opposite_side(side_t, side_t);
+bool is_piece_id_valid(piece_id_t);
+bool is_position_in_bound(vector2_t);
+bool is_position_top(vector2_t);
+bool is_position_bottom(vector2_t);
+bool is_opposite_side(side_t, side_t);
 
 #endif

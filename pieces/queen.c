@@ -59,7 +59,7 @@ move_array_t *queen_get_moves(piece_t *piece, board_t *board) {
 
   for (size_t k = 0; k < QUEEN_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = QUEEN_DIRECTIONS[k];
-    for (uint8_t scale = 1;; scale++) {
+    for (int scale = 1;; scale++) {
       vector2_t position_to =
           vector2_add2(queen->piece.position, vector2_scaled(direction, scale));
       if (!is_position_in_bound(position_to)) {
@@ -90,11 +90,11 @@ void queen_free(piece_t *piece) {
   free(queen);
 }
 
-uint8_t board_is_position_being_attacked_by_queen(board_t *board, side_t side,
-                                                vector2_t position) {
+bool board_is_position_being_attacked_by_queen(board_t *board, side_t side,
+                                               vector2_t position) {
   for (size_t k = 0; k < QUEEN_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = QUEEN_DIRECTIONS[k];
-    for (uint8_t scale = 1;; scale++) {
+    for (int scale = 1;; scale++) {
       vector2_t position_to =
           vector2_add2(position, vector2_scaled(direction, scale));
       if (!is_position_in_bound(position_to)) {

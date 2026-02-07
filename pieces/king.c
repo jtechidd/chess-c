@@ -128,7 +128,7 @@ void king_add_moves_castle(king_t *king, board_t *board,
   if (!(king->piece.moving_count == 0 && rook->piece.moving_count == 0)) {
     return;
   }
-  for (uint8_t j = 1; j <= 2; j++) {
+  for (int j = 1; j <= 2; j++) {
     vector2_t check_direction = vector2_make(0, j);
     if (move_castling_type == MOVE_CASTLING_TYPE_QUEEN_SIDE) {
       check_direction = vector2_hflip(check_direction);
@@ -175,8 +175,8 @@ void king_free(piece_t *piece) {
   free(king);
 }
 
-uint8_t board_is_position_being_attacked_by_king(board_t *board, side_t side,
-                                               vector2_t position) {
+bool board_is_position_being_attacked_by_king(board_t *board, side_t side,
+                                              vector2_t position) {
   for (size_t k = 0; k < KING_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = KING_DIRECTIONS[k];
     vector2_t position_to = vector2_add2(position, direction);

@@ -14,7 +14,7 @@ king_t *king_clone(king_t *);
 king_t *king_cast(piece_t *);
 void king_castle(piece_t *, move_t *, board_t *);
 
-board_is_position_being_attacked_by_piece_t
+board_is_position_being_attacked_by_piece_fn
     board_is_position_being_attacked_by_king;
 
 #endif

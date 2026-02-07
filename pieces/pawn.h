@@ -15,7 +15,7 @@ pawn_t *pawn_clone(pawn_t *);
 void pawn_flag_can_get_en_passant(piece_t *, move_t *);
 void pawn_promote(piece_t *, move_t *, board_t *);
 
-board_is_position_being_attacked_by_piece_t
+board_is_position_being_attacked_by_piece_fn
     board_is_position_being_attacked_by_pawn;
 
 #endif

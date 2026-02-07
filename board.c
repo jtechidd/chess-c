@@ -47,7 +47,7 @@ void board_update_cells(board_t *board) {
       continue;
     }
     board->cells[piece->position.i][piece->position.j] =
-        cell_make(1, piece->id);
+        cell_make(true, piece->id);
   }
 }
 
@@ -167,12 +167,12 @@ piece_t *board_get_piece_by_position(board_t *board, vector2_t position) {
   return board->pieces[piece_id];
 }
 
-uint8_t board_has_piece_on_position(board_t *board, vector2_t position) {
+bool board_has_piece_on_position(board_t *board, vector2_t position) {
   return board_get_piece_by_position(board, position) != NULL;
 }
 
-uint8_t board_can_take_position(board_t *board, piece_t *piece,
-                                vector2_t position) {
+bool board_can_take_position(board_t *board, piece_t *piece,
+                             vector2_t position) {
   piece_t *piece_on_position = board_get_piece_by_position(board, position);
   return piece_on_position && piece_is_opposite(piece, piece_on_position);
 }
@@ -237,9 +237,9 @@ void board_apply_move(board_t *board, move_t *move) {
   board_update_cells(board);
 }
 
-uint8_t board_is_position_get_attacked(board_t *board, side_t side,
-                                       vector2_t position) {
-  board_is_position_being_attacked_by_piece_t *check_fns[] = {
+bool board_is_position_get_attacked(board_t *board, side_t side,
+                                    vector2_t position) {
+  board_is_position_being_attacked_by_piece_fn *check_fns[] = {
       board_is_position_being_attacked_by_pawn,
       board_is_position_being_attacked_by_rook,
       board_is_position_being_attacked_by_knight,
@@ -248,7 +248,7 @@ uint8_t board_is_position_get_attacked(board_t *board, side_t side,
       board_is_position_being_attacked_by_king,
   };
   for (size_t i = 0; i < 6; i++) {
-    board_is_position_being_attacked_by_piece_t *check_fn = check_fns[i];
+    board_is_position_being_attacked_by_piece_fn *check_fn = check_fns[i];
     if (check_fn(board, side, position)) {
       return 1;
     }
@@ -256,13 +256,13 @@ uint8_t board_is_position_get_attacked(board_t *board, side_t side,
   return 0;
 }
 
-uint8_t board_is_position_safe_to_move_to(board_t *board, side_t side,
-                                          vector2_t position) {
+bool board_is_position_safe_to_move_to(board_t *board, side_t side,
+                                       vector2_t position) {
   return !board_has_piece_on_position(board, position) &&
          !board_is_position_get_attacked(board, side, position);
 }
 
-uint8_t board_is_king_get_attacked(board_t *board, side_t side) {
+bool board_is_king_get_attacked(board_t *board, side_t side) {
   piece_id_t king_piece_id;
   if (side == SIDE_WHITE) {
     king_piece_id = PIECE_ID_WHITE_KING;
