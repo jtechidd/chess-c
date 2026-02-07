@@ -66,13 +66,19 @@ move_array_t *bishop_get_moves(piece_t *piece, board_t *board) {
       if (!is_position_in_bound(position_to)) {
         break;
       }
-      if (!board_has_piece_on_position(board, position_to)) {
+      bool has_piece;
+      if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
+          CHESS_OK) {
+        // return err;
+      }
+      if (!has_piece) {
         move_array_add(move_array,
                        move_new_moving_piece(bishop->piece.id, position_to));
         continue;
       }
       piece_t *piece;
-      if((err = board_get_piece_by_position(&piece, board, position_to)) != CHESS_OK) {
+      if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
+          CHESS_OK) {
         // return err;
       }
       if (piece_is_opposite(&bishop->piece, piece)) {
@@ -106,7 +112,12 @@ bool board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
       if (!is_position_in_bound(position_to)) {
         break;
       }
-      if (!board_has_piece_on_position(board, position_to)) {
+      bool has_piece;
+      if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
+          CHESS_OK) {
+        // return err;
+      }
+      if (!has_piece) {
         continue;
       }
       piece_t *piece;

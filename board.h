@@ -23,7 +23,7 @@ int board_new(board_t **);
 int board_register_piece(board_t *, piece_t *);
 int board_get_piece_by_id(piece_t **, board_t *, piece_id_t);
 int board_get_piece_by_position(piece_t **, board_t *, vector2_t);
-bool board_has_piece_on_position(board_t *, vector2_t);
+int board_has_piece_on_position(bool*, board_t *, vector2_t);
 bool board_can_take_position(board_t *, piece_t *, vector2_t);
 bool board_is_position_safe_to_move_to(board_t *, side_t, vector2_t);
 bool board_is_king_get_attacked(board_t *, side_t);

@@ -187,14 +187,19 @@ int board_get_piece_by_position(piece_t **piece_out, board_t *board,
   return CHESS_OK;
 }
 
-bool board_has_piece_on_position(board_t *board, vector2_t position) {
+int board_has_piece_on_position(bool *has_piece_out, board_t *board,
+                                vector2_t position) {
+  if (!(has_piece_out && board && is_position_in_bound(position))) {
+    return CHESS_ERROR_INVALID_ARGS;
+  }
   int err;
   piece_t *piece;
   if ((err = board_get_piece_by_position(&piece, board, position)) !=
       CHESS_OK) {
-    // return err;
+    return err;
   }
-  return piece != NULL;
+  *has_piece_out = piece != NULL;
+  return CHESS_OK;
 }
 
 bool board_can_take_position(board_t *board, piece_t *piece,
@@ -299,8 +304,13 @@ bool board_is_position_get_attacked(board_t *board, side_t side,
 
 bool board_is_position_safe_to_move_to(board_t *board, side_t side,
                                        vector2_t position) {
-  return !board_has_piece_on_position(board, position) &&
-         !board_is_position_get_attacked(board, side, position);
+  int err;
+  bool has_piece;
+  if ((err = board_has_piece_on_position(&has_piece, board, position)) !=
+      CHESS_OK) {
+    // return err;
+  }
+  return has_piece && !board_is_position_get_attacked(board, side, position);
 }
 
 bool board_is_king_get_attacked(board_t *board, side_t side) {

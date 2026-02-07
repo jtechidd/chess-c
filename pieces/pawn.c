@@ -83,6 +83,7 @@ move_array_t *pawn_get_moves(piece_t *piece, board_t *board) {
 }
 
 void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
+  int err;
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -101,7 +102,12 @@ void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
     if (!is_position_in_bound(position_to)) {
       break;
     }
-    if (board_has_piece_on_position(board, position_to)) {
+    bool has_piece;
+    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
+        CHESS_OK) {
+      // return err;
+    }
+    if (has_piece) {
       break;
     }
     move_t *move = move_new_moving_piece(pawn->piece.id, position_to);
@@ -128,7 +134,8 @@ void pawn_add_moves_take(pawn_t *pawn, board_t *board,
       continue;
     }
     piece_t *take_piece;
-    if((err = board_get_piece_by_position(&take_piece, board, position_to)) != CHESS_OK) {
+    if ((err = board_get_piece_by_position(&take_piece, board, position_to)) !=
+        CHESS_OK) {
       // return err;
     }
     move_t *move =
@@ -298,7 +305,12 @@ bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
     if (!is_position_in_bound(position_to)) {
       continue;
     }
-    if (!board_has_piece_on_position(board, position_to)) {
+    bool has_piece;
+    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
+        CHESS_OK) {
+      // return err;
+    }
+    if (!has_piece) {
       continue;
     }
     piece_t *piece;
