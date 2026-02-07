@@ -7,7 +7,8 @@
 #include "../utils.h"
 
 #define KNIGHT_TOTAL_DIRECTIONS 8
-const vector2_t KNIGHT_DIRECTIONS[] = {{-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, -1}, {2, 1}, {-1, -2}, {1, -2}};
+const vector2_t KNIGHT_DIRECTIONS[] = {{-2, -1}, {-2, 1}, {-1, 2},  {1, 2},
+                                       {2, -1},  {2, 1},  {-1, -2}, {1, -2}};
 
 move_array_t *knight_get_moves(piece_t *piece, board_t *board);
 void knight_free(piece_t *piece);
@@ -31,7 +32,8 @@ knight_t *knight_new(piece_id_t piece_id, side_t side, vector2_t position) {
 }
 
 knight_t *knight_clone(knight_t *knight_src) {
-  knight_t *knight = knight_new(knight_src->piece.id, knight_src->piece.side, knight_src->piece.position);
+  knight_t *knight = knight_new(knight_src->piece.id, knight_src->piece.side,
+                                knight_src->piece.position);
 
   // Set piece fields
   knight->piece.is_captured = knight->piece.is_captured;
@@ -62,12 +64,14 @@ move_array_t *knight_get_moves(piece_t *piece, board_t *board) {
       continue;
     }
     if (!board_has_piece_on_position(board, position_to)) {
-      move_array_add(move_array, move_new_moving_piece(knight->piece.id, position_to));
+      move_array_add(move_array,
+                     move_new_moving_piece(knight->piece.id, position_to));
       continue;
     }
     piece_t *piece = board_get_piece_by_position(board, position_to);
     if (piece_is_opposite(&knight->piece, piece)) {
-      move_array_add(move_array, move_new_taking_piece(knight->piece.id, position_to, piece->id));
+      move_array_add(move_array, move_new_taking_piece(knight->piece.id,
+                                                       position_to, piece->id));
     }
   }
   return move_array;
@@ -81,7 +85,8 @@ void knight_free(piece_t *piece) {
   free(knight);
 }
 
-uint8_t board_is_position_get_attacked_by_knight(board_t *board, side_t side, vector2_t position) {
+uint8_t board_is_position_get_attacked_by_knight(board_t *board, side_t side,
+                                                 vector2_t position) {
   for (size_t k = 0; k < KNIGHT_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = KNIGHT_DIRECTIONS[k];
     vector2_t position_to = vector2_add2(position, direction);

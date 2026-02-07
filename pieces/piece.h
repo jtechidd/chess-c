@@ -28,6 +28,7 @@ typedef struct piece_t {
 
 uint8_t piece_is_opposite(piece_t *, piece_t *);
 
-typedef uint8_t (*board_is_position_get_attacked_by_piece_t)(board_t *, side_t, vector2_t);
+typedef uint8_t (*board_is_position_get_attacked_by_piece_t)(board_t *, side_t,
+                                                             vector2_t);
 
 #endif
