@@ -47,8 +47,7 @@ pawn_t *pawn_new(piece_id_t piece_id, side_t side, vector2_t position) {
 }
 
 pawn_t *pawn_clone(pawn_t *pawn_src) {
-  pawn_t *pawn = pawn_new(pawn_src->piece.id, pawn_src->piece.side,
-                          pawn_src->piece.position);
+  pawn_t *pawn = pawn_new(pawn_src->piece.id, pawn_src->piece.side, pawn_src->piece.position);
 
   // Set piece fields
   pawn->piece.is_captured = pawn_src->piece.is_captured;
@@ -103,8 +102,7 @@ void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
       break;
     }
     bool has_piece_on_position;
-    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
-                                           position_to)) != CHESS_OK) {
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board, position_to)) != CHESS_OK) {
       // return err;
     }
     if (has_piece_on_position) {
@@ -115,8 +113,7 @@ void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
   }
 }
 
-void pawn_add_moves_take(pawn_t *pawn, board_t *board,
-                         move_array_t *move_array) {
+void pawn_add_moves_take(pawn_t *pawn, board_t *board, move_array_t *move_array) {
   int err;
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
@@ -131,26 +128,22 @@ void pawn_add_moves_take(pawn_t *pawn, board_t *board,
       continue;
     }
     bool can_take_position;
-    if ((err = board_can_take_position(&can_take_position, board, &pawn->piece,
-                                       position_to)) != CHESS_OK) {
+    if ((err = board_can_take_position(&can_take_position, board, &pawn->piece, position_to)) != CHESS_OK) {
       // return err;
     }
     if (!can_take_position) {
       continue;
     }
     piece_t *take_piece;
-    if ((err = board_get_piece_by_position(&take_piece, board, position_to)) !=
-        CHESS_OK) {
+    if ((err = board_get_piece_by_position(&take_piece, board, position_to)) != CHESS_OK) {
       // return err;
     }
-    move_t *move =
-        move_new_taking_piece(pawn->piece.id, position_to, take_piece->id);
+    move_t *move = move_new_taking_piece(pawn->piece.id, position_to, take_piece->id);
     pawn_add_move(pawn, move_array, move);
   }
 }
 
-void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
-                               move_array_t *move_array) {
+void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board, move_array_t *move_array) {
   int err;
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
@@ -162,8 +155,7 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
       direction = vector2_vflip(direction);
     }
     vector2_t position_to = vector2_add2(pawn->piece.position, direction);
-    vector2_t position_side_pawn =
-        vector2_add2(pawn->piece.position, direction_side_pawn);
+    vector2_t position_side_pawn = vector2_add2(pawn->piece.position, direction_side_pawn);
     if (!is_position_in_bound(position_to)) {
       continue;
     }
@@ -171,8 +163,7 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
       continue;
     }
     piece_t *piece;
-    if ((err = board_get_piece_by_position(&piece, board,
-                                           position_side_pawn)) != CHESS_OK) {
+    if ((err = board_get_piece_by_position(&piece, board, position_side_pawn)) != CHESS_OK) {
       // return err;
     }
     pawn_t *side_pawn;
@@ -185,8 +176,7 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
     if (!side_pawn->can_get_en_passant) {
       return;
     }
-    move_t *move =
-        move_new_taking_piece(pawn->piece.id, position_to, side_pawn->piece.id);
+    move_t *move = move_new_taking_piece(pawn->piece.id, position_to, side_pawn->piece.id);
     pawn_add_move(pawn, move_array, move);
   }
 }
@@ -256,8 +246,7 @@ void pawn_promote(piece_t *piece, move_t *move, board_t *board) {
   if (!(pawn = pawn_cast(piece))) {
     return;
   }
-  if (!((move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) &&
-        (move->flags & MOVE_FLAGS_HAS_PROMOTION))) {
+  if (!((move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) && (move->flags & MOVE_FLAGS_HAS_PROMOTION))) {
     return;
   }
   if (piece->id != move->piece_id) {
@@ -266,23 +255,16 @@ void pawn_promote(piece_t *piece, move_t *move, board_t *board) {
 
   switch (move->promote_to) {
   case PIECE_TYPE_QUEEN:
-    board_register_piece(
-        board,
-        (piece_t *)queen_new(pawn->piece.id, piece->side, move->position_to));
+    board_register_piece(board, (piece_t *)queen_new(pawn->piece.id, piece->side, move->position_to));
     break;
   case PIECE_TYPE_ROOK:
-    board_register_piece(board, (piece_t *)rook_new(pawn->piece.id, piece->side,
-                                                    move->position_to));
+    board_register_piece(board, (piece_t *)rook_new(pawn->piece.id, piece->side, move->position_to));
     break;
   case PIECE_TYPE_BISHOP:
-    board_register_piece(
-        board,
-        (piece_t *)bishop_new(pawn->piece.id, piece->side, move->position_to));
+    board_register_piece(board, (piece_t *)bishop_new(pawn->piece.id, piece->side, move->position_to));
     break;
   case PIECE_TYPE_KNIGHT:
-    board_register_piece(
-        board,
-        (piece_t *)knight_new(pawn->piece.id, piece->side, move->position_to));
+    board_register_piece(board, (piece_t *)knight_new(pawn->piece.id, piece->side, move->position_to));
     break;
   default:
     break;
@@ -298,8 +280,7 @@ void pawn_free(piece_t *piece) {
   free(pawn);
 }
 
-bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
-                                              vector2_t position) {
+bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side, vector2_t position) {
   int err;
   for (size_t k = 0; k < PAWN_TAKE_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = PAWN_TAKE_DIRECTIONS[k];
@@ -311,16 +292,14 @@ bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
       continue;
     }
     bool has_piece_on_position;
-    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
-                                           position_to)) != CHESS_OK) {
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board, position_to)) != CHESS_OK) {
       // return err;
     }
     if (!has_piece_on_position) {
       continue;
     }
     piece_t *piece;
-    if ((err = board_get_piece_by_position(&piece, board, position_to)) !=
-        CHESS_OK) {
+    if ((err = board_get_piece_by_position(&piece, board, position_to)) != CHESS_OK) {
       // return err;
     }
     pawn_t *pawn;

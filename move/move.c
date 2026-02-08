@@ -30,8 +30,7 @@ move_t *move_new_moving_piece(piece_id_t piece_id, vector2_t position_to) {
   return move;
 }
 
-move_t *move_new_taking_piece(piece_id_t piece_id, vector2_t position_to,
-                              piece_id_t take_piece_id) {
+move_t *move_new_taking_piece(piece_id_t piece_id, vector2_t position_to, piece_id_t take_piece_id) {
   move_t *move = move_new();
   move->flags = (MOVE_FLAGS_HAS_MOVING_PIECE | MOVE_FLAGS_HAS_TAKING_PIECE);
   move->piece_id = piece_id;
@@ -40,8 +39,7 @@ move_t *move_new_taking_piece(piece_id_t piece_id, vector2_t position_to,
   return move;
 }
 
-move_t *move_new_castling(piece_id_t piece_id,
-                          move_castling_type_t castling_type) {
+move_t *move_new_castling(piece_id_t piece_id, move_castling_type_t castling_type) {
   move_t *move = move_new();
   move->flags = MOVE_FLAGS_HAS_CASTLING;
   move->piece_id = piece_id;
@@ -56,8 +54,7 @@ void move_with_promotion(move_t *move, piece_type_t promote_to) {
 
 void move_debug(move_t *move) {
   if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
-    printf("piece_id=%d position=(%d,%d) ", move->piece_id, move->position_to.i,
-           move->position_to.j);
+    printf("piece_id=%d position=(%d,%d) ", move->piece_id, move->position_to.i, move->position_to.j);
   }
   if (move->flags & MOVE_FLAGS_HAS_TAKING_PIECE) {
     printf("take_piece_id=%d", move->take_piece_id);

@@ -12,9 +12,12 @@ typedef struct king_t {
 king_t *king_new(piece_id_t, side_t, vector2_t);
 king_t *king_clone(king_t *);
 king_t *king_cast(piece_t *);
+
+piece_new_fn king_piece_new;
+int king_piece_cast(king_t **, piece_t *);
+
 void king_castle(piece_t *, move_t *, board_t *);
 
-board_is_position_being_attacked_by_piece_fn
-    board_is_position_being_attacked_by_king;
+board_is_position_get_attacked_by_piece_fn board_is_position_get_attacked_by_king;
 
 #endif

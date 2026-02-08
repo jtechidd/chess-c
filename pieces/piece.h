@@ -10,8 +10,10 @@ typedef struct board_t board_t;
 typedef struct piece_t piece_t;
 typedef struct move_array_t move_array_t;
 
-typedef void piece_free_fn(struct piece_t *);
-typedef move_array_t *piece_get_moves_fn(piece_t *, board_t *);
+typedef int piece_new_fn(piece_t **, piece_id_t, side_t, vector2_t);
+typedef int piece_clone_fn(piece_t **, piece_t *);
+typedef int piece_get_moves_fn(move_array_t **, piece_t *, board_t *);
+typedef int piece_free_fn(piece_t *);
 
 typedef struct piece_t {
   enum piece_id_t id;
@@ -22,13 +24,14 @@ typedef struct piece_t {
   unsigned int moving_count;
 
   // Virtual functions
-  piece_free_fn *piece_free;
+  piece_clone_fn *piece_clone;
   piece_get_moves_fn *piece_get_moves;
+  piece_free_fn *piece_free;
 } piece_t;
 
 bool piece_is_opposite(piece_t *, piece_t *);
 
-typedef bool board_is_position_being_attacked_by_piece_fn(board_t *, side_t,
-                                                         vector2_t);
+typedef int board_is_position_get_attacked_by_piece_fn(bool *, board_t *, side_t, vector2_t);
+
 
 #endif

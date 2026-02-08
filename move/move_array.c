@@ -7,16 +7,14 @@ move_array_t *move_array_new() {
   move_array_t *move_array = (move_array_t *)malloc(sizeof(move_array_t));
   move_array->capacity = 8;
   move_array->length = 0;
-  move_array->array =
-      (move_t **)malloc(move_array->capacity * sizeof(move_t **));
+  move_array->array = (move_t **)malloc(move_array->capacity * sizeof(move_t **));
   return move_array;
 }
 
 void move_array_add(move_array_t *move_array, move_t *move) {
   if (move_array->length == move_array->capacity) {
     uint32_t new_capacity = move_array->capacity * 2;
-    move_t **reallocated_array =
-        (move_t **)realloc(move_array->array, new_capacity * sizeof(move_t **));
+    move_t **reallocated_array = (move_t **)realloc(move_array->array, new_capacity * sizeof(move_t **));
     if (!reallocated_array) {
       perror("Cannot realloc move array");
       exit(EXIT_FAILURE);
@@ -35,8 +33,7 @@ move_t *move_array_get_index(move_array_t *move_array, size_t index) {
   return move_array->array[index];
 }
 
-void move_array_set_index(move_array_t *move_array, size_t index,
-                          move_t *move) {
+void move_array_set_index(move_array_t *move_array, size_t index, move_t *move) {
   if (index >= move_array->length) {
     return;
   }
