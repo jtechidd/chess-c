@@ -4,6 +4,7 @@
 
 #include "../board.h"
 #include "../errno.h"
+#include "../move/move.h"
 #include "../move/move_array.h"
 #include "../utils.h"
 
@@ -65,12 +66,12 @@ move_array_t *knight_get_moves(piece_t *piece, board_t *board) {
     if (!is_position_in_bound(position_to)) {
       continue;
     }
-    bool has_piece;
-    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
-        CHESS_OK) {
+    bool has_piece_on_position;
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
+                                           position_to)) != CHESS_OK) {
       // return err;
     }
-    if (!has_piece) {
+    if (!has_piece_on_position) {
       move_array_add(move_array,
                      move_new_moving_piece(knight->piece.id, position_to));
       continue;
@@ -105,12 +106,12 @@ bool board_is_position_being_attacked_by_knight(board_t *board, side_t side,
     if (!is_position_in_bound(position_to)) {
       continue;
     }
-    bool has_piece;
-    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
-        CHESS_OK) {
+    bool has_piece_on_position;
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
+                                           position_to)) != CHESS_OK) {
       // return err;
     }
-    if (!has_piece) {
+    if (!has_piece_on_position) {
       continue;
     }
     piece_t *piece;

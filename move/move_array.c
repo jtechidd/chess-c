@@ -1,4 +1,5 @@
 #include "move_array.h"
+#include "move.h"
 
 #include <stdio.h>
 
@@ -34,6 +35,14 @@ move_t *move_array_get_index(move_array_t *move_array, size_t index) {
   return move_array->array[index];
 }
 
+void move_array_set_index(move_array_t *move_array, size_t index,
+                          move_t *move) {
+  if (index >= move_array->length) {
+    return;
+  }
+  move_array->array[index] = move;
+}
+
 void move_array_debug(move_array_t *move_array) {
   for (size_t i = 0; i < move_array->length; i++) {
     move_t *move = move_array_get_index(move_array, i);
@@ -41,8 +50,6 @@ void move_array_debug(move_array_t *move_array) {
     move_debug(move);
   }
 }
-
-void move_array_shallow_free(move_array_t *move_array) { free(move_array); }
 
 void move_array_free(move_array_t *move_array) {
   for (size_t i = 0; i < move_array->length; i++) {

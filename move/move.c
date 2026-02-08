@@ -19,6 +19,7 @@ move_t *move_clone(move_t *move) {
   cloned_move->take_piece_id = move->piece_id;
   cloned_move->promote_to = move->promote_to;
   cloned_move->castling_type = move->castling_type;
+  return cloned_move;
 }
 
 move_t *move_new_moving_piece(piece_id_t piece_id, vector2_t position_to) {
@@ -36,6 +37,7 @@ move_t *move_new_taking_piece(piece_id_t piece_id, vector2_t position_to,
   move->piece_id = piece_id;
   move->position_to = position_to;
   move->take_piece_id = take_piece_id;
+  return move;
 }
 
 move_t *move_new_castling(piece_id_t piece_id,

@@ -5,6 +5,7 @@
 
 #include "../board.h"
 #include "../errno.h"
+#include "../move/move.h"
 #include "../move/move_array.h"
 #include "../utils.h"
 #include "rook.h"
@@ -79,12 +80,12 @@ void king_add_moves_positional(king_t *king, board_t *board,
     if (!is_position_in_bound(position_to)) {
       continue;
     }
-    bool has_piece;
-    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
-        CHESS_OK) {
+    bool has_piece_on_position;
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
+                                           position_to)) != CHESS_OK) {
       // return err;
     }
-    if (!has_piece) {
+    if (!has_piece_on_position) {
       move_array_add(move_array,
                      move_new_moving_piece(king->piece.id, position_to));
       continue;
@@ -133,7 +134,13 @@ rook_t *king_get_rook_to_castle_with(king_t *king, board_t *board,
 void king_add_moves_castle(king_t *king, board_t *board,
                            move_array_t *move_array,
                            move_castling_type_t move_castling_type) {
-  if (board_is_king_get_attacked(board, king->piece.side)) {
+  int err;
+  bool is_king_get_attacked;
+  if ((err = board_is_king_get_attacked(&is_king_get_attacked, board,
+                                        king->piece.side))) {
+    // return err;
+  }
+  if (is_king_get_attacked) {
     return;
   }
   rook_t *rook = king_get_rook_to_castle_with(king, board, move_castling_type);
@@ -150,8 +157,13 @@ void king_add_moves_castle(king_t *king, board_t *board,
     }
     vector2_t check_position =
         vector2_add2(king->piece.position, check_direction);
-    if (!board_is_position_safe_to_move_to(board, king->piece.side,
-                                           check_position)) {
+    bool is_position_safe_to_move_to;
+    if ((err = board_is_position_safe_to_move_to(&is_position_safe_to_move_to,
+                                                 board, king->piece.side,
+                                                 check_position)) != CHESS_OK) {
+      // return err;
+    }
+    if (!is_position_safe_to_move_to) {
       return;
     }
   }
@@ -199,12 +211,12 @@ bool board_is_position_being_attacked_by_king(board_t *board, side_t side,
     if (!is_position_in_bound(position_to)) {
       continue;
     }
-    bool has_piece;
-    if ((err = board_has_piece_on_position(&has_piece, board, position_to)) !=
-        CHESS_OK) {
+    bool has_piece_on_position;
+    if ((err = board_has_piece_on_position(&has_piece_on_position, board,
+                                           position_to)) != CHESS_OK) {
       // return err;
     }
-    if (!has_piece) {
+    if (!has_piece_on_position) {
       continue;
     }
     piece_t *piece;

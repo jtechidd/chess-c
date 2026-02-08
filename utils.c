@@ -18,4 +18,6 @@ bool is_position_bottom(vector2_t position) {
   return position.i == BOARD_HEIGHT - 1;
 }
 
+bool is_side_valid(side_t side) { return side >= 0 && side < TOTAL_SIDES; }
+
 bool is_opposite_side(side_t side1, side_t side2) { return side1 != side2; }
