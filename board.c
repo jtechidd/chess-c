@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "enums.h"
-#include "errno.h"
 #include "move/move.h"
 #include "move/move_array.h"
 #include "pieces/bishop.h"
@@ -315,7 +314,11 @@ int board_apply_move(board_t *board, move_t *move) {
     return err;
   }
   if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
-    pawn_flag_can_get_en_passant(piece, move);
+    if ((err = pawn_piece_flag_can_get_en_passant(piece, move)) != CHESS_OK) {
+      if (err != CHESS_ERROR_CAST_PIECE_TYPE_MISMATCH) {
+        return err;
+      }
+    }
 
     piece->position = move->position_to;
     piece->moving_count++;
@@ -329,10 +332,16 @@ int board_apply_move(board_t *board, move_t *move) {
     take_piece->is_captured = 1;
   }
   if (move->flags & MOVE_FLAGS_HAS_PROMOTION) {
-    pawn_promote(piece, move, board);
+    if ((err = pawn_piece_promote(piece, move, board)) != CHESS_OK) {
+      if (err != CHESS_ERROR_CAST_PIECE_TYPE_MISMATCH) {
+        return err;
+      }
+    }
   }
   if (move->flags & MOVE_FLAGS_HAS_CASTLING) {
-    king_castle(piece, move, board);
+    if ((err = king_piece_castle(piece, move, board)) != CHESS_OK) {
+      return err;
+    }
   }
   if ((err = board_update_cells(board)) != CHESS_OK) {
     return err;
@@ -398,7 +407,7 @@ int board_is_king_get_attacked(bool *bool_out, board_t *board, side_t side) {
     return err;
   }
   king_t *king;
-  if (!(king = king_cast(king_piece))) {
+  if ((err = king_piece_cast(&king, king_piece)) != CHESS_OK) {
     return CHESS_ERROR_CAST_PIECE_TYPE_MISMATCH;
   }
   if ((err = board_is_position_get_attacked(bool_out, board, king->piece.side, king->piece.position)) != CHESS_OK) {

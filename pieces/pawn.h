@@ -10,11 +10,15 @@ typedef struct pawn_t {
   unsigned int can_get_en_passant : 1;
 } pawn_t;
 
-pawn_t *pawn_new(piece_id_t, side_t, vector2_t);
-pawn_t *pawn_clone(pawn_t *);
-void pawn_flag_can_get_en_passant(piece_t *, move_t *);
-void pawn_promote(piece_t *, move_t *, board_t *);
+#define WUR __attribute__((warn_unused_result()))
 
-board_is_position_being_attacked_by_piece_fn board_is_position_being_attacked_by_pawn;
+WUR piece_new_fn pawn_piece_new;
+WUR int pawn_piece_cast(pawn_t **, piece_t *);
+WUR int pawn_piece_flag_can_get_en_passant(piece_t *, move_t *);
+WUR int pawn_piece_promote(piece_t *, move_t *, board_t *);
+
+WUR board_is_position_get_attacked_by_piece_fn board_is_position_get_attacked_by_pawn;
+
+#undef WUR
 
 #endif

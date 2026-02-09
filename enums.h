@@ -68,4 +68,13 @@ typedef enum move_castling_type_t {
   TOTAL_MOVE_CASTLING_TYPES,
 } move_castling_type_t;
 
+typedef enum chess_error_t {
+  CHESS_OK = 0,
+  CHESS_ERROR = -1,
+  CHESS_ERROR_INVALID_ARGS = -2,
+  CHESS_ERROR_NO_MEMORY = -3,
+  CHESS_ERROR_CAST_PIECE_TYPE_MISMATCH = -4,
+  CHESS_ERROR_INVALID_STATE = -5
+} chess_error_t;
+
 #endif
