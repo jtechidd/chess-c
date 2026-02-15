@@ -279,10 +279,15 @@ int board_get_moves(move_array_t **move_array_out, board_t *board, side_t side) 
         move_array_add(all_moves, move);
         move_array_set_index(piece_moves, i, NULL);
       }
-      board_free(cloned_board);
+      if (cloned_board != NULL) {
+        board_free(cloned_board);
+        cloned_board = NULL;
+      }
     }
-
-    move_array_free(piece_moves);
+    if (piece_moves != NULL) {
+      move_array_free(piece_moves);
+      piece_moves = NULL;
+    }
   }
 
   *move_array_out = all_moves;

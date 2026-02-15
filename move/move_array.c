@@ -52,5 +52,9 @@ void move_array_free(move_array_t *move_array) {
   for (size_t i = 0; i < move_array->length; i++) {
     free(move_array_get_index(move_array, i));
   }
+  if (move_array->array != NULL) {
+    free(move_array->array);
+    move_array->array = NULL;
+  }
   free(move_array);
 }
