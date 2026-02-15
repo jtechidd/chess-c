@@ -1,21 +1,24 @@
-#include "bishop.h"
-
-#include <stdlib.h>
+#include <stddef.h>
 
 #include "../board.h"
 #include "../move/move_array.h"
 #include "../utils.h"
+#include "bishop.h"
+#include "piece.h"
 
 #define BISHOP_TOTAL_DIRECTIONS 4
 const vector2_t BISHOP_DIRECTIONS[] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
-move_array_t *bishop_get_moves(piece_t *piece, board_t *board);
-void bishop_free(piece_t *piece);
+static piece_clone_fn _bishop_piece_clone;
+static piece_get_moves_fn _bishop_piece_get_moves;
+static piece_free_fn _bishop_piece_free;
+static piece_get_wchar_fn _bishop_piece_get_wchar;
+bishop_t *bishop_piece_cast(piece_t *);
 
-bishop_t *bishop_new(piece_id_t piece_id, side_t side, vector2_t position) {
-  bishop_t *bishop = (bishop_t *)malloc(sizeof(bishop_t));
+static bishop_t *_bishop_new(piece_id_t piece_id, side_t side,
+                             vector2_t position) {
+  bishop_t *bishop = (bishop_t *)xmalloc(sizeof(bishop_t));
 
-  // Set piece fields
   bishop->piece.id = piece_id;
   bishop->piece.side = side;
   bishop->piece.type = PIECE_TYPE_BISHOP;
@@ -23,39 +26,28 @@ bishop_t *bishop_new(piece_id_t piece_id, side_t side, vector2_t position) {
   bishop->piece.is_captured = 0;
   bishop->piece.moving_count = 0;
 
-  // Set functions
-  bishop->piece.piece_free = bishop_free;
-  bishop->piece.piece_get_moves = bishop_get_moves;
+  bishop->piece.piece_clone = _bishop_piece_clone;
+  bishop->piece.piece_free = _bishop_piece_free;
+  bishop->piece.piece_get_moves = _bishop_piece_get_moves;
+  bishop->piece.piece_get_wchar = _bishop_piece_get_wchar;
 
   return bishop;
 }
 
-bishop_t *bishop_clone(bishop_t *bishop_src) {
-  bishop_t *bishop = bishop_new(bishop_src->piece.id, bishop_src->piece.side,
-                                bishop_src->piece.position);
+static piece_t *_bishop_piece_clone(piece_t *piece_src) {
+  bishop_t *bishop_src = bishop_piece_cast(piece_src);
+  bishop_t *bishop = _bishop_new(bishop_src->piece.id, bishop_src->piece.side,
+                                 bishop_src->piece.position);
 
-  // Set piece fields
   bishop->piece.is_captured = bishop_src->piece.is_captured;
   bishop->piece.moving_count = bishop_src->piece.moving_count;
 
-  return bishop;
+  return &bishop->piece;
 }
 
-bishop_t *bishop_cast(piece_t *piece) {
-  if (!(piece && piece->type == PIECE_TYPE_BISHOP)) {
-    return NULL;
-  }
-  return (bishop_t *)piece;
-}
-
-move_array_t *bishop_get_moves(piece_t *piece, board_t *board) {
-  bishop_t *bishop;
+static move_array_t *_bishop_piece_get_moves(piece_t *piece, board_t *board) {
+  bishop_t *bishop = bishop_piece_cast(piece);
   move_array_t *move_array = move_array_new();
-
-  if (!(bishop = bishop_cast(piece))) {
-    return move_array;
-  }
-
   for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = BISHOP_DIRECTIONS[k];
     for (int scale = 1;; scale++) {
@@ -82,16 +74,36 @@ move_array_t *bishop_get_moves(piece_t *piece, board_t *board) {
   return move_array;
 }
 
-void bishop_free(piece_t *piece) {
-  bishop_t *bishop;
-  if (!(bishop = bishop_cast(piece))) {
-    return;
-  }
-  free(bishop);
+static void _bishop_piece_free(piece_t *piece) {
+  bishop_t *bishop = bishop_piece_cast(piece);
+  xfree(bishop);
 }
 
-bool board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
-                                                vector2_t position) {
+static wchar_t _bishop_piece_get_wchar(piece_t *piece) {
+  bishop_t *bishop = bishop_piece_cast(piece);
+  if (bishop->piece.side == SIDE_WHITE) {
+    return 0x2657;
+  } else if (bishop->piece.side == SIDE_BLACK) {
+    return 0x265D;
+  }
+  return '\0';
+}
+
+piece_t *bishop_piece_new(piece_id_t piece_id, side_t side,
+                          vector2_t position) {
+  bishop_t *bishop = _bishop_new(piece_id, side, position);
+  return &bishop->piece;
+}
+
+bishop_t *bishop_piece_cast(piece_t *piece) {
+  if (piece->type != PIECE_TYPE_BISHOP) {
+    return NULL;
+  }
+  return (bishop_t *)(piece - offsetof(bishop_t, piece));
+}
+
+bool board_is_position_get_attacked_by_bishop(board_t *board, side_t side,
+                                              vector2_t position) {
   for (size_t k = 0; k < BISHOP_TOTAL_DIRECTIONS; k++) {
     vector2_t direction = BISHOP_DIRECTIONS[k];
     for (int scale = 1;; scale++) {
@@ -105,13 +117,13 @@ bool board_is_position_being_attacked_by_bishop(board_t *board, side_t side,
       }
       piece_t *piece = board_get_piece_by_position(board, position_to);
       bishop_t *bishop;
-      if (!(bishop = bishop_cast(piece))) {
+      if (!(bishop = bishop_piece_cast(piece))) {
         break;
       }
       if (is_opposite_side(side, bishop->piece.side)) {
-        return 1;
+        return true;
       }
     }
   }
-  return 0;
+  return false;
 }

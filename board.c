@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "enums.h"
 #include "move/move_array.h"
@@ -13,6 +14,7 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 #include "utils.h"
+#include "vector2.h"
 
 void board_register_pieces_new_game(board_t *board);
 void board_register_pieces_from_board(board_t *board_dst, board_t *board_src);
@@ -20,7 +22,7 @@ void board_update_cells(board_t *board);
 void board_apply_move(board_t *board, move_t *move);
 
 board_t *board_new() {
-  board_t *board = (board_t *)malloc(sizeof(board_t));
+  board_t *board = (board_t *)xmalloc(sizeof(board_t));
 
   board_register_pieces_new_game(board);
   board_update_cells(board);
@@ -29,12 +31,12 @@ board_t *board_new() {
 }
 
 board_t *board_clone(board_t *board_src) {
-  board_t *b = (board_t *)malloc(sizeof(board_t));
+  board_t *board = (board_t *)xmalloc(sizeof(board_t));
 
-  board_register_pieces_from_board(b, board_src);
-  board_update_cells(b);
+  board_register_pieces_from_board(board, board_src);
+  board_update_cells(board);
 
-  return b;
+  return board;
 }
 
 void board_clear_cells(board_t *b) { memset(b->cells, 0, sizeof(b->cells)); }
@@ -52,92 +54,53 @@ void board_update_cells(board_t *board) {
 }
 
 void board_register_pieces_new_game(board_t *board) {
-  board_register_piece(board,
-                       (piece_t *)rook_new(PIECE_ID_BLACK_ROOK_1, SIDE_BLACK,
-                                           vector2_make(0, 0)));
-  board_register_piece(board,
-                       (piece_t *)knight_new(PIECE_ID_BLACK_KNIGHT_1,
-                                             SIDE_BLACK, vector2_make(0, 1)));
-  board_register_piece(board,
-                       (piece_t *)bishop_new(PIECE_ID_BLACK_BISHOP_1,
-                                             SIDE_BLACK, vector2_make(0, 2)));
-  board_register_piece(board,
-                       (piece_t *)queen_new(PIECE_ID_BLACK_QUEEN, SIDE_BLACK,
-                                            vector2_make(0, 3)));
-  board_register_piece(
-      board,
-      (piece_t *)king_new(PIECE_ID_BLACK_KING, SIDE_BLACK, vector2_make(0, 4)));
-  board_register_piece(board,
-                       (piece_t *)bishop_new(PIECE_ID_BLACK_BISHOP_2,
-                                             SIDE_BLACK, vector2_make(0, 5)));
-  board_register_piece(board,
-                       (piece_t *)knight_new(PIECE_ID_BLACK_KNIGHT_2,
-                                             SIDE_BLACK, vector2_make(0, 6)));
-  board_register_piece(board,
-                       (piece_t *)rook_new(PIECE_ID_BLACK_ROOK_2, SIDE_BLACK,
-                                           vector2_make(0, 7)));
+  board_register_piece(board, rook_piece_new(PIECE_ID_BLACK_ROOK_1, SIDE_BLACK,
+                                             vector2_make(0, 0)));
+  board_register_piece(board, knight_piece_new(PIECE_ID_BLACK_KNIGHT_1,
+                                               SIDE_BLACK, vector2_make(0, 1)));
+  board_register_piece(board, bishop_piece_new(PIECE_ID_BLACK_BISHOP_1,
+                                               SIDE_BLACK, vector2_make(0, 2)));
+  board_register_piece(board, queen_piece_new(PIECE_ID_BLACK_QUEEN, SIDE_BLACK,
+                                              vector2_make(0, 3)));
+  board_register_piece(board, king_piece_new(PIECE_ID_BLACK_KING, SIDE_BLACK,
+                                             vector2_make(0, 4)));
+  board_register_piece(board, bishop_piece_new(PIECE_ID_BLACK_BISHOP_2,
+                                               SIDE_BLACK, vector2_make(0, 5)));
+  board_register_piece(board, knight_piece_new(PIECE_ID_BLACK_KNIGHT_2,
+                                               SIDE_BLACK, vector2_make(0, 6)));
+  board_register_piece(board, rook_piece_new(PIECE_ID_BLACK_ROOK_2, SIDE_BLACK,
+                                             vector2_make(0, 7)));
   for (piece_id_t j = 0; j < 8; j++) {
-    board_register_piece(board,
-                         (piece_t *)pawn_new(PIECE_ID_BLACK_PAWN_1 + j,
-                                             SIDE_BLACK, vector2_make(1, j)));
+    board_register_piece(board, pawn_piece_new(PIECE_ID_BLACK_PAWN_1 + j,
+                                               SIDE_BLACK, vector2_make(1, j)));
   }
-
-  board_register_piece(board,
-                       (piece_t *)rook_new(PIECE_ID_WHITE_ROOK_1, SIDE_WHITE,
-                                           vector2_make(7, 0)));
-  board_register_piece(board,
-                       (piece_t *)knight_new(PIECE_ID_WHITE_KNIGHT_1,
-                                             SIDE_WHITE, vector2_make(7, 1)));
-  board_register_piece(board,
-                       (piece_t *)bishop_new(PIECE_ID_WHITE_BISHOP_1,
-                                             SIDE_WHITE, vector2_make(7, 2)));
-  board_register_piece(board,
-                       (piece_t *)queen_new(PIECE_ID_WHITE_QUEEN, SIDE_WHITE,
-                                            vector2_make(7, 3)));
-  board_register_piece(
-      board,
-      (piece_t *)king_new(PIECE_ID_WHITE_KING, SIDE_WHITE, vector2_make(7, 4)));
-  board_register_piece(board,
-                       (piece_t *)bishop_new(PIECE_ID_WHITE_BISHOP_2,
-                                             SIDE_WHITE, vector2_make(7, 5)));
-  board_register_piece(board,
-                       (piece_t *)knight_new(PIECE_ID_WHITE_KNIGHT_2,
-                                             SIDE_WHITE, vector2_make(7, 6)));
-  board_register_piece(board,
-                       (piece_t *)rook_new(PIECE_ID_WHITE_ROOK_2, SIDE_WHITE,
-                                           vector2_make(7, 7)));
+  board_register_piece(board, rook_piece_new(PIECE_ID_WHITE_ROOK_1, SIDE_WHITE,
+                                             vector2_make(7, 0)));
+  board_register_piece(board, knight_piece_new(PIECE_ID_WHITE_KNIGHT_1,
+                                               SIDE_WHITE, vector2_make(7, 1)));
+  board_register_piece(board, bishop_piece_new(PIECE_ID_WHITE_BISHOP_1,
+                                               SIDE_WHITE, vector2_make(7, 2)));
+  board_register_piece(board, queen_piece_new(PIECE_ID_WHITE_QUEEN, SIDE_WHITE,
+                                              vector2_make(7, 3)));
+  board_register_piece(board, king_piece_new(PIECE_ID_WHITE_KING, SIDE_WHITE,
+                                             vector2_make(7, 4)));
+  board_register_piece(board, bishop_piece_new(PIECE_ID_WHITE_BISHOP_2,
+                                               SIDE_WHITE, vector2_make(7, 5)));
+  board_register_piece(board, knight_piece_new(PIECE_ID_WHITE_KNIGHT_2,
+                                               SIDE_WHITE, vector2_make(7, 6)));
+  board_register_piece(board, rook_piece_new(PIECE_ID_WHITE_ROOK_2, SIDE_WHITE,
+                                             vector2_make(7, 7)));
   for (piece_id_t j = 0; j < 8; j++) {
-    board_register_piece(board,
-                         (piece_t *)pawn_new(PIECE_ID_WHITE_PAWN_1 + j,
-                                             SIDE_WHITE, vector2_make(6, j)));
+    board_register_piece(board, pawn_piece_new(PIECE_ID_WHITE_PAWN_1 + j,
+                                               SIDE_WHITE, vector2_make(6, j)));
   }
 }
 
 void board_register_pieces_from_board(board_t *board_dst, board_t *board_src) {
   for (piece_id_t piece_id = 0; piece_id < TOTAL_PIECES; piece_id++) {
     piece_t *piece = board_get_piece_by_id(board_src, piece_id);
-    piece_t *new_piece;
-    switch (piece->type) {
-    case PIECE_TYPE_ROOK:
-      new_piece = (piece_t *)rook_clone((rook_t *)piece);
-      break;
-    case PIECE_TYPE_KNIGHT:
-      new_piece = (piece_t *)knight_clone((knight_t *)piece);
-      break;
-    case PIECE_TYPE_BISHOP:
-      new_piece = (piece_t *)bishop_clone((bishop_t *)piece);
-      break;
-    case PIECE_TYPE_QUEEN:
-      new_piece = (piece_t *)queen_clone((queen_t *)piece);
-      break;
-    case PIECE_TYPE_KING:
-      new_piece = (piece_t *)king_clone((king_t *)piece);
-      break;
-    case PIECE_TYPE_PAWN:
-      new_piece = (piece_t *)pawn_clone((pawn_t *)piece);
-      break;
-    }
-    board_register_piece(board_dst, new_piece);
+    piece_t *piece_cloned = piece->piece_clone(piece);
+    board_register_piece(board_dst, piece_cloned);
   }
 }
 
@@ -146,9 +109,6 @@ void board_register_piece(board_t *board, piece_t *piece) {
 }
 
 piece_t *board_get_piece_by_id(board_t *board, piece_id_t piece_id) {
-  if (!is_piece_id_valid(piece_id)) {
-    return NULL;
-  }
   return board->pieces[piece_id];
 }
 
@@ -161,9 +121,6 @@ piece_t *board_get_piece_by_position(board_t *board, vector2_t position) {
     return NULL;
   }
   piece_id_t piece_id = cell.piece_id;
-  if (!is_piece_id_valid(piece_id)) {
-    return NULL;
-  }
   return board->pieces[piece_id];
 }
 
@@ -188,9 +145,9 @@ move_array_t *board_get_moves(board_t *board, side_t side) {
   }
 
   move_array_t *all_moves = move_array_new();
-  for (piece_id_t pieceid = piece_id_start; pieceid <= piece_id_end;
-       pieceid++) {
-    piece_t *piece = board_get_piece_by_id(board, pieceid);
+  for (piece_id_t piece_id = piece_id_start; piece_id <= piece_id_end;
+       piece_id++) {
+    piece_t *piece = board_get_piece_by_id(board, piece_id);
     if (piece->is_captured) {
       continue;
     }
@@ -217,7 +174,9 @@ void board_apply_move(board_t *board, move_t *move) {
   piece_id_t piece_id = move->piece_id;
   piece_t *piece = board_get_piece_by_id(board, piece_id);
   if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
-    pawn_flag_can_get_en_passant(piece, move);
+    if (piece->type == PIECE_TYPE_PAWN) {
+      pawn_piece_flag_can_get_en_passant(piece, move);
+    }
 
     piece->position = move->position_to;
     piece->moving_count++;
@@ -226,34 +185,34 @@ void board_apply_move(board_t *board, move_t *move) {
     piece_id_t take_piece_id = move->take_piece_id;
     piece_t *take_piece = board_get_piece_by_id(board, take_piece_id);
 
-    take_piece->is_captured = 1;
+    take_piece->is_captured = true;
   }
   if (move->flags & MOVE_FLAGS_HAS_PROMOTION) {
-    pawn_promote(piece, move, board);
+    pawn_piece_promote(piece, move, board);
   }
   if (move->flags & MOVE_FLAGS_HAS_CASTLING) {
-    king_castle(piece, move, board);
+    king_piece_castle(piece, move, board);
   }
   board_update_cells(board);
 }
 
 bool board_is_position_get_attacked(board_t *board, side_t side,
                                     vector2_t position) {
-  board_is_position_being_attacked_by_piece_fn *check_fns[] = {
+  board_is_position_get_attacked_by_piece_fn *check_fns[] = {
       board_is_position_being_attacked_by_pawn,
-      board_is_position_being_attacked_by_rook,
-      board_is_position_being_attacked_by_knight,
-      board_is_position_being_attacked_by_bishop,
-      board_is_position_being_attacked_by_queen,
+      board_is_position_get_attacked_by_rook,
+      board_is_position_get_attacked_by_knight,
+      board_is_position_get_attacked_by_bishop,
+      board_is_position_get_attacked_by_queen,
       board_is_position_being_attacked_by_king,
   };
   for (size_t i = 0; i < 6; i++) {
-    board_is_position_being_attacked_by_piece_fn *check_fn = check_fns[i];
+    board_is_position_get_attacked_by_piece_fn *check_fn = check_fns[i];
     if (check_fn(board, side, position)) {
-      return 1;
+      return true;
     }
   }
-  return 0;
+  return false;
 }
 
 bool board_is_position_safe_to_move_to(board_t *board, side_t side,
@@ -270,10 +229,7 @@ bool board_is_king_get_attacked(board_t *board, side_t side) {
     king_piece_id = PIECE_ID_BLACK_KING;
   }
   piece_t *king_piece = board_get_piece_by_id(board, king_piece_id);
-  king_t *king;
-  if (!(king = king_cast(king_piece))) {
-    return 0;
-  }
+  king_t *king = king_piece_cast(king_piece);
   return board_is_position_get_attacked(board, king->piece.side,
                                         king->piece.position);
 }
@@ -283,7 +239,7 @@ void board_free(board_t *board) {
     piece_t *piece = board_get_piece_by_id(board, piece_id);
     piece->piece_free(piece);
   }
-  free(board);
+  xfree(board);
 }
 
 void board_debug(board_t *board) {
@@ -291,30 +247,11 @@ void board_debug(board_t *board) {
     for (size_t j = 0; j < BOARD_WIDTH; j++) {
       piece_t *piece = board_get_piece_by_position(board, vector2_make(i, j));
       if (!piece) {
-        printf(".");
+        wprintf(L".");
         continue;
       }
-      switch (piece->type) {
-      case PIECE_TYPE_ROOK:
-        printf("r");
-        break;
-      case PIECE_TYPE_KNIGHT:
-        printf("k");
-        break;
-      case PIECE_TYPE_BISHOP:
-        printf("b");
-        break;
-      case PIECE_TYPE_QUEEN:
-        printf("q");
-        break;
-      case PIECE_TYPE_KING:
-        printf("K");
-        break;
-      case PIECE_TYPE_PAWN:
-        printf("p");
-        break;
-      }
+      wprintf(L"%lc", piece->piece_get_wchar(piece));
     }
-    printf("\n");
+    wprintf(L"\n");
   }
 }

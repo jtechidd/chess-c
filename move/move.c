@@ -1,16 +1,17 @@
+#include <stdio.h>
+#include <wchar.h>
+
+#include "../utils.h"
 #include "move.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
-move_t *move_new() {
-  move_t *move = (move_t *)malloc(sizeof(move_t));
+static move_t *move_new() {
+  move_t *move = (move_t *)xmalloc(sizeof(move_t));
   move->flags = 0;
   return move;
 }
 
 move_t *move_clone(move_t *move) {
-  move_t *cloned_move = (move_t *)malloc(sizeof(move_t));
+  move_t *cloned_move = move_new();
 
   cloned_move->flags = move->flags;
 
@@ -54,19 +55,20 @@ void move_with_promotion(move_t *move, piece_type_t promote_to) {
 
 void move_debug(move_t *move) {
   if (move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) {
-    printf("piece_id=%d position=(%d,%d) ", move->piece_id, move->position_to.i,
-           move->position_to.j);
+    wprintf(L"piece_id=%d position=(%d,%d) ", move->piece_id,
+            move->position_to.i, move->position_to.j);
   }
   if (move->flags & MOVE_FLAGS_HAS_TAKING_PIECE) {
-    printf("take_piece_id=%d", move->take_piece_id);
+    wprintf(L"take_piece_id=%d", move->take_piece_id);
   }
   if (move->flags & MOVE_FLAGS_HAS_PROMOTION) {
-    printf("promote_to=%d ", move->promote_to);
+    wprintf(L"promote_to=%d ", move->promote_to);
   }
   if (move->flags & MOVE_FLAGS_HAS_CASTLING) {
-    printf("piece_id=%d castling_type=%d", move->piece_id, move->castling_type);
+    wprintf(L"piece_id=%d castling_type=%d", move->piece_id,
+            move->castling_type);
   }
-  printf("\n");
+  wprintf(L"\n");
 }
 
-void move_free(move_t *move) { free(move); }
+void move_free(move_t *move) { xfree(move); }

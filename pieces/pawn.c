@@ -1,6 +1,6 @@
-#include "pawn.h"
 
-#include <stdlib.h>
+#include <assert.h>
+#include <stddef.h>
 
 #include "../board.h"
 #include "../move/move.h"
@@ -8,6 +8,8 @@
 #include "../utils.h"
 #include "bishop.h"
 #include "knight.h"
+#include "pawn.h"
+#include "piece.h"
 #include "queen.h"
 #include "rook.h"
 
@@ -16,72 +18,83 @@ const vector2_t PAWN_UP_DIRECTIONS[] = {{-1, 0}, {-2, 0}};
 #define PAWN_TAKE_TOTAL_DIRECTIONS 2
 const vector2_t PAWN_TAKE_DIRECTIONS[] = {{-1, -1}, {-1, 1}};
 
-move_array_t *pawn_get_moves(piece_t *piece, board_t *board);
-void pawn_add_moves_up(pawn_t *, board_t *, move_array_t *);
-void pawn_add_moves_take(pawn_t *, board_t *, move_array_t *);
-void pawn_add_moves_en_passant(pawn_t *, board_t *, move_array_t *);
-void pawn_add_move(pawn_t *, move_array_t *, move_t *);
-void pawn_add_promotion_moves(move_array_t *, move_t *);
-void pawn_free(piece_t *piece);
+static piece_clone_fn _pawn_piece_clone;
+static piece_get_moves_fn _pawn_piece_get_moves;
+static piece_free_fn _pawn_piece_free;
+static piece_get_wchar_fn _pawn_piece_get_wchar;
+pawn_t *pawn_piece_cast(piece_t *);
 
-pawn_t *pawn_new(piece_id_t piece_id, side_t side, vector2_t position) {
-  pawn_t *pawn = (pawn_t *)malloc(sizeof(pawn_t));
+static pawn_t *_pawn_new(piece_id_t piece_id, side_t side, vector2_t position) {
+  pawn_t *pawn = (pawn_t *)xmalloc(sizeof(pawn_t));
 
-  // Set piece fields
   pawn->piece.id = piece_id;
   pawn->piece.side = side;
   pawn->piece.type = PIECE_TYPE_PAWN;
   pawn->piece.position = position;
-  pawn->piece.is_captured = 0;
+  pawn->piece.is_captured = false;
   pawn->piece.moving_count = 0;
 
-  // Set functions
-  pawn->piece.piece_get_moves = pawn_get_moves;
-  pawn->piece.piece_free = pawn_free;
+  pawn->piece.piece_clone = _pawn_piece_clone;
+  pawn->piece.piece_get_moves = _pawn_piece_get_moves;
+  pawn->piece.piece_free = _pawn_piece_free;
+  pawn->piece.piece_get_wchar = _pawn_piece_get_wchar;
 
-  // Set fields
-  pawn->can_get_en_passant = 0;
+  pawn->can_get_en_passant = false;
 
   return pawn;
 }
 
-pawn_t *pawn_clone(pawn_t *pawn_src) {
-  pawn_t *pawn = pawn_new(pawn_src->piece.id, pawn_src->piece.side,
-                          pawn_src->piece.position);
+static piece_t *_pawn_piece_clone(piece_t *piece_src) {
+  pawn_t *pawn_src = pawn_piece_cast(piece_src);
+  pawn_t *pawn = _pawn_new(pawn_src->piece.id, pawn_src->piece.side,
+                           pawn_src->piece.position);
 
-  // Set piece fields
   pawn->piece.is_captured = pawn_src->piece.is_captured;
   pawn->piece.moving_count = pawn_src->piece.moving_count;
 
-  // Set fields
   pawn->can_get_en_passant = pawn_src->can_get_en_passant;
 
-  return pawn;
+  return &pawn->piece;
 }
 
-pawn_t *pawn_cast(piece_t *piece) {
-  if (!(piece && piece->type == PIECE_TYPE_PAWN)) {
-    return NULL;
+static void pawn_add_promotion_moves(move_array_t *move_array, move_t *move) {
+  move_t *cloned_move = move_clone(move);
+  move_with_promotion(cloned_move, PIECE_TYPE_QUEEN);
+  move_array_add(move_array, cloned_move);
+
+  cloned_move = move_clone(move);
+  move_with_promotion(cloned_move, PIECE_TYPE_ROOK);
+  move_array_add(move_array, cloned_move);
+
+  cloned_move = move_clone(move);
+  move_with_promotion(cloned_move, PIECE_TYPE_BISHOP);
+  move_array_add(move_array, cloned_move);
+
+  cloned_move = move_clone(move);
+  move_with_promotion(cloned_move, PIECE_TYPE_KNIGHT);
+  move_array_add(move_array, cloned_move);
+}
+
+static void _pawn_add_move(pawn_t *pawn, move_array_t *move_array,
+                           move_t *move) {
+  side_t side = pawn->piece.side;
+
+  bool can_be_promoted = false;
+  if (side == SIDE_WHITE) {
+    can_be_promoted = is_position_top(move->position_to);
+  } else if (side == SIDE_BLACK) {
+    can_be_promoted = is_position_bottom(move->position_to);
   }
-  return (pawn_t *)piece;
-}
 
-move_array_t *pawn_get_moves(piece_t *piece, board_t *board) {
-  pawn_t *pawn;
-  move_array_t *move_array = move_array_new();
-
-  if (!(pawn = pawn_cast(piece))) {
-    return move_array;
+  if (can_be_promoted) {
+    pawn_add_promotion_moves(move_array, move);
+  } else {
+    move_array_add(move_array, move);
   }
-
-  pawn_add_moves_up(pawn, board, move_array);
-  pawn_add_moves_take(pawn, board, move_array);
-  pawn_add_moves_en_passant(pawn, board, move_array);
-
-  return move_array;
 }
 
-void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
+static void _pawn_add_moves_up(pawn_t *pawn, board_t *board,
+                               move_array_t *move_array) {
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -104,12 +117,12 @@ void pawn_add_moves_up(pawn_t *pawn, board_t *board, move_array_t *move_array) {
       break;
     }
     move_t *move = move_new_moving_piece(pawn->piece.id, position_to);
-    pawn_add_move(pawn, move_array, move);
+    _pawn_add_move(pawn, move_array, move);
   }
 }
 
-void pawn_add_moves_take(pawn_t *pawn, board_t *board,
-                         move_array_t *move_array) {
+static void _pawn_add_moves_take(pawn_t *pawn, board_t *board,
+                                 move_array_t *move_array) {
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -128,12 +141,12 @@ void pawn_add_moves_take(pawn_t *pawn, board_t *board,
     piece_t *take_piece = board_get_piece_by_position(board, position_to);
     move_t *move =
         move_new_taking_piece(pawn->piece.id, position_to, take_piece->id);
-    pawn_add_move(pawn, move_array, move);
+    _pawn_add_move(pawn, move_array, move);
   }
 }
 
-void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
-                               move_array_t *move_array) {
+static void _pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
+                                       move_array_t *move_array) {
   side_t side = pawn->piece.side;
   vector2_t position = pawn->piece.position;
 
@@ -154,7 +167,7 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
     }
     piece_t *piece = board_get_piece_by_position(board, position_side_pawn);
     pawn_t *side_pawn;
-    if (!(side_pawn = pawn_cast(piece))) {
+    if (!(side_pawn = pawn_piece_cast(piece))) {
       return;
     }
     if (!piece_is_opposite(&pawn->piece, piece)) {
@@ -165,58 +178,51 @@ void pawn_add_moves_en_passant(pawn_t *pawn, board_t *board,
     }
     move_t *move =
         move_new_taking_piece(pawn->piece.id, position_to, side_pawn->piece.id);
-    pawn_add_move(pawn, move_array, move);
+    _pawn_add_move(pawn, move_array, move);
   }
 }
 
-// Relaying to add single move or to add promotion moves
-void pawn_add_move(pawn_t *pawn, move_array_t *move_array, move_t *move) {
-  side_t side = pawn->piece.side;
+static move_array_t *_pawn_piece_get_moves(piece_t *piece, board_t *board) {
+  pawn_t *pawn = pawn_piece_cast(piece);
+  move_array_t *move_array = move_array_new();
 
-  bool can_be_promoted = 0;
-  if (side == SIDE_WHITE) {
-    can_be_promoted = is_position_top(move->position_to);
-  } else if (side == SIDE_BLACK) {
-    can_be_promoted = is_position_bottom(move->position_to);
-  }
+  _pawn_add_moves_up(pawn, board, move_array);
+  _pawn_add_moves_take(pawn, board, move_array);
+  _pawn_add_moves_en_passant(pawn, board, move_array);
 
-  if (can_be_promoted) {
-    pawn_add_promotion_moves(move_array, move);
-  } else {
-    move_array_add(move_array, move);
-  }
+  return move_array;
 }
 
-// Clone move and configured with promotable piece, then add to array
-void pawn_add_promotion_moves(move_array_t *move_array, move_t *move) {
-  move_t *cloned_move = move_clone(move);
-  move_with_promotion(cloned_move, PIECE_TYPE_QUEEN);
-  move_array_add(move_array, cloned_move);
-
-  cloned_move = move_clone(move);
-  move_with_promotion(cloned_move, PIECE_TYPE_ROOK);
-  move_array_add(move_array, cloned_move);
-
-  cloned_move = move_clone(move);
-  move_with_promotion(cloned_move, PIECE_TYPE_BISHOP);
-  move_array_add(move_array, cloned_move);
-
-  cloned_move = move_clone(move);
-  move_with_promotion(cloned_move, PIECE_TYPE_KNIGHT);
-  move_array_add(move_array, cloned_move);
+static void _pawn_piece_free(piece_t *piece) {
+  pawn_t *pawn = pawn_piece_cast(piece);
+  xfree(pawn);
 }
 
-void pawn_flag_can_get_en_passant(piece_t *piece, move_t *move) {
-  pawn_t *pawn;
-  if (!(pawn = pawn_cast(piece))) {
-    return;
+static wchar_t _pawn_piece_get_wchar(piece_t *piece) {
+  pawn_t *pawn = pawn_piece_cast(piece);
+  if (pawn->piece.side == SIDE_WHITE) {
+    return 0x2659;
+  } else if (pawn->piece.side == SIDE_BLACK) {
+    return 0x265F;
   }
-  if (!(move->flags & MOVE_FLAGS_HAS_MOVING_PIECE)) {
-    return;
+  return '\0';
+}
+
+piece_t *pawn_piece_new(piece_id_t piece_id, side_t side, vector2_t position) {
+  pawn_t *pawn = _pawn_new(piece_id, side, position);
+  return &pawn->piece;
+}
+
+pawn_t *pawn_piece_cast(piece_t *piece) {
+  if (piece->type != PIECE_TYPE_PAWN) {
+    return NULL;
   }
-  if (pawn->piece.id != move->piece_id) {
-    return;
-  }
+  return (pawn_t *)(piece - offsetof(pawn_t, piece));
+}
+
+void pawn_piece_flag_can_get_en_passant(piece_t *piece, move_t *move) {
+  pawn_t *pawn = pawn_piece_cast(piece);
+  assert(pawn != NULL);
 
   if (pawn->piece.moving_count > 0) {
     if (pawn->can_get_en_passant) {
@@ -229,51 +235,31 @@ void pawn_flag_can_get_en_passant(piece_t *piece, move_t *move) {
   }
 }
 
-void pawn_promote(piece_t *piece, move_t *move, board_t *board) {
-  pawn_t *pawn;
-  if (!(pawn = pawn_cast(piece))) {
-    return;
-  }
-  if (!((move->flags & MOVE_FLAGS_HAS_MOVING_PIECE) &&
-        (move->flags & MOVE_FLAGS_HAS_PROMOTION))) {
-    return;
-  }
-  if (piece->id != move->piece_id) {
-    return;
-  }
+void pawn_piece_promote(piece_t *piece, move_t *move, board_t *board) {
+  pawn_t *pawn = pawn_piece_cast(piece);
+  assert(pawn != NULL);
 
   switch (move->promote_to) {
   case PIECE_TYPE_QUEEN:
     board_register_piece(
-        board,
-        (piece_t *)queen_new(pawn->piece.id, piece->side, move->position_to));
+        board, queen_piece_new(pawn->piece.id, piece->side, move->position_to));
     break;
   case PIECE_TYPE_ROOK:
-    board_register_piece(board, (piece_t *)rook_new(pawn->piece.id, piece->side,
-                                                    move->position_to));
+    board_register_piece(
+        board, rook_piece_new(pawn->piece.id, piece->side, move->position_to));
     break;
   case PIECE_TYPE_BISHOP:
-    board_register_piece(
-        board,
-        (piece_t *)bishop_new(pawn->piece.id, piece->side, move->position_to));
+    board_register_piece(board, bishop_piece_new(pawn->piece.id, piece->side,
+                                                 move->position_to));
     break;
   case PIECE_TYPE_KNIGHT:
-    board_register_piece(
-        board,
-        (piece_t *)knight_new(pawn->piece.id, piece->side, move->position_to));
+    board_register_piece(board, knight_piece_new(pawn->piece.id, piece->side,
+                                                 move->position_to));
     break;
   default:
     break;
   }
   piece->piece_free(piece);
-}
-
-void pawn_free(piece_t *piece) {
-  pawn_t *pawn;
-  if (!(pawn = pawn_cast(piece))) {
-    return;
-  }
-  free(pawn);
 }
 
 bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
@@ -292,7 +278,7 @@ bool board_is_position_being_attacked_by_pawn(board_t *board, side_t side,
     }
     piece_t *piece = board_get_piece_by_position(board, position_to);
     pawn_t *pawn;
-    if (!(pawn = pawn_cast(piece))) {
+    if (!(pawn = pawn_piece_cast(piece))) {
       continue;
     }
     if (is_opposite_side(side, pawn->piece.side)) {

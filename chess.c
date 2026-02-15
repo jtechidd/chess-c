@@ -1,11 +1,11 @@
+
+
 #include "chess.h"
-
-#include <stdlib.h>
-
 #include "board.h"
+#include "utils.h"
 
 chess_t *chess_new() {
-  chess_t *chess = (chess_t *)malloc(sizeof(chess_t));
+  chess_t *chess = (chess_t *)xmalloc(sizeof(chess_t));
   chess->turn = SIDE_WHITE;
   chess->board = board_new();
   return chess;
@@ -13,5 +13,5 @@ chess_t *chess_new() {
 
 void chess_free(chess_t *c) {
   board_free(c->board);
-  free(c);
+  xfree(c);
 }

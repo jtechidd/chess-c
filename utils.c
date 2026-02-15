@@ -1,11 +1,31 @@
 #include "utils.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
+
 #include "board.h"
 #include "enums.h"
 
-bool is_piece_id_valid(piece_id_t piece_id) {
-  return piece_id >= 0 && piece_id < TOTAL_PIECES;
+void *xmalloc(size_t size) {
+  void *ptr = malloc(size);
+  if (!ptr) {
+    fwprintf(stderr, L"Out of memory: malloc(%zu)\n", size);
+    exit(EXIT_FAILURE);
+  }
+  return ptr;
 }
+
+void *xrealloc(void *ptr, size_t size) {
+  void *new_ptr = realloc(ptr, size);
+  if (!new_ptr) {
+    fwprintf(stderr, L"Out of memory: realloc(%zu)\n", size);
+    exit(EXIT_FAILURE);
+  }
+  return new_ptr;
+}
+
+void xfree(void *ptr) { free(ptr); }
 
 bool is_position_in_bound(vector2_t position) {
   return position.i >= 0 && position.i < BOARD_HEIGHT && position.j >= 0 &&
