@@ -1,0 +1,2 @@
+add_executable(TestChessCore test_chess_core.c)
+target_link_libraries(TestChessCore PRIVATE ChessCore)
