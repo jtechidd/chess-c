@@ -7,7 +7,6 @@
 #include "core/piece_db.h"
 #include "core/vector2.h"
 
-
 typedef struct {
   CH_PieceId pieceId;
   bool hasPiece;
@@ -27,5 +26,7 @@ struct CH_Chess {
 CH_Piece *CH_Chess_GetPieceOnPosition(CH_Chess *chess, CH_Vector2 position);
 void CH_Chess_InitStandard(CH_Chess *chess);
 CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move);
+CH_Error CH_Chess_ApplyMoveLAN(CH_Chess *chess, const char *move);
+void CH_Chess_PrintBoard(CH_Chess *chess);
 
 #endif

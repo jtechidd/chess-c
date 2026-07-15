@@ -43,10 +43,4 @@ typedef enum : uint8_t {
 
 typedef struct CH_Chess CH_Chess;
 
-bool CH_IsValidFile(char file);
-bool CH_IsValidRank(char rank);
-int8_t CH_RankToVertPos(char rank);
-int8_t CH_FileToHorizPos(char file);
-CH_PieceType CH_CharToPieceType(char pieceChar);
-
 #endif

@@ -1,9 +1,9 @@
 #include "core/move.h"
-#include "core/common.h"
+#include "core/utils.h"
 
-CH_Error CH_Move_ParseLAN(CH_Move *move, char *notation) {
+CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation) {
   size_t len;
-  char *first, *last, *cur;
+  const char *first, *last, *cur;
   CH_PieceType pieceType;
   uint8_t vertPosFrom, horizPosFrom, vertPosTo, horizPosTo;
   CH_Move parsedMove;

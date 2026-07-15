@@ -12,6 +12,6 @@ typedef struct {
   CH_PieceType promoteTo;
 } CH_Move;
 
-CH_Error CH_Move_ParseLAN(CH_Move *move, char *notation);
+CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation);
 
 #endif

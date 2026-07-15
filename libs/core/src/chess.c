@@ -1,9 +1,12 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "core/chess.h"
 #include "core/common.h"
+#include "core/move.h"
 #include "core/piece.h"
 #include "core/piece_db.h"
+#include "core/utils.h"
 #include "core/vector2.h"
 
 static void CH_Cell_InitWithPiece(CH_Cell *cell, CH_Piece *piece) {
@@ -89,12 +92,14 @@ static void CH_Chess_UpdateBoard(CH_Chess *chess) {
   CH_Board_Clear(&chess->board);
   for (uint8_t i = 0; i < pieceDb->numPieces; i++) {
     CH_Piece *piece = CH_PieceDB_GetByIndex(pieceDb, i);
-    CH_Board_PlacePiece(board, piece);
+    if (!piece->isCaptured) {
+      CH_Board_PlacePiece(board, piece);
+    }
   }
 }
 
 CH_Piece *CH_Chess_GetPieceOnPosition(CH_Chess *chess, CH_Vector2 position) {
-  if (!CH_Vector2_IsPositionInBound(position)) {
+  if (!CH_IsPositionInBound(position)) {
     return NULL;
   }
   CH_Cell *cell = &chess->board.table[position.i][position.j];
@@ -110,6 +115,10 @@ CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move) {
   CH_Piece *takingPiece = NULL;
 
   // 1. Perform common move checking
+  if (!(CH_IsPositionInBound(move.positionFrom) &&
+        CH_IsPositionInBound(move.positionTo))) {
+    return CH_ERR_ILLEGAL_MOVE;
+  }
   if (piece == NULL) {
     return CH_ERR_ILLEGAL_MOVE;
   }
@@ -127,8 +136,13 @@ CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move) {
     if (piece->type != CH_PIECE_TYPE_PAWN && !takingPiece) {
       return CH_ERR_ILLEGAL_MOVE;
     }
+    if (takingPiece && takingPiece->side == piece->side) {
+      return CH_ERR_ILLEGAL_MOVE;
+    }
+  } else if (CH_Chess_GetPieceOnPosition(chess, move.positionTo)) {
+    return CH_ERR_ILLEGAL_MOVE;
   }
-  if (move.promoteTo != CH_EMPTY && move.pieceType != CH_PIECE_TYPE_PAWN) {
+  if (move.promoteTo != CH_EMPTY && piece->type != CH_PIECE_TYPE_PAWN) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
@@ -145,6 +159,9 @@ CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move) {
     assert(takingPiece != NULL);
     takingPiece->isCaptured = true;
   }
+  if (move.promoteTo != CH_EMPTY) {
+    piece->type = move.promoteTo;
+  }
 
   // 4. Update board
   CH_Chess_UpdateBoard(chess);
@@ -157,4 +174,44 @@ CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move) {
   }
 
   return CH_ERR_SUCCESS;
+}
+
+CH_Error CH_Chess_ApplyMoveLAN(CH_Chess *chess, const char *moveNotation) {
+  CH_Move move;
+  CH_Error error;
+
+  error = CH_Move_ParseLAN(&move, moveNotation);
+  if (error != CH_ERR_SUCCESS) {
+    return error;
+  }
+  error = CH_Chess_ApplyMove(chess, move);
+  if (error != CH_ERR_SUCCESS) {
+    return error;
+  }
+
+  return CH_ERR_SUCCESS;
+}
+
+void CH_Chess_PrintBoard(CH_Chess *chess) {
+  for (uint8_t i = 0; i < CH_BOARD_HEIGHT; i++) {
+    for (uint8_t j = 0; j < CH_BOARD_WIDTH; j++) {
+      CH_Piece *piece =
+          CH_Chess_GetPieceOnPosition(chess, CH_Vector2_Make(i, j));
+      if ((i + j) % 2 == 1) {
+        printf("\033[40m");
+      } else {
+        printf("\033[0m");
+      }
+      if (piece == NULL) {
+        putchar(' ');
+      } else {
+        if (piece->side == CH_SIDE_BLACK) {
+          printf("\033[90m");
+        }
+        putchar(CH_PieceTypeToChar(piece->type));
+      }
+      printf("\033[0m");
+    }
+    putchar('\n');
+  }
 }
