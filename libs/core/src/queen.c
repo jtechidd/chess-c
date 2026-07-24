@@ -22,7 +22,7 @@ static bool ch_queen_check_displacement(ch_vector2_t disp) {
 
 static ch_error_t ch_queen_validate_move(ch_piece_t *piece, ch_chess_t *chess,
                                          ch_move_t move,
-                                         ch_piece_t **taking_piece) {
+                                         ch_validate_move_out_t *out) {
   ch_vector2_t disp = ch_vector2_sub(move.position_to, move.position_from);
   if (!ch_queen_check_displacement(disp)) {
     return CH_ERR_ILLEGAL_MOVE;

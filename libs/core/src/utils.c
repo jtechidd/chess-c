@@ -59,7 +59,7 @@ char ch_piece_type_to_char(ch_piece_type_t type) {
   return CH_EMPTY;
 }
 
-bool ch_is_position_in_bound(ch_vector2_t pos) {
-  return pos.i >= 0 && pos.i < CH_BOARD_HEIGHT && pos.j >= 0 &&
-         pos.j < CH_BOARD_WIDTH;
+bool ch_is_position_in_bound(ch_vector2_t position) {
+  return position.i >= 0 && position.i < CH_BOARD_HEIGHT && position.j >= 0 &&
+         position.j < CH_BOARD_WIDTH;
 }

@@ -3,7 +3,7 @@
 #include "core/chess.h"
 #include "core/common.h"
 
-void test_pawn_invalid_double_step() {
+void test_pawn_up2_failed_repeat() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -12,7 +12,7 @@ void test_pawn_invalid_double_step() {
   assert(ch_chess_apply_move_lan(&chess, "e4e6") == CH_ERR_ILLEGAL_MOVE);
 }
 
-void test_pawn_step_up_occupied() {
+void test_pawn_up_failed_occupied() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -21,7 +21,7 @@ void test_pawn_step_up_occupied() {
   assert(ch_chess_apply_move_lan(&chess, "e4e5") == CH_ERR_ILLEGAL_MOVE);
 }
 
-void test_pawn_double_step_up_occupied() {
+void test_pawn_up2_failed_occupied() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -35,7 +35,7 @@ void test_pawn_double_step_up_occupied() {
   assert(ch_chess_apply_move_lan(&chess, "e2e4") == CH_ERR_ILLEGAL_MOVE);
 }
 
-void test_pawn_take() {
+void test_pawn_take_success() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -44,7 +44,7 @@ void test_pawn_take() {
   assert(ch_chess_apply_move_lan(&chess, "e4xd5") == CH_ERR_SUCCESS);
 }
 
-void test_pawn_invalid_take() {
+void test_pawn_take_failed() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -71,7 +71,7 @@ void test_pawn_enpassant_success() {
   assert(ch_chess_apply_move_lan(&chess, "e5xf6") == CH_ERR_SUCCESS);
 }
 
-void test_pawn_invalid_enpassant() {
+void test_pawn_enpassant_failed() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -82,7 +82,7 @@ void test_pawn_invalid_enpassant() {
   assert(ch_chess_apply_move_lan(&chess, "e5xd6") == CH_ERR_ILLEGAL_MOVE);
 }
 
-void test_pawn_invalid_enpassant2() {
+void test_pawn_enpassant_failed_do_later() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -111,7 +111,7 @@ void test_pawn_promotion() {
   assert(ch_chess_apply_move_lan(&chess, "g7xh8Q") == CH_ERR_SUCCESS);
 }
 
-void test_pawn_invalid_move() {
+void test_pawn_move_failed() {
   ch_chess_t chess;
 
   ch_chess_init_standard(&chess);
@@ -179,21 +179,43 @@ void test_knight() {
   assert(ch_chess_apply_move_lan(&chess, "Kf6d5") == CH_ERR_SUCCESS);
   assert(ch_chess_apply_move_lan(&chess, "Kc3d5") == CH_ERR_ILLEGAL_MOVE);
   assert(ch_chess_apply_move_lan(&chess, "Kc3xd5") == CH_ERR_SUCCESS);
+}
 
-  ch_chess_print_board(&chess);
+void test_queen() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1b3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1f3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "d2d4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "d7d5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d5") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1c3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1e3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1e1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "f7f5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Qd3a4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd3g4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd3b4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd3f4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd3xf5") == CH_ERR_SUCCESS);
 }
 
 int main(int argc, char *argv[]) {
-  test_pawn_invalid_double_step();
-  test_pawn_step_up_occupied();
-  test_pawn_double_step_up_occupied();
-  test_pawn_take();
-  test_pawn_invalid_take();
+  test_pawn_up2_failed_repeat();
+  test_pawn_up_failed_occupied();
+  test_pawn_up2_failed_occupied();
+  test_pawn_take_success();
+  test_pawn_take_failed();
   test_pawn_enpassant_success();
-  test_pawn_invalid_enpassant();
-  test_pawn_invalid_enpassant2();
+  test_pawn_enpassant_failed();
+  test_pawn_enpassant_failed_do_later();
   test_pawn_promotion();
-  test_pawn_invalid_move();
+  test_pawn_move_failed();
 
   test_rook();
   test_bishop();

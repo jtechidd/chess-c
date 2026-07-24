@@ -44,7 +44,7 @@ static bool ch_is_position_promotable(ch_vector2_t pos, ch_side_t side) {
 
 static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
                                         ch_move_t move,
-                                        ch_piece_t **takingPiece) {
+                                        ch_validate_move_out_t *out) {
   ch_vector2_t up = ch_vector2_make(-1, 0);
   ch_vector2_t up2 = ch_vector2_make(-2, 0);
   ch_vector2_t left = ch_vector2_make(0, -1);
@@ -68,7 +68,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
   ch_piece_t *en_passant_piece = NULL;
 
   if (move.is_taking) {
-    if (*takingPiece == NULL) {
+    if (out->piece_taking == NULL) {
       if (ch_vector2_equal(disp, up_left)) {
         en_passant_piece = ch_chess_get_piece_on_position(chess, pos_from_left);
       } else if (ch_vector2_equal(disp, up_right)) {
@@ -80,7 +80,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
       if (!ch_can_do_en_passant(chess, pawn, en_passant_piece)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      *takingPiece = en_passant_piece;
+      out->piece_taking = en_passant_piece;
     } else {
       if (!ch_vector2_equal(disp, up_left) &&
           !ch_vector2_equal(disp, up_right)) {

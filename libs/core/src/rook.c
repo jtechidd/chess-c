@@ -5,15 +5,10 @@
 
 static const ch_piece_methods_t CH_ROOK_METHODS;
 
-static ch_piece_data_t ch_piece_data_make_rook(ch_rook_type_t type) {
-  return (ch_piece_data_t){.rook = {.type = type}};
-}
-
 void ch_chess_spawn_rook(ch_chess_t *chess, ch_side_t side,
-                         ch_vector2_t position, ch_rook_type_t type) {
+                         ch_vector2_t position) {
   ch_chess_spawn_piece(chess, side, CH_PIECE_TYPE_ROOK, position,
-                                  ch_piece_data_make_rook(type),
-                                  &CH_ROOK_METHODS);
+                       ch_piece_data_make_empty(), &CH_ROOK_METHODS);
 }
 
 static bool CH_Rook_CheckDisplacement(ch_vector2_t disp) {
@@ -22,7 +17,7 @@ static bool CH_Rook_CheckDisplacement(ch_vector2_t disp) {
 
 static ch_error_t CH_Rook_ValidateMove(ch_piece_t *piece, ch_chess_t *chess,
                                        ch_move_t move,
-                                       ch_piece_t **takingPiece) {
+                                       ch_validate_move_out_t *out) {
   ch_vector2_t disp = ch_vector2_sub(move.position_to, move.position_from);
   if (!CH_Rook_CheckDisplacement(disp)) {
     return false;

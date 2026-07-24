@@ -19,8 +19,5 @@ ch_piece_t *ch_piece_db_get_by_id(ch_piece_db_t *pieceDb, ch_piece_id_t id);
 ch_piece_t *ch_piece_db_get_by_index(ch_piece_db_t *pieceDB, uint8_t idx);
 ch_piece_t *ch_piece_db_get_king_by_side(ch_piece_db_t *pieceDb,
                                          ch_side_t side);
-ch_piece_t *ch_piece_db_get_rook_by_side_and_type(ch_piece_db_t *pieceDb,
-                                                  ch_side_t side,
-                                                  ch_rook_type_t type);
 
 #endif
