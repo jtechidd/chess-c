@@ -7,41 +7,34 @@
 
 typedef union {
   struct {
-    CH_RookType type;
+    ch_rook_type_t type;
   } rook;
-} CH_PieceData;
+} ch_piece_data_t;
 
-typedef struct CH_PieceMethods CH_PieceMethods;
+typedef struct _ch_piece_methods_t ch_piece_methods_t;
 
 typedef struct {
-  CH_PieceId id;
-  CH_Side side;
-  CH_PieceType type;
-  CH_Vector2 position;
-  uint8_t moveCount;
-  bool isCaptured;
-  CH_PieceData data;
-  const CH_PieceMethods *methods;
-} CH_Piece;
+  ch_piece_id_t id;
+  ch_side_t side;
+  ch_piece_type_t type;
+  ch_vector2_t position;
+  uint8_t move_count;
+  uint8_t latest_move_turn_num;
+  bool is_captured;
+  ch_piece_data_t data;
+  const ch_piece_methods_t *methods;
+} ch_piece_t;
 
-struct CH_PieceMethods {
-  CH_Error (*validateMove)(CH_Piece *piece, CH_Chess *chess, CH_Move move,
-                           CH_Piece **takingPiece);
+struct _ch_piece_methods_t {
+  ch_error_t (*validate_move)(ch_piece_t *piece, ch_chess_t *chess,
+                              ch_move_t move, ch_piece_t **taking_piece);
 };
 
-extern const CH_PieceMethods CH_ROOK_METHODS;
-extern const CH_PieceMethods CH_KNIGHT_METHODS;
-extern const CH_PieceMethods CH_BISHOP_METHODS;
-extern const CH_PieceMethods CH_QUEEN_METHODS;
-extern const CH_PieceMethods CH_KING_METHODS;
-extern const CH_PieceMethods CH_PAWN_METHODS;
-
-void CH_Piece_Init(CH_Piece *piece, CH_PieceId id, CH_Side side,
-                   CH_PieceType type, CH_Vector2 position, CH_PieceData data,
-                   const CH_PieceMethods *methods);
-CH_Error CH_Piece_ValidateMove(CH_Piece *piece, CH_Chess *chess, CH_Move move,
-                               CH_Piece **takingPiece);
-CH_PieceData CH_PieceData_MakeEmpty();
-CH_PieceData CH_PieceData_MakeRook(CH_RookType type);
+void ch_piece_init(ch_piece_t *piece, ch_piece_id_t id, ch_side_t side,
+                   ch_piece_type_t type, ch_vector2_t position,
+                   ch_piece_data_t data, const ch_piece_methods_t *methods);
+ch_error_t ch_piece_validate_move(ch_piece_t *piece, ch_chess_t *chess,
+                                  ch_move_t move, ch_piece_t **taking_piece);
+ch_piece_data_t ch_piece_data_make_empty();
 
 #endif

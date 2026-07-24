@@ -17,15 +17,15 @@
 #define CH_NUM_SIDES 2
 #define CH_NUM_ROOK_TYPES 2
 
-typedef uint8_t CH_PieceId;
+typedef uint8_t ch_piece_id_t;
 
 typedef enum : uint8_t {
   CH_ERR_SUCCESS = 0,
   CH_ERR_INVALID_NOTATION,
   CH_ERR_ILLEGAL_MOVE
-} CH_Error;
+} ch_error_t;
 
-typedef enum : uint8_t { CH_SIDE_WHITE = 1, CH_SIDE_BLACK } CH_Side;
+typedef enum : uint8_t { CH_SIDE_WHITE = 1, CH_SIDE_BLACK } ch_side_t;
 
 typedef enum : uint8_t {
   CH_PIECE_TYPE_PAWN = 1,
@@ -34,13 +34,13 @@ typedef enum : uint8_t {
   CH_PIECE_TYPE_BISHOP,
   CH_PIECE_TYPE_QUEEN,
   CH_PIECE_TYPE_KING,
-} CH_PieceType;
+} ch_piece_type_t;
 
 typedef enum : uint8_t {
   CH_ROOK_TYPE_QUEEN_SIDE = 1,
   CH_ROOK_TYPE_KING_SIDE
-} CH_RookType;
+} ch_rook_type_t;
 
-typedef struct CH_Chess CH_Chess;
+typedef struct _ch_chess_t ch_chess_t;
 
 #endif

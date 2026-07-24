@@ -1,14 +1,14 @@
 #include "core/move.h"
 #include "core/utils.h"
 
-CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation) {
+ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation) {
   size_t len;
   const char *first, *last, *cur;
-  CH_PieceType pieceType;
-  uint8_t vertPosFrom, horizPosFrom, vertPosTo, horizPosTo;
-  CH_Move parsedMove;
+  ch_piece_type_t piece_type;
+  uint8_t v_pos_from, h_pos_from, v_pos_to, h_pos_to;
+  ch_move_t parsed_move;
 
-  memset(&parsedMove, 0, sizeof(CH_Move));
+  memset(&parsed_move, 0, sizeof(ch_move_t));
 
   len = strlen(notation);
   if (len < 2) {
@@ -20,7 +20,7 @@ CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation) {
   cur = first;
 
   // 1. Parse piece type
-  if ((pieceType = CH_CharToPieceType(*cur)) != CH_EMPTY) {
+  if ((piece_type = ch_char_to_piece_type(*cur)) != CH_EMPTY) {
     cur++;
   }
 
@@ -29,21 +29,21 @@ CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation) {
   }
 
   // 2. Parse position from
-  if (cur <= last && CH_IsValidFile(*cur)) {
-    horizPosFrom = CH_FileToHorizPos(*cur);
+  if (cur <= last && ch_is_valid_file(*cur)) {
+    h_pos_from = ch_file_to_horizontal_position(*cur);
     cur++;
   } else {
     return CH_ERR_INVALID_NOTATION;
   }
 
-  if (cur <= last && CH_IsValidRank(*cur)) {
-    vertPosFrom = CH_RankToVertPos(*cur);
+  if (cur <= last && ch_is_valid_rank(*cur)) {
+    v_pos_from = ch_rank_to_vertical_position(*cur);
     cur++;
   } else {
     return CH_ERR_INVALID_NOTATION;
   }
 
-  parsedMove.positionFrom = CH_Vector2_Make(vertPosFrom, horizPosFrom);
+  parsed_move.position_from = ch_vector2_make(v_pos_from, h_pos_from);
 
   // 3. Parse action
   if (cur > last) {
@@ -51,36 +51,36 @@ CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation) {
   }
 
   if (*cur == 'x') {
-    parsedMove.isTaking = true;
+    parsed_move.is_taking = true;
     cur++;
   } else {
-    parsedMove.isTaking = false;
+    parsed_move.is_taking = false;
   }
 
   // 4. Parse position to
-  if (cur <= last && CH_IsValidFile(*cur)) {
-    horizPosTo = CH_FileToHorizPos(*cur);
+  if (cur <= last && ch_is_valid_file(*cur)) {
+    h_pos_to = ch_file_to_horizontal_position(*cur);
     cur++;
   } else {
     return CH_ERR_INVALID_NOTATION;
   }
 
-  if (cur <= last && CH_IsValidRank(*cur)) {
-    vertPosTo = CH_RankToVertPos(*cur);
+  if (cur <= last && ch_is_valid_rank(*cur)) {
+    v_pos_to = ch_rank_to_vertical_position(*cur);
     cur++;
   } else {
     return CH_ERR_INVALID_NOTATION;
   }
 
-  parsedMove.positionTo = CH_Vector2_Make(vertPosTo, horizPosTo);
+  parsed_move.position_to = ch_vector2_make(v_pos_to, h_pos_to);
 
   // 5. Parse promotion
   if (cur <= last &&
-      (parsedMove.promoteTo = CH_CharToPieceType(*cur)) != CH_EMPTY) {
+      (parsed_move.promote_to = ch_char_to_piece_type(*cur)) != CH_EMPTY) {
     cur++;
   }
 
-  memcpy(move, &parsedMove, sizeof(CH_Move));
+  memcpy(move, &parsed_move, sizeof(ch_move_t));
 
   return CH_ERR_SUCCESS;
 }

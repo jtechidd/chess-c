@@ -5,19 +5,22 @@
 #include "core/piece.h"
 
 typedef struct {
-  uint8_t numPieces;
-  CH_PieceId cid;
-  CH_Piece pieces[CH_MAX_PIECES];
-} CH_PieceDB;
+  uint8_t num_pieces;
+  ch_piece_id_t cid;
+  ch_piece_t pieces[CH_MAX_PIECES];
+} ch_piece_db_t;
 
-CH_Piece *CH_PieceDB_CreatePiece(CH_PieceDB *pieceDb, CH_Side side,
-                                 CH_PieceType type, CH_Vector2 position,
-                                 CH_PieceData data,
-                                 const CH_PieceMethods *methods);
-CH_Piece *CH_PieceDB_GetById(CH_PieceDB *pieceDb, CH_PieceId id);
-CH_Piece *CH_PieceDB_GetByIndex(CH_PieceDB *pieceDB, uint8_t idx);
-CH_Piece *CH_PieceDB_FindKingBySide(CH_PieceDB *pieceDb, CH_Side side);
-CH_Piece *CH_PieceDB_FindRookBySideAndType(CH_PieceDB *pieceDb, CH_Side side,
-                                           CH_RookType type);
+ch_piece_t *ch_piece_db_create_piece(ch_piece_db_t *pieceDb, ch_side_t side,
+                                     ch_piece_type_t type,
+                                     ch_vector2_t position,
+                                     ch_piece_data_t data,
+                                     const ch_piece_methods_t *methods);
+ch_piece_t *ch_piece_db_get_by_id(ch_piece_db_t *pieceDb, ch_piece_id_t id);
+ch_piece_t *ch_piece_db_get_by_index(ch_piece_db_t *pieceDB, uint8_t idx);
+ch_piece_t *ch_piece_db_get_king_by_side(ch_piece_db_t *pieceDb,
+                                         ch_side_t side);
+ch_piece_t *ch_piece_db_get_rook_by_side_and_type(ch_piece_db_t *pieceDb,
+                                                  ch_side_t side,
+                                                  ch_rook_type_t type);
 
 #endif

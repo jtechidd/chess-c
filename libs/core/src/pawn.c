@@ -3,86 +3,102 @@
 #include "core/piece.h"
 #include "core/vector2.h"
 
-static bool CH_IsEnPassantable(CH_Piece *pawn, CH_Piece *enPassantPiece) {
-  if (!enPassantPiece)
+static const ch_piece_methods_t CH_PAWN_METHODS;
+
+void ch_chess_spawn_pawn(ch_chess_t *chess, ch_side_t side,
+                         ch_vector2_t position) {
+  ch_chess_spawn_piece(chess, side, CH_PIECE_TYPE_PAWN, position,
+                       ch_piece_data_make_empty(), &CH_PAWN_METHODS);
+}
+
+static bool ch_can_do_en_passant(ch_chess_t *chess, ch_piece_t *pawn,
+                                 ch_piece_t *en_passant_piece) {
+  if (!en_passant_piece)
     return false;
-  if (enPassantPiece->type != CH_PIECE_TYPE_PAWN)
+  if (en_passant_piece->type != CH_PIECE_TYPE_PAWN)
     return false;
-  if (enPassantPiece->side == pawn->side)
+  if (en_passant_piece->side == pawn->side)
     return false;
-  if (enPassantPiece->moveCount != 1)
+  if (en_passant_piece->move_count != 1)
     return false;
-  if (enPassantPiece->side == CH_SIDE_WHITE && enPassantPiece->position.i != 4)
+  if (en_passant_piece->latest_move_turn_num != chess->num_turns - 1)
     return false;
-  if (enPassantPiece->side == CH_SIDE_BLACK && enPassantPiece->position.i != 3)
+  if (en_passant_piece->side == CH_SIDE_WHITE &&
+      en_passant_piece->position.i != 4)
+    return false;
+  if (en_passant_piece->side == CH_SIDE_BLACK &&
+      en_passant_piece->position.i != 3)
     return false;
   return true;
 }
 
-static bool CH_IsValidPromoteTo(CH_PieceType type) {
+static bool ch_is_valid_promote_to(ch_piece_type_t type) {
   return type == CH_PIECE_TYPE_QUEEN || type == CH_PIECE_TYPE_ROOK ||
          type == CH_PIECE_TYPE_BISHOP || type == CH_PIECE_TYPE_KNIGHT;
 }
 
-static bool CH_IsPositionPromotable(CH_Vector2 pos, CH_Side side) {
+static bool ch_is_position_promotable(ch_vector2_t pos, ch_side_t side) {
   return side == CH_SIDE_WHITE && pos.i == 0 ||
          side == CH_SIDE_BLACK && pos.i == CH_BOARD_HEIGHT - 1;
 }
 
-static CH_Error CH_Pawn_ValidateMove(CH_Piece *pawn, CH_Chess *chess,
-                                     CH_Move move, CH_Piece **takingPiece) {
-  CH_Vector2 up = CH_Vector2_Make(-1, 0);
-  CH_Vector2 up2 = CH_Vector2_Make(-2, 0);
-  CH_Vector2 left = CH_Vector2_Make(0, -1);
-  CH_Vector2 right = CH_Vector2_Make(0, 1);
-  CH_Vector2 upLeft = CH_Vector2_Make(-1, -1);
-  CH_Vector2 upRight = CH_Vector2_Make(-1, 1);
+static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
+                                        ch_move_t move,
+                                        ch_piece_t **takingPiece) {
+  ch_vector2_t up = ch_vector2_make(-1, 0);
+  ch_vector2_t up2 = ch_vector2_make(-2, 0);
+  ch_vector2_t left = ch_vector2_make(0, -1);
+  ch_vector2_t right = ch_vector2_make(0, 1);
+  ch_vector2_t up_left = ch_vector2_make(-1, -1);
+  ch_vector2_t up_right = ch_vector2_make(-1, 1);
 
   if (pawn->side == CH_SIDE_BLACK) {
-    up = CH_Vector2_FlipV(up);
-    up2 = CH_Vector2_FlipV(up2);
-    upLeft = CH_Vector2_FlipV(upLeft);
-    upRight = CH_Vector2_FlipV(upRight);
+    up = ch_vector2_flipv(up);
+    up2 = ch_vector2_flipv(up2);
+    up_left = ch_vector2_flipv(up_left);
+    up_right = ch_vector2_flipv(up_right);
   }
 
-  CH_Vector2 disp = CH_Vector2_Sub(move.positionTo, move.positionFrom);
-  CH_Vector2 posFromUp = CH_Vector2_Add(move.positionFrom, up);
-  CH_Vector2 posFromUp2 = CH_Vector2_Add(move.positionFrom, up2);
-  CH_Vector2 posFromLeft = CH_Vector2_Add(move.positionFrom, left);
-  CH_Vector2 posFromRight = CH_Vector2_Add(move.positionFrom, right);
+  ch_vector2_t disp = ch_vector2_sub(move.position_to, move.position_from);
+  ch_vector2_t pos_from_up = ch_vector2_add(move.position_from, up);
+  ch_vector2_t pos_from_up2 = ch_vector2_add(move.position_from, up2);
+  ch_vector2_t pos_from_left = ch_vector2_add(move.position_from, left);
+  ch_vector2_t pos_from_right = ch_vector2_add(move.position_from, right);
 
-  CH_Piece *enPassantPiece = NULL;
+  ch_piece_t *en_passant_piece = NULL;
 
-  if (move.isTaking) {
+  if (move.is_taking) {
     if (*takingPiece == NULL) {
-      if (CH_Vector2_Equal(disp, upLeft)) {
-        enPassantPiece = CH_Chess_GetPieceOnPosition(chess, posFromLeft);
-      } else if (CH_Vector2_Equal(disp, upRight)) {
-        enPassantPiece = CH_Chess_GetPieceOnPosition(chess, posFromRight);
+      if (ch_vector2_equal(disp, up_left)) {
+        en_passant_piece = ch_chess_get_piece_on_position(chess, pos_from_left);
+      } else if (ch_vector2_equal(disp, up_right)) {
+        en_passant_piece =
+            ch_chess_get_piece_on_position(chess, pos_from_right);
       } else {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      if (!CH_IsEnPassantable(pawn, enPassantPiece)) {
+      if (!ch_can_do_en_passant(chess, pawn, en_passant_piece)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      *takingPiece = enPassantPiece;
+      *takingPiece = en_passant_piece;
     } else {
-      if (!CH_Vector2_Equal(disp, upLeft) && !CH_Vector2_Equal(disp, upRight)) {
+      if (!ch_vector2_equal(disp, up_left) &&
+          !ch_vector2_equal(disp, up_right)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
     }
   } else {
-    disp = CH_Vector2_Sub(move.positionTo, move.positionFrom);
-    if (CH_Vector2_Equal(disp, up2)) {
-      if (pawn->moveCount > 0) {
+    disp = ch_vector2_sub(move.position_to, move.position_from);
+    if (ch_vector2_equal(disp, up2)) {
+      if (pawn->move_count > 0) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      if (CH_Chess_GetPieceOnPosition(chess, posFromUp) ||
-          CH_Chess_GetPieceOnPosition(chess, posFromUp2)) {
+      if (ch_chess_get_piece_on_position(chess, pos_from_up) ||
+          ch_chess_get_piece_on_position(chess, pos_from_up2)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-    } else if (CH_Vector2_Equal(disp, up)) {
-      if (CH_Chess_GetPieceOnPosition(chess, posFromUp)) {
+    } else if (ch_vector2_equal(disp, up)) {
+      if (ch_chess_get_piece_on_position(chess, pos_from_up)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
     } else {
@@ -90,17 +106,17 @@ static CH_Error CH_Pawn_ValidateMove(CH_Piece *pawn, CH_Chess *chess,
     }
   }
 
-  if (CH_IsPositionPromotable(move.positionTo, pawn->side)) {
-    if (!CH_IsValidPromoteTo(move.promoteTo)) {
+  if (ch_is_position_promotable(move.position_to, pawn->side)) {
+    if (!ch_is_valid_promote_to(move.promote_to)) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-  } else if (move.promoteTo != CH_EMPTY) {
+  } else if (move.promote_to != CH_EMPTY) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
   return CH_ERR_SUCCESS;
 }
 
-const CH_PieceMethods CH_PAWN_METHODS = {
-    .validateMove = CH_Pawn_ValidateMove,
+static const ch_piece_methods_t CH_PAWN_METHODS = {
+    .validate_move = ch_pawn_validate_move,
 };

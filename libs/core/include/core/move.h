@@ -5,13 +5,13 @@
 #include "core/vector2.h"
 
 typedef struct {
-  CH_PieceType pieceType;
-  CH_Vector2 positionFrom;
-  bool isTaking;
-  CH_Vector2 positionTo;
-  CH_PieceType promoteTo;
-} CH_Move;
+  ch_piece_type_t piece_type;
+  ch_vector2_t position_from;
+  bool is_taking;
+  ch_vector2_t position_to;
+  ch_piece_type_t promote_to;
+} ch_move_t;
 
-CH_Error CH_Move_ParseLAN(CH_Move *move, const char *notation);
+ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation);
 
 #endif

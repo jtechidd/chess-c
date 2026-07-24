@@ -3,30 +3,26 @@
 #include "core/common.h"
 #include "core/piece.h"
 
-void CH_Piece_Init(CH_Piece *piece, CH_PieceId id, CH_Side side,
-                   CH_PieceType type, CH_Vector2 position, CH_PieceData data,
-                   const CH_PieceMethods *methods) {
-  memset(piece, 0, sizeof(CH_Piece));
+void ch_piece_init(ch_piece_t *piece, ch_piece_id_t id, ch_side_t side,
+                   ch_piece_type_t type, ch_vector2_t position,
+                   ch_piece_data_t data, const ch_piece_methods_t *methods) {
+  memset(piece, 0, sizeof(ch_piece_t));
 
   piece->id = id;
   piece->side = side;
   piece->type = type;
   piece->position = position;
-  piece->moveCount = 0;
-  piece->isCaptured = false;
+  piece->move_count = 0;
+  piece->latest_move_turn_num = 0;
+  piece->is_captured = false;
   piece->data = data;
-
   piece->methods = methods;
 }
 
-CH_Error CH_Piece_ValidateMove(CH_Piece *piece, CH_Chess *chess, CH_Move move,
-                               CH_Piece **takingPiece) {
-  assert(piece->methods && piece->methods->validateMove);
-  return piece->methods->validateMove(piece, chess, move, takingPiece);
+ch_error_t ch_piece_validate_move(ch_piece_t *piece, ch_chess_t *chess,
+                                  ch_move_t move, ch_piece_t **taking_piece) {
+  assert(piece->methods && piece->methods->validate_move);
+  return piece->methods->validate_move(piece, chess, move, taking_piece);
 }
 
-CH_PieceData CH_PieceData_MakeEmpty() { return (CH_PieceData){}; }
-
-CH_PieceData CH_PieceData_MakeRook(CH_RookType type) {
-  return (CH_PieceData){.rook = {.type = type}};
-}
+ch_piece_data_t ch_piece_data_make_empty() { return (ch_piece_data_t){}; }

@@ -2,6 +2,6 @@
 #define CH_MOVE_DB_H
 
 typedef struct {
-} CH_MoveDB;
+} ch_move_db_t;
 
 #endif

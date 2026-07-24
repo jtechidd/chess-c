@@ -3,18 +3,18 @@
 #include "core/common.h"
 #include "core/piece.h"
 
-CH_Piece *CH_PieceDB_CreatePiece(CH_PieceDB *pieceDb, CH_Side side,
-                                 CH_PieceType type, CH_Vector2 position,
-                                 CH_PieceData data, const CH_PieceMethods *methods) {
+ch_piece_t *ch_piece_db_create_piece(ch_piece_db_t *pieceDb, ch_side_t side,
+                                 ch_piece_type_t type, ch_vector2_t position,
+                                 ch_piece_data_t data, const ch_piece_methods_t *methods) {
   pieceDb->cid++;
-  CH_Piece_Init(&pieceDb->pieces[pieceDb->numPieces], pieceDb->cid, side, type,
+  ch_piece_init(&pieceDb->pieces[pieceDb->num_pieces], pieceDb->cid, side, type,
                 position, data, methods);
-  pieceDb->numPieces++;
-  return &pieceDb->pieces[pieceDb->numPieces - 1];
+  pieceDb->num_pieces++;
+  return &pieceDb->pieces[pieceDb->num_pieces - 1];
 }
 
-CH_Piece *CH_PieceDB_GetById(CH_PieceDB *pieceDb, CH_PieceId id) {
-  for (uint8_t i = 0; i < pieceDb->numPieces; i++) {
+ch_piece_t *ch_piece_db_get_by_id(ch_piece_db_t *pieceDb, ch_piece_id_t id) {
+  for (uint8_t i = 0; i < pieceDb->num_pieces; i++) {
     if (pieceDb->pieces[i].id == id) {
       return &pieceDb->pieces[i];
     }
@@ -22,15 +22,15 @@ CH_Piece *CH_PieceDB_GetById(CH_PieceDB *pieceDb, CH_PieceId id) {
   return NULL;
 }
 
-CH_Piece *CH_PieceDB_GetByIndex(CH_PieceDB *pieceDb, uint8_t idx) {
-  if (idx >= 0 && idx < pieceDb->numPieces) {
+ch_piece_t *ch_piece_db_get_by_index(ch_piece_db_t *pieceDb, uint8_t idx) {
+  if (idx >= 0 && idx < pieceDb->num_pieces) {
     return &pieceDb->pieces[idx];
   }
   return NULL;
 }
 
-CH_Piece *CH_PieceDB_FindKingBySide(CH_PieceDB *pieceDb, CH_Side side) {
-  for (uint8_t i = 0; i < pieceDb->numPieces; i++) {
+ch_piece_t *ch_piece_db_get_king_by_side(ch_piece_db_t *pieceDb, ch_side_t side) {
+  for (uint8_t i = 0; i < pieceDb->num_pieces; i++) {
     if (pieceDb->pieces[i].side == side &&
         pieceDb->pieces[i].type == CH_PIECE_TYPE_KING) {
       return &pieceDb->pieces[i];
@@ -39,9 +39,9 @@ CH_Piece *CH_PieceDB_FindKingBySide(CH_PieceDB *pieceDb, CH_Side side) {
   return NULL;
 }
 
-CH_Piece *CH_PieceDB_FindRookBySideAndType(CH_PieceDB *pieceDb, CH_Side side,
-                                           CH_RookType type) {
-  for (uint8_t i = 0; i < pieceDb->numPieces; i++) {
+ch_piece_t *ch_piece_db_get_rook_by_side_and_type(ch_piece_db_t *pieceDb, ch_side_t side,
+                                           ch_rook_type_t type) {
+  for (uint8_t i = 0; i < pieceDb->num_pieces; i++) {
     if (pieceDb->pieces[i].side == side &&
         pieceDb->pieces[i].type == CH_PIECE_TYPE_ROOK &&
         pieceDb->pieces[i].data.rook.type == type) {

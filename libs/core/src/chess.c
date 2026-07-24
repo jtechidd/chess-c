@@ -9,196 +9,176 @@
 #include "core/utils.h"
 #include "core/vector2.h"
 
-static void CH_Cell_InitWithPiece(CH_Cell *cell, CH_Piece *piece) {
-  cell->pieceId = piece->id;
-  cell->hasPiece = true;
+#include "core/bishop.h"
+#include "core/king.h"
+#include "core/knight.h"
+#include "core/pawn.h"
+#include "core/queen.h"
+#include "core/rook.h"
+
+static void ch_cell_init_with_piece(ch_cell_t *cell, ch_piece_t *piece) {
+  cell->piece_id = piece->id;
+  cell->has_piece = true;
 }
 
-static void CH_Board_PlacePiece(CH_Board *board, CH_Piece *piece) {
-  CH_Cell_InitWithPiece(&board->table[piece->position.i][piece->position.j],
-                        piece);
+static void ch_board_place_piece(ch_board_t *board, ch_piece_t *piece) {
+  ch_cell_init_with_piece(&board->table[piece->position.i][piece->position.j],
+                          piece);
 }
 
-static void CH_Board_Clear(CH_Board *board) {
-  memset(board, 0, sizeof(CH_Board));
+static void ch_board_clear(ch_board_t *board) {
+  memset(board, 0, sizeof(ch_board_t));
 }
 
-static void CH_Chess_CreateAndPlacePiece(CH_Chess *chess, CH_Side side,
-                                         CH_PieceType type, CH_Vector2 position,
-                                         CH_PieceData data,
-                                         const CH_PieceMethods *methods) {
-  CH_Piece *piece;
-  piece = CH_PieceDB_CreatePiece(&chess->pieceDb, side, type, position, data,
-                                 methods);
-  CH_Board_PlacePiece(&chess->board, piece);
+void ch_chess_spawn_piece(ch_chess_t *chess, ch_side_t side,
+                          ch_piece_type_t type, ch_vector2_t position,
+                          ch_piece_data_t data,
+                          const ch_piece_methods_t *methods) {
+  ch_piece_t *piece;
+  piece = ch_piece_db_create_piece(&chess->piece_db, side, type, position, data,
+                                   methods);
+  ch_board_place_piece(&chess->board, piece);
 }
 
-void CH_Chess_InitStandard(struct CH_Chess *chess) {
-  memset(chess, 0, sizeof(struct CH_Chess));
+void ch_chess_init_standard(ch_chess_t *chess) {
+  memset(chess, 0, sizeof(ch_chess_t));
   chess->turn = CH_SIDE_WHITE;
+  chess->num_turns = 0;
 
-  CH_Chess_CreateAndPlacePiece(
-      chess, CH_SIDE_BLACK, CH_PIECE_TYPE_ROOK, CH_Vector2_Make(0, 0),
-      CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE), &CH_ROOK_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(0, 1), CH_PieceData_MakeEmpty(),
-                               &CH_KNIGHT_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(0, 2), CH_PieceData_MakeEmpty(),
-                               &CH_BISHOP_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_QUEEN,
-                               CH_Vector2_Make(0, 3), CH_PieceData_MakeEmpty(),
-                               &CH_QUEEN_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KING,
-                               CH_Vector2_Make(0, 4), CH_PieceData_MakeEmpty(),
-                               &CH_KING_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(0, 5), CH_PieceData_MakeEmpty(),
-                               &CH_BISHOP_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(0, 6), CH_PieceData_MakeEmpty(),
-                               &CH_KNIGHT_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(0, 7), CH_PieceData_MakeEmpty(),
-                               &CH_ROOK_METHODS);
+  ch_chess_spawn_rook(chess, CH_SIDE_BLACK, ch_vector2_make(0, 0),
+                      CH_ROOK_TYPE_QUEEN_SIDE);
+  ch_chess_spawn_knight(chess, CH_SIDE_BLACK, ch_vector2_make(0, 1));
+  ch_chess_spawn_bishop(chess, CH_SIDE_BLACK, ch_vector2_make(0, 2));
+  ch_chess_spawn_queen(chess, CH_SIDE_BLACK, ch_vector2_make(0, 3));
+  ch_chess_spawn_king(chess, CH_SIDE_BLACK, ch_vector2_make(0, 4));
+  ch_chess_spawn_bishop(chess, CH_SIDE_BLACK, ch_vector2_make(0, 5));
+  ch_chess_spawn_knight(chess, CH_SIDE_BLACK, ch_vector2_make(0, 6));
+  ch_chess_spawn_rook(chess, CH_SIDE_BLACK, ch_vector2_make(0, 7),
+                      CH_ROOK_TYPE_KING_SIDE);
 
   for (uint8_t i = 0; i < 8; i++) {
-    CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_PAWN,
-                                 CH_Vector2_Make(1, i),
-                                 CH_PieceData_MakeEmpty(), &CH_PAWN_METHODS);
+    ch_chess_spawn_pawn(chess, CH_SIDE_BLACK, ch_vector2_make(1, i));
   }
 
-  CH_Chess_CreateAndPlacePiece(
-      chess, CH_SIDE_WHITE, CH_PIECE_TYPE_ROOK, CH_Vector2_Make(7, 0),
-      CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE), &CH_ROOK_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(7, 1), CH_PieceData_MakeEmpty(),
-                               &CH_KNIGHT_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(7, 2), CH_PieceData_MakeEmpty(),
-                               &CH_BISHOP_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_QUEEN,
-                               CH_Vector2_Make(7, 3), CH_PieceData_MakeEmpty(),
-                               &CH_QUEEN_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KING,
-                               CH_Vector2_Make(7, 4), CH_PieceData_MakeEmpty(),
-                               &CH_KING_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(7, 5), CH_PieceData_MakeEmpty(),
-                               &CH_BISHOP_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(7, 6), CH_PieceData_MakeEmpty(),
-                               &CH_KNIGHT_METHODS);
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(7, 7), CH_PieceData_MakeEmpty(),
-                               &CH_ROOK_METHODS);
+  ch_chess_spawn_rook(chess, CH_SIDE_WHITE, ch_vector2_make(7, 0),
+                      CH_ROOK_TYPE_QUEEN_SIDE);
+  ch_chess_spawn_knight(chess, CH_SIDE_WHITE, ch_vector2_make(7, 1));
+  ch_chess_spawn_bishop(chess, CH_SIDE_WHITE, ch_vector2_make(7, 2));
+  ch_chess_spawn_queen(chess, CH_SIDE_WHITE, ch_vector2_make(7, 3));
+  ch_chess_spawn_king(chess, CH_SIDE_WHITE, ch_vector2_make(7, 4));
+  ch_chess_spawn_bishop(chess, CH_SIDE_WHITE, ch_vector2_make(7, 5));
+  ch_chess_spawn_knight(chess, CH_SIDE_WHITE, ch_vector2_make(7, 6));
+  ch_chess_spawn_rook(chess, CH_SIDE_WHITE, ch_vector2_make(7, 7),
+                      CH_ROOK_TYPE_KING_SIDE);
 
   for (uint8_t i = 0; i < 8; i++) {
-    CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_PAWN,
-                                 CH_Vector2_Make(6, i),
-                                 CH_PieceData_MakeEmpty(), &CH_PAWN_METHODS);
+    ch_chess_spawn_pawn(chess, CH_SIDE_WHITE, ch_vector2_make(6, i));
   }
 }
 
-static void CH_Chess_UpdateBoard(CH_Chess *chess) {
-  CH_Board *board = &chess->board;
-  CH_PieceDB *pieceDb = &chess->pieceDb;
-  CH_Board_Clear(&chess->board);
-  for (uint8_t i = 0; i < pieceDb->numPieces; i++) {
-    CH_Piece *piece = CH_PieceDB_GetByIndex(pieceDb, i);
-    if (!piece->isCaptured) {
-      CH_Board_PlacePiece(board, piece);
+static void ch_chess_update_board(ch_chess_t *chess) {
+  ch_board_t *board = &chess->board;
+  ch_piece_db_t *pieceDb = &chess->piece_db;
+  ch_board_clear(&chess->board);
+  for (uint8_t i = 0; i < pieceDb->num_pieces; i++) {
+    ch_piece_t *piece = ch_piece_db_get_by_index(pieceDb, i);
+    if (!piece->is_captured) {
+      ch_board_place_piece(board, piece);
     }
   }
 }
 
-CH_Piece *CH_Chess_GetPieceOnPosition(CH_Chess *chess, CH_Vector2 position) {
-  if (!CH_IsPositionInBound(position)) {
+ch_piece_t *ch_chess_get_piece_on_position(ch_chess_t *chess,
+                                           ch_vector2_t position) {
+  if (!ch_is_position_in_bound(position)) {
     return NULL;
   }
-  CH_Cell *cell = &chess->board.table[position.i][position.j];
-  if (!cell->hasPiece) {
+  ch_cell_t *cell = &chess->board.table[position.i][position.j];
+  if (!cell->has_piece) {
     return NULL;
   }
-  assert(cell->pieceId != CH_EMPTY);
-  return CH_PieceDB_GetById(&chess->pieceDb, cell->pieceId);
+  assert(cell->piece_id != CH_EMPTY);
+  return ch_piece_db_get_by_id(&chess->piece_db, cell->piece_id);
 }
 
-CH_Error CH_Chess_ApplyMove(CH_Chess *chess, CH_Move move) {
-  CH_Piece *piece = CH_Chess_GetPieceOnPosition(chess, move.positionFrom);
-  CH_Piece *takingPiece = NULL;
+ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
+  ch_piece_t *piece = ch_chess_get_piece_on_position(chess, move.position_from);
+  ch_piece_t *taking_piece = NULL;
 
   // 1. Perform common move checking
-  if (!(CH_IsPositionInBound(move.positionFrom) &&
-        CH_IsPositionInBound(move.positionTo))) {
+  if (!(ch_is_position_in_bound(move.position_from) &&
+        ch_is_position_in_bound(move.position_to))) {
     return CH_ERR_ILLEGAL_MOVE;
   }
   if (piece == NULL) {
     return CH_ERR_ILLEGAL_MOVE;
   }
-  if (move.pieceType != CH_EMPTY && piece->type != move.pieceType) {
+  if (move.piece_type != CH_EMPTY && piece->type != move.piece_type) {
     return CH_ERR_ILLEGAL_MOVE;
   }
-  if (!CH_Vector2_Equal(piece->position, move.positionFrom)) {
+  if (!ch_vector2_equal(piece->position, move.position_from)) {
     return CH_ERR_ILLEGAL_MOVE;
   }
   if (piece->side != chess->turn) {
     return CH_ERR_ILLEGAL_MOVE;
   }
-  if (move.isTaking) {
-    takingPiece = CH_Chess_GetPieceOnPosition(chess, move.positionTo);
-    if (piece->type != CH_PIECE_TYPE_PAWN && !takingPiece) {
+  if (move.is_taking) {
+    taking_piece = ch_chess_get_piece_on_position(chess, move.position_to);
+    if (piece->type != CH_PIECE_TYPE_PAWN && !taking_piece) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-    if (takingPiece && takingPiece->side == piece->side) {
+    if (taking_piece && taking_piece->side == piece->side) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-  } else if (CH_Chess_GetPieceOnPosition(chess, move.positionTo)) {
+  } else if (ch_chess_get_piece_on_position(chess, move.position_to)) {
     return CH_ERR_ILLEGAL_MOVE;
   }
-  if (move.promoteTo != CH_EMPTY && piece->type != CH_PIECE_TYPE_PAWN) {
+  if (move.promote_to != CH_EMPTY && piece->type != CH_PIECE_TYPE_PAWN) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
   // 2. Perform specific move checking by piece type
-  if (CH_Piece_ValidateMove(piece, chess, move, &takingPiece) !=
+  if (ch_piece_validate_move(piece, chess, move, &taking_piece) !=
       CH_ERR_SUCCESS) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
   // 3. Mutate pieces state
-  piece->position = move.positionTo;
-  piece->moveCount++;
-  if (move.isTaking) {
-    assert(takingPiece != NULL);
-    takingPiece->isCaptured = true;
+  piece->position = move.position_to;
+  piece->move_count++;
+  piece->latest_move_turn_num = chess->num_turns;
+  if (move.is_taking) {
+    assert(taking_piece != NULL);
+    taking_piece->is_captured = true;
   }
-  if (move.promoteTo != CH_EMPTY) {
-    piece->type = move.promoteTo;
+  if (move.promote_to != CH_EMPTY) {
+    piece->type = move.promote_to;
   }
 
   // 4. Update board
-  CH_Chess_UpdateBoard(chess);
+  ch_chess_update_board(chess);
 
-  // 5. Flip turn
+  // 5. Flip turn and increase number of turns;
   if (chess->turn == CH_SIDE_WHITE) {
     chess->turn = CH_SIDE_BLACK;
   } else {
     chess->turn = CH_SIDE_WHITE;
   }
+  chess->num_turns++;
 
   return CH_ERR_SUCCESS;
 }
 
-CH_Error CH_Chess_ApplyMoveLAN(CH_Chess *chess, const char *moveNotation) {
-  CH_Move move;
-  CH_Error error;
+ch_error_t ch_chess_apply_move_lan(ch_chess_t *chess,
+                                   const char *move_notation) {
+  ch_move_t move;
+  ch_error_t error;
 
-  error = CH_Move_ParseLAN(&move, moveNotation);
+  error = ch_move_parse_lan(&move, move_notation);
   if (error != CH_ERR_SUCCESS) {
     return error;
   }
-  error = CH_Chess_ApplyMove(chess, move);
+  error = ch_chess_apply_move(chess, move);
   if (error != CH_ERR_SUCCESS) {
     return error;
   }
@@ -206,11 +186,11 @@ CH_Error CH_Chess_ApplyMoveLAN(CH_Chess *chess, const char *moveNotation) {
   return CH_ERR_SUCCESS;
 }
 
-void CH_Chess_PrintBoard(CH_Chess *chess) {
+void ch_chess_print_board(ch_chess_t *chess) {
   for (uint8_t i = 0; i < CH_BOARD_HEIGHT; i++) {
     for (uint8_t j = 0; j < CH_BOARD_WIDTH; j++) {
-      CH_Piece *piece =
-          CH_Chess_GetPieceOnPosition(chess, CH_Vector2_Make(i, j));
+      ch_piece_t *piece =
+          ch_chess_get_piece_on_position(chess, ch_vector2_make(i, j));
       if ((i + j) % 2 == 1) {
         printf("\033[40m");
       } else {
@@ -222,7 +202,7 @@ void CH_Chess_PrintBoard(CH_Chess *chess) {
         if (piece->side == CH_SIDE_BLACK) {
           printf("\033[90m");
         }
-        putchar(CH_PieceTypeToChar(piece->type));
+        putchar(ch_piece_type_to_char(piece->type));
       }
       printf("\033[0m");
     }
