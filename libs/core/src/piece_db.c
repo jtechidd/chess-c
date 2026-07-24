@@ -1,13 +1,14 @@
 
 #include "core/piece_db.h"
 #include "core/common.h"
+#include "core/piece.h"
 
 CH_Piece *CH_PieceDB_CreatePiece(CH_PieceDB *pieceDb, CH_Side side,
                                  CH_PieceType type, CH_Vector2 position,
-                                 CH_PieceData data) {
+                                 CH_PieceData data, const CH_PieceMethods *methods) {
   pieceDb->cid++;
   CH_Piece_Init(&pieceDb->pieces[pieceDb->numPieces], pieceDb->cid, side, type,
-                position, data);
+                position, data, methods);
   pieceDb->numPieces++;
   return &pieceDb->pieces[pieceDb->numPieces - 1];
 }

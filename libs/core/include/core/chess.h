@@ -3,7 +3,6 @@
 
 #include "core/common.h"
 #include "core/move.h"
-#include "core/move_db.h"
 #include "core/piece_db.h"
 #include "core/vector2.h"
 
@@ -19,7 +18,6 @@ typedef struct {
 struct CH_Chess {
   CH_Side turn;
   CH_Board board;
-  CH_MoveDB moveDb;
   CH_PieceDB pieceDb;
 };
 

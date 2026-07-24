@@ -11,6 +11,8 @@ typedef union {
   } rook;
 } CH_PieceData;
 
+typedef struct CH_PieceMethods CH_PieceMethods;
+
 typedef struct {
   CH_PieceId id;
   CH_Side side;
@@ -19,12 +21,13 @@ typedef struct {
   uint8_t moveCount;
   bool isCaptured;
   CH_PieceData data;
+  const CH_PieceMethods *methods;
 } CH_Piece;
 
-typedef struct {
+struct CH_PieceMethods {
   CH_Error (*validateMove)(CH_Piece *piece, CH_Chess *chess, CH_Move move,
                            CH_Piece **takingPiece);
-} CH_PieceMethods;
+};
 
 extern const CH_PieceMethods CH_ROOK_METHODS;
 extern const CH_PieceMethods CH_KNIGHT_METHODS;
@@ -34,7 +37,8 @@ extern const CH_PieceMethods CH_KING_METHODS;
 extern const CH_PieceMethods CH_PAWN_METHODS;
 
 void CH_Piece_Init(CH_Piece *piece, CH_PieceId id, CH_Side side,
-                   CH_PieceType type, CH_Vector2 position, CH_PieceData data);
+                   CH_PieceType type, CH_Vector2 position, CH_PieceData data,
+                   const CH_PieceMethods *methods);
 CH_Error CH_Piece_ValidateMove(CH_Piece *piece, CH_Chess *chess, CH_Move move,
                                CH_Piece **takingPiece);
 CH_PieceData CH_PieceData_MakeEmpty();

@@ -25,11 +25,11 @@ static void CH_Board_Clear(CH_Board *board) {
 
 static void CH_Chess_CreateAndPlacePiece(CH_Chess *chess, CH_Side side,
                                          CH_PieceType type, CH_Vector2 position,
-                                         CH_PieceData data) {
+                                         CH_PieceData data,
+                                         const CH_PieceMethods *methods) {
   CH_Piece *piece;
-  piece =
-      CH_PieceDB_CreatePiece(&chess->pieceDb, side, type, position,
-                             CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE));
+  piece = CH_PieceDB_CreatePiece(&chess->pieceDb, side, type, position, data,
+                                 methods);
   CH_Board_PlacePiece(&chess->board, piece);
 }
 
@@ -37,52 +37,66 @@ void CH_Chess_InitStandard(struct CH_Chess *chess) {
   memset(chess, 0, sizeof(struct CH_Chess));
   chess->turn = CH_SIDE_WHITE;
 
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(0, 0),
-                               CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE));
+  CH_Chess_CreateAndPlacePiece(
+      chess, CH_SIDE_BLACK, CH_PIECE_TYPE_ROOK, CH_Vector2_Make(0, 0),
+      CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE), &CH_ROOK_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(0, 1), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 1), CH_PieceData_MakeEmpty(),
+                               &CH_KNIGHT_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(0, 2), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 2), CH_PieceData_MakeEmpty(),
+                               &CH_BISHOP_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_QUEEN,
-                               CH_Vector2_Make(0, 3), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 3), CH_PieceData_MakeEmpty(),
+                               &CH_QUEEN_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KING,
-                               CH_Vector2_Make(0, 4), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 4), CH_PieceData_MakeEmpty(),
+                               &CH_KING_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(0, 5), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 5), CH_PieceData_MakeEmpty(),
+                               &CH_BISHOP_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(0, 6), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 6), CH_PieceData_MakeEmpty(),
+                               &CH_KNIGHT_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(0, 7), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(0, 7), CH_PieceData_MakeEmpty(),
+                               &CH_ROOK_METHODS);
 
   for (uint8_t i = 0; i < 8; i++) {
     CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_BLACK, CH_PIECE_TYPE_PAWN,
                                  CH_Vector2_Make(1, i),
-                                 CH_PieceData_MakeEmpty());
+                                 CH_PieceData_MakeEmpty(), &CH_PAWN_METHODS);
   }
 
-  CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(7, 0),
-                               CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE));
+  CH_Chess_CreateAndPlacePiece(
+      chess, CH_SIDE_WHITE, CH_PIECE_TYPE_ROOK, CH_Vector2_Make(7, 0),
+      CH_PieceData_MakeRook(CH_ROOK_TYPE_QUEEN_SIDE), &CH_ROOK_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(7, 1), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 1), CH_PieceData_MakeEmpty(),
+                               &CH_KNIGHT_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(7, 2), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 2), CH_PieceData_MakeEmpty(),
+                               &CH_BISHOP_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_QUEEN,
-                               CH_Vector2_Make(7, 3), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 3), CH_PieceData_MakeEmpty(),
+                               &CH_QUEEN_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KING,
-                               CH_Vector2_Make(7, 4), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 4), CH_PieceData_MakeEmpty(),
+                               &CH_KING_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_BISHOP,
-                               CH_Vector2_Make(7, 5), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 5), CH_PieceData_MakeEmpty(),
+                               &CH_BISHOP_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_KNIGHT,
-                               CH_Vector2_Make(7, 6), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 6), CH_PieceData_MakeEmpty(),
+                               &CH_KNIGHT_METHODS);
   CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_ROOK,
-                               CH_Vector2_Make(7, 7), CH_PieceData_MakeEmpty());
+                               CH_Vector2_Make(7, 7), CH_PieceData_MakeEmpty(),
+                               &CH_ROOK_METHODS);
 
   for (uint8_t i = 0; i < 8; i++) {
     CH_Chess_CreateAndPlacePiece(chess, CH_SIDE_WHITE, CH_PIECE_TYPE_PAWN,
                                  CH_Vector2_Make(6, i),
-                                 CH_PieceData_MakeEmpty());
+                                 CH_PieceData_MakeEmpty(), &CH_PAWN_METHODS);
   }
 }
 

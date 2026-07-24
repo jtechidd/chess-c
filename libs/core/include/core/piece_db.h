@@ -12,12 +12,10 @@ typedef struct {
 
 CH_Piece *CH_PieceDB_CreatePiece(CH_PieceDB *pieceDb, CH_Side side,
                                  CH_PieceType type, CH_Vector2 position,
-                                 CH_PieceData data);
+                                 CH_PieceData data,
+                                 const CH_PieceMethods *methods);
 CH_Piece *CH_PieceDB_GetById(CH_PieceDB *pieceDb, CH_PieceId id);
 CH_Piece *CH_PieceDB_GetByIndex(CH_PieceDB *pieceDB, uint8_t idx);
-CH_Piece *CH_PieceDB_CreatePiece(CH_PieceDB *pieceDb, CH_Side side,
-                                 CH_PieceType type, CH_Vector2 position,
-                                 CH_PieceData data);
 CH_Piece *CH_PieceDB_FindKingBySide(CH_PieceDB *pieceDb, CH_Side side);
 CH_Piece *CH_PieceDB_FindRookBySideAndType(CH_PieceDB *pieceDb, CH_Side side,
                                            CH_RookType type);
