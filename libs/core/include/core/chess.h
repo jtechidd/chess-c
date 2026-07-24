@@ -17,7 +17,7 @@ typedef struct {
 
 struct _ch_chess_t {
   ch_side_t turn;
-  uint8_t num_turns;
+  uint8_t turn_count;
   ch_board_t board;
   ch_piece_db_t piece_db;
 };
@@ -28,7 +28,7 @@ void ch_chess_spawn_piece(ch_chess_t *chess, ch_side_t side,
                           const ch_piece_methods_t *methods);
 ch_piece_t *ch_chess_get_piece_on_position(ch_chess_t *chess,
                                            ch_vector2_t position);
-bool ch_chess_is_position_safe(ch_chess_t *chess, ch_vector2_t position);
+bool ch_chess_is_position_safe_to_move_to(ch_chess_t *chess, ch_vector2_t position);
 void ch_chess_init_standard(ch_chess_t *chess);
 ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move);
 ch_error_t ch_chess_apply_move_lan(ch_chess_t *chess,

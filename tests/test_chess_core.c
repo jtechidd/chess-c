@@ -165,20 +165,20 @@ void test_knight() {
   ch_chess_t chess;
   ch_chess_init_standard(&chess);
 
-  assert(ch_chess_apply_move_lan(&chess, "Kg1g3") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kg1e2") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kg1f3") == CH_ERR_SUCCESS);
-  assert(ch_chess_apply_move_lan(&chess, "Kg8g6") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kg8e7") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kg8f6") == CH_ERR_SUCCESS);
-  assert(ch_chess_apply_move_lan(&chess, "Kb1b3") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kb1c3") == CH_ERR_SUCCESS);
-  assert(ch_chess_apply_move_lan(&chess, "Kf6e8") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kf6d7") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kf6h7") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kf6d5") == CH_ERR_SUCCESS);
-  assert(ch_chess_apply_move_lan(&chess, "Kc3d5") == CH_ERR_ILLEGAL_MOVE);
-  assert(ch_chess_apply_move_lan(&chess, "Kc3xd5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ng1g3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng1e2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng1f3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ng8g6") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng8e7") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng8f6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nb1b3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nb1c3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nf6e8") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nf6d7") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nf6h7") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nf6d5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nc3d5") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nc3xd5") == CH_ERR_SUCCESS);
 }
 
 void test_queen() {
@@ -205,6 +205,116 @@ void test_queen() {
   assert(ch_chess_apply_move_lan(&chess, "Qd3xf5") == CH_ERR_SUCCESS);
 }
 
+void test_king() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Ke1e2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1d2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1d1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1f2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1f1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "e2e4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "e7e5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1e2") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke8e7") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2e4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2f4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2g4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2d4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2c4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2d2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2d1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2f2") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2f1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ke2d3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke7f6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Kd3f3") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Kd3e4") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Kd3e3") == CH_ERR_SUCCESS);
+}
+
+void test_king_castling_king_side() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "e2e4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "e7e5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng1f3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nb8c6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Bf1b5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ng8f6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_SUCCESS);
+}
+
+void test_king_castling_queen_side() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "d2d4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "d7d5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Bc1f4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Bc8f5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nb1c3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nb8c6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d2") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Qd8d7") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_SUCCESS);
+}
+
+void test_king_castling_king_side_invalid_rook_moved() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "e2e4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "e7e5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Ng1f3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nb8c6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Bf1b5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ng8f6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "h2h3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "h7h6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Rh1h2") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Rh8h7") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Rh2h1") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Rh7h8") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1g1") == CH_ERR_ILLEGAL_MOVE);
+}
+
+void test_king_castling_queen_side_invalid_rook_moved() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "d2d4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "d7d5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Bc1f4") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Bc8f5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Nb1c3") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Nb8c6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+  assert(ch_chess_apply_move_lan(&chess, "Qd1d2") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Qd8d7") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ra1b1") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "a7a6") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Rb1a1") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "a6a5") == CH_ERR_SUCCESS);
+  assert(ch_chess_apply_move_lan(&chess, "Ke1c1") == CH_ERR_ILLEGAL_MOVE);
+}
+
 int main(int argc, char *argv[]) {
   test_pawn_up2_failed_repeat();
   test_pawn_up_failed_occupied();
@@ -220,6 +330,12 @@ int main(int argc, char *argv[]) {
   test_rook();
   test_bishop();
   test_knight();
+  test_queen();
+  test_king();
+  test_king_castling_king_side();
+  test_king_castling_king_side_invalid_rook_moved();
+  test_king_castling_queen_side();
+  test_king_castling_queen_side_invalid_rook_moved();
 
   return 0;
 }

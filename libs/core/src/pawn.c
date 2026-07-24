@@ -21,7 +21,7 @@ static bool ch_can_do_en_passant(ch_chess_t *chess, ch_piece_t *pawn,
     return false;
   if (en_passant_piece->move_count != 1)
     return false;
-  if (en_passant_piece->latest_move_turn_num != chess->num_turns - 1)
+  if (en_passant_piece->latest_move_turn_count != chess->turn_count - 1)
     return false;
   if (en_passant_piece->side == CH_SIDE_WHITE &&
       en_passant_piece->position.i != 4)
@@ -68,7 +68,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
   ch_piece_t *en_passant_piece = NULL;
 
   if (move.is_taking) {
-    if (out->piece_taking == NULL) {
+    if (out->taking_piece_id == CH_EMPTY) {
       if (ch_vector2_equal(disp, up_left)) {
         en_passant_piece = ch_chess_get_piece_on_position(chess, pos_from_left);
       } else if (ch_vector2_equal(disp, up_right)) {
@@ -80,7 +80,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
       if (!ch_can_do_en_passant(chess, pawn, en_passant_piece)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      out->piece_taking = en_passant_piece;
+      out->taking_piece_id = en_passant_piece->id;
     } else {
       if (!ch_vector2_equal(disp, up_left) &&
           !ch_vector2_equal(disp, up_right)) {
@@ -115,6 +115,11 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
   }
 
   return CH_ERR_SUCCESS;
+}
+
+bool ch_chess_is_position_safe_from_pawn(ch_chess_t *chess,
+                                         ch_vector2_t position) {
+  return true;
 }
 
 static const ch_piece_methods_t CH_PAWN_METHODS = {

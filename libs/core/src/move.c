@@ -4,7 +4,6 @@
 ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation) {
   size_t len;
   const char *first, *last, *cur;
-  ch_piece_type_t piece_type;
   uint8_t v_pos_from, h_pos_from, v_pos_to, h_pos_to;
   ch_move_t parsed_move;
 
@@ -20,7 +19,7 @@ ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation) {
   cur = first;
 
   // 1. Parse piece type
-  if ((piece_type = ch_char_to_piece_type(*cur)) != CH_EMPTY) {
+  if ((parsed_move.piece_type = ch_char_to_piece_type(*cur)) != CH_EMPTY) {
     cur++;
   }
 

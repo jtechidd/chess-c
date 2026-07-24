@@ -1,4 +1,4 @@
-#include "core/knight.h"
+#include "core/pieces/knight.h"
 #include "core/chess.h"
 #include "core/common.h"
 #include "core/piece.h"
@@ -26,6 +26,11 @@ static ch_error_t ch_knight_validate_move(ch_piece_t *piece, ch_chess_t *chess,
     return CH_ERR_ILLEGAL_MOVE;
   }
   return CH_ERR_SUCCESS;
+}
+
+bool ch_chess_is_position_safe_from_knight(ch_chess_t *chess,
+                                           ch_vector2_t position) {
+  return true;
 }
 
 static const ch_piece_methods_t CH_KNIGHT_METHODS = {

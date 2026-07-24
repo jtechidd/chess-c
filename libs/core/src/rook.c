@@ -1,3 +1,4 @@
+#include "core/pieces/rook.h"
 #include "core/chess.h"
 #include "core/common.h"
 #include "core/piece.h"
@@ -11,21 +12,21 @@ void ch_chess_spawn_rook(ch_chess_t *chess, ch_side_t side,
                        ch_piece_data_make_empty(), &CH_ROOK_METHODS);
 }
 
-static bool CH_Rook_CheckDisplacement(ch_vector2_t disp) {
-  return disp.i == 0 != disp.j == 0;
+static bool ch_rook_check_displacement(ch_vector2_t disp) {
+  return (disp.i == 0) != (disp.j == 0);
 }
 
-static ch_error_t CH_Rook_ValidateMove(ch_piece_t *piece, ch_chess_t *chess,
-                                       ch_move_t move,
-                                       ch_validate_move_out_t *out) {
+static ch_error_t ch_rook_validate_move(ch_piece_t *piece, ch_chess_t *chess,
+                                        ch_move_t move,
+                                        ch_validate_move_out_t *out) {
   ch_vector2_t disp = ch_vector2_sub(move.position_to, move.position_from);
-  if (!CH_Rook_CheckDisplacement(disp)) {
-    return false;
+  if (!ch_rook_check_displacement(disp)) {
+    return CH_ERR_ILLEGAL_MOVE;
   }
   ch_vector2_t dir = ch_vector2_make(disp.i == 0 ? 0 : (disp.i / abs(disp.i)),
                                      disp.j == 0 ? 0 : (disp.j / abs(disp.j)));
   ch_vector2_t dest;
-  for (uint8_t k = 1; k < 8; k++) {
+  for (uint8_t k = 1; k < CH_BOARD_SIZE; k++) {
     dest = ch_vector2_add(move.position_from, ch_vector2_scalmult(dir, k));
     if (ch_vector2_equal(dest, move.position_to)) {
       break;
@@ -38,6 +39,11 @@ static ch_error_t CH_Rook_ValidateMove(ch_piece_t *piece, ch_chess_t *chess,
   return CH_ERR_SUCCESS;
 }
 
+bool ch_chess_is_position_safe_from_rook(ch_chess_t *chess,
+                                         ch_vector2_t position) {
+  return true;
+}
+
 static const ch_piece_methods_t CH_ROOK_METHODS = {
-    .validate_move = CH_Rook_ValidateMove,
+    .validate_move = ch_rook_validate_move,
 };

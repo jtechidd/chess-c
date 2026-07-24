@@ -6,15 +6,14 @@
 #include "core/move.h"
 #include "core/piece.h"
 #include "core/piece_db.h"
+#include "core/pieces/bishop.h"
+#include "core/pieces/king.h"
+#include "core/pieces/knight.h"
+#include "core/pieces/pawn.h"
+#include "core/pieces/queen.h"
+#include "core/pieces/rook.h"
 #include "core/utils.h"
 #include "core/vector2.h"
-
-#include "core/bishop.h"
-#include "core/king.h"
-#include "core/knight.h"
-#include "core/pawn.h"
-#include "core/queen.h"
-#include "core/rook.h"
 
 static void ch_cell_init_with_piece(ch_cell_t *cell, ch_piece_t *piece) {
   cell->piece_id = piece->id;
@@ -43,7 +42,7 @@ void ch_chess_spawn_piece(ch_chess_t *chess, ch_side_t side,
 void ch_chess_init_standard(ch_chess_t *chess) {
   memset(chess, 0, sizeof(ch_chess_t));
   chess->turn = CH_SIDE_WHITE;
-  chess->num_turns = 0;
+  chess->turn_count = 0;
 
   ch_chess_spawn_rook(chess, CH_SIDE_BLACK, ch_vector2_make(0, 0));
   ch_chess_spawn_knight(chess, CH_SIDE_BLACK, ch_vector2_make(0, 1));
@@ -74,10 +73,10 @@ void ch_chess_init_standard(ch_chess_t *chess) {
 
 static void ch_chess_update_board(ch_chess_t *chess) {
   ch_board_t *board = &chess->board;
-  ch_piece_db_t *pieceDb = &chess->piece_db;
+  ch_piece_db_t *piece_db = &chess->piece_db;
   ch_board_clear(&chess->board);
-  for (uint8_t i = 0; i < pieceDb->num_pieces; i++) {
-    ch_piece_t *piece = ch_piece_db_get_by_index(pieceDb, i);
+  for (uint8_t i = 0; i < piece_db->num_pieces; i++) {
+    ch_piece_t *piece = ch_piece_db_get_by_index(piece_db, i);
     if (!piece->is_captured) {
       ch_board_place_piece(board, piece);
     }
@@ -97,22 +96,94 @@ ch_piece_t *ch_chess_get_piece_on_position(ch_chess_t *chess,
   return ch_piece_db_get_by_id(&chess->piece_db, cell->piece_id);
 }
 
-bool ch_chess_is_position_safe(ch_chess_t *chess, ch_vector2_t position) {
-  if (!ch_is_position_in_bound(position)) {
+static bool ch_chess_is_position_safe(ch_chess_t *chess,
+                                      ch_vector2_t position) {
+  if (!ch_is_position_in_bound(position))
     return false;
-  }
+  if (!ch_chess_is_position_safe_from_rook(chess, position))
+    return false;
+  if (!ch_chess_is_position_safe_from_knight(chess, position))
+    return false;
+  if (!ch_chess_is_position_safe_from_bishop(chess, position))
+    return false;
+  if (!ch_chess_is_position_safe_from_queen(chess, position))
+    return false;
+  if (!ch_chess_is_position_safe_from_king(chess, position))
+    return false;
+  if (!ch_chess_is_position_safe_from_pawn(chess, position))
+    return false;
+  return true;
+}
+
+bool ch_chess_is_position_safe_to_move_to(ch_chess_t *chess,
+                                          ch_vector2_t position) {
   if (ch_chess_get_piece_on_position(chess, position) != NULL) {
     return false;
   }
-  // TODO: implement this
+  return ch_chess_is_position_safe(chess, position);
+}
+
+static void ch_chess_mutate_pieces_and_board_state_unchecked(
+    ch_chess_t *chess, ch_move_t move, ch_piece_id_t piece_id,
+    ch_validate_move_out_t *vld_move_out) {
+  // 1. Get corresponding pieces
+  ch_piece_t *piece, *taking_piece, *castling_rook;
+  piece = ch_piece_db_get_by_id(&chess->piece_db, piece_id);
+  taking_piece =
+      ch_piece_db_get_by_id(&chess->piece_db, vld_move_out->taking_piece_id);
+  castling_rook =
+      ch_piece_db_get_by_id(&chess->piece_db, vld_move_out->castling_rook_id);
+
+  // 2. Mutate pieces state
+  piece->position = move.position_to;
+  piece->move_count++;
+  piece->latest_move_turn_count = chess->turn_count;
+  if (move.is_taking) {
+    assert(taking_piece != NULL);
+    taking_piece->is_captured = true;
+  }
+  if (move.promote_to != CH_EMPTY) {
+    piece->type = move.promote_to;
+  }
+  if (castling_rook != NULL) {
+    assert(piece->type == CH_PIECE_TYPE_KING);
+    castling_rook->position = vld_move_out->castling_rook_position_to;
+    castling_rook->move_count++;
+    castling_rook->latest_move_turn_count = chess->turn_count;
+  }
+
+  // 3. Mutate board state
+  ch_chess_update_board(chess);
+}
+
+static bool
+ch_chess_is_king_safe_after_move(ch_chess_t *chess, ch_move_t move,
+                                 ch_piece_id_t piece_id,
+                                 ch_validate_move_out_t *vld_move_out) {
+  // 1. Clone chess
+  ch_chess_t chess_cpy;
+  memcpy(&chess_cpy, chess, sizeof(ch_chess_t));
+
+  // 2. Try mutate cloned chess pieces and board state
+  ch_chess_mutate_pieces_and_board_state_unchecked(&chess_cpy, move, piece_id,
+                                                   vld_move_out);
+
+  // 3. Check whether king is safe after mutated cloned chess state
+  ch_piece_t *king =
+      ch_piece_db_get_king_by_side(&chess_cpy.piece_db, chess_cpy.turn);
+  assert(king != NULL);
+  if (!ch_chess_is_position_safe(&chess_cpy, king->position)) {
+    return false;
+  }
   return true;
 }
 
 ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
-  ch_piece_t *piece = ch_chess_get_piece_on_position(chess, move.position_from);
-  ch_validate_move_out_t val_move_out = {0};
+  ch_piece_t *piece, *taking_piece;
+  piece = ch_chess_get_piece_on_position(chess, move.position_from);
+  ch_validate_move_out_t vld_move_out = {0};
 
-  // 1. Perform common move checking
+  // 1. Perform preliminary move validation
   if (!(ch_is_position_in_bound(move.position_from) &&
         ch_is_position_in_bound(move.position_to))) {
     return CH_ERR_ILLEGAL_MOVE;
@@ -130,13 +201,14 @@ ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
     return CH_ERR_ILLEGAL_MOVE;
   }
   if (move.is_taking) {
-    val_move_out.piece_taking =
-        ch_chess_get_piece_on_position(chess, move.position_to);
-    if (piece->type != CH_PIECE_TYPE_PAWN && !val_move_out.piece_taking) {
+    taking_piece = ch_chess_get_piece_on_position(chess, move.position_to);
+    if (taking_piece != NULL) {
+      vld_move_out.taking_piece_id = taking_piece->id;
+    }
+    if (piece->type != CH_PIECE_TYPE_PAWN && !taking_piece) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-    if (val_move_out.piece_taking &&
-        val_move_out.piece_taking->side == piece->side) {
+    if (taking_piece && taking_piece->side == piece->side) {
       return CH_ERR_ILLEGAL_MOVE;
     }
   } else if (ch_chess_get_piece_on_position(chess, move.position_to)) {
@@ -146,41 +218,29 @@ ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
-  // 2. Perform specific move checking by piece type
-  if (ch_piece_validate_move(piece, chess, move, &val_move_out) !=
+  // 2. Perform specific move validation by piece type
+  if (ch_piece_validate_move(piece, chess, move, &vld_move_out) !=
       CH_ERR_SUCCESS) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
-  // 3. Mutate pieces state
-  piece->position = move.position_to;
-  piece->move_count++;
-  piece->latest_move_turn_num = chess->num_turns;
-  if (move.is_taking) {
-    assert(val_move_out.piece_taking != NULL);
-    val_move_out.piece_taking->is_captured = true;
-  }
-  if (move.promote_to != CH_EMPTY) {
-    piece->type = move.promote_to;
-  }
-  if (val_move_out.piece_castling_rook != NULL) {
-    assert(piece->type == CH_PIECE_TYPE_KING);
-    val_move_out.piece_castling_rook->position =
-        val_move_out.piece_castling_rook_position_to;
-    val_move_out.piece_castling_rook->move_count++;
-    val_move_out.piece_castling_rook->latest_move_turn_num = chess->num_turns;
+  // 3. Checking whether king is safe after move
+  if (!ch_chess_is_king_safe_after_move(chess, move, piece->id,
+                                        &vld_move_out)) {
+    return CH_ERR_ILLEGAL_MOVE;
   }
 
-  // 4. Update board
-  ch_chess_update_board(chess);
+  // 4. Mutate pieces and board state
+  ch_chess_mutate_pieces_and_board_state_unchecked(chess, move, piece->id,
+                                                   &vld_move_out);
 
-  // 5. Flip turn and increase number of turns;
+  // 5. Flip turn and increase number of turns
   if (chess->turn == CH_SIDE_WHITE) {
     chess->turn = CH_SIDE_BLACK;
   } else {
     chess->turn = CH_SIDE_WHITE;
   }
-  chess->num_turns++;
+  chess->turn_count++;
 
   return CH_ERR_SUCCESS;
 }

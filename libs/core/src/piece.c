@@ -13,7 +13,7 @@ void ch_piece_init(ch_piece_t *piece, ch_piece_id_t id, ch_side_t side,
   piece->type = type;
   piece->position = position;
   piece->move_count = 0;
-  piece->latest_move_turn_num = 0;
+  piece->latest_move_turn_count = 0;
   piece->is_captured = false;
   piece->data = data;
   piece->methods = methods;

@@ -16,16 +16,16 @@ typedef struct {
   ch_piece_type_t type;
   ch_vector2_t position;
   uint8_t move_count;
-  uint8_t latest_move_turn_num;
+  uint8_t latest_move_turn_count;
   bool is_captured;
   ch_piece_data_t data;
   const ch_piece_methods_t *methods;
 } ch_piece_t;
 
 typedef struct {
-  ch_piece_t *piece_taking;
-  ch_piece_t *piece_castling_rook;
-  ch_vector2_t piece_castling_rook_position_to;
+  ch_piece_id_t taking_piece_id;
+  ch_piece_id_t castling_rook_id;
+  ch_vector2_t castling_rook_position_to;
 } ch_validate_move_out_t;
 
 typedef ch_error_t ch_validate_move_fn_t(ch_piece_t *piece, ch_chess_t *chess,

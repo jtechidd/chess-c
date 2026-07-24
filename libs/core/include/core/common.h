@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CH_BOARD_WIDTH 8
-#define CH_BOARD_HEIGHT 8
+#define CH_BOARD_SIZE 8
+#define CH_BOARD_WIDTH CH_BOARD_SIZE
+#define CH_BOARD_HEIGHT CH_BOARD_SIZE
 #define CH_MAX_PIECES 64
 #define CH_EMPTY 0
 #define CH_NUM_PIECE_TYPES 6
 #define CH_NUM_SIDES 2
-#define CH_NUM_ROOK_TYPES 2
 
 typedef uint8_t ch_piece_id_t;
 
@@ -35,11 +35,6 @@ typedef enum : uint8_t {
   CH_PIECE_TYPE_QUEEN,
   CH_PIECE_TYPE_KING,
 } ch_piece_type_t;
-
-typedef enum : uint8_t {
-  CH_ROOK_TYPE_QUEEN_SIDE = 1,
-  CH_ROOK_TYPE_KING_SIDE
-} ch_rook_type_t;
 
 typedef struct _ch_chess_t ch_chess_t;
 

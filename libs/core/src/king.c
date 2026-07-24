@@ -3,7 +3,6 @@
 #include "core/piece.h"
 #include "core/utils.h"
 #include "core/vector2.h"
-#include <assert.h>
 
 static const ch_piece_methods_t CH_KING_METHODS;
 
@@ -27,6 +26,7 @@ static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
                                         ch_move_t move,
                                         ch_validate_move_out_t *out) {
   ch_vector2_t disp, dir, adj, dest;
+  ch_piece_t *castling_rook;
   disp = ch_vector2_sub(move.position_to, move.position_from);
   if (ch_king_check_displacement_castling(disp)) {
     if (move.is_taking) {
@@ -37,27 +37,27 @@ static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
     }
     dir = ch_vector2_make(0, disp.j / abs(disp.j));
     adj = ch_vector2_add(move.position_from, dir);
-    if (!(ch_chess_is_position_safe(chess, move.position_to) &&
-          ch_chess_is_position_safe(chess, adj))) {
+    if (!(ch_chess_is_position_safe_to_move_to(chess, move.position_to) &&
+          ch_chess_is_position_safe_to_move_to(chess, adj))) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-    for (uint8_t k = 3; k < 8; k++) {
+    for (uint8_t k = 3; k < CH_BOARD_SIZE; k++) {
       dest = ch_vector2_add(move.position_from, ch_vector2_scalmult(dir, k));
       if (!ch_is_position_in_bound(dest)) {
         break;
       }
-      piece = ch_chess_get_piece_on_position(chess, dest);
-      if (piece == NULL) {
+      castling_rook = ch_chess_get_piece_on_position(chess, dest);
+      if (castling_rook == NULL) {
         continue;
       }
-      if (piece->type != CH_PIECE_TYPE_ROOK) {
+      if (castling_rook->type != CH_PIECE_TYPE_ROOK) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      if (piece->move_count > 0) {
+      if (castling_rook->move_count > 0) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      out->piece_castling_rook = piece;
-      out->piece_castling_rook_position_to = adj;
+      out->castling_rook_id = castling_rook->id;
+      out->castling_rook_position_to = adj;
       return CH_ERR_SUCCESS;
     }
     return CH_ERR_ILLEGAL_MOVE;
@@ -65,6 +65,11 @@ static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
     return CH_ERR_ILLEGAL_MOVE;
   }
   return CH_ERR_SUCCESS;
+}
+
+bool ch_chess_is_position_safe_from_king(ch_chess_t *chess,
+                                         ch_vector2_t position) {
+  return true;
 }
 
 static const ch_piece_methods_t CH_KING_METHODS = {
