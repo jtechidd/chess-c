@@ -20,9 +20,16 @@ void ch_piece_init(ch_piece_t *piece, ch_piece_id_t id, ch_side_t side,
 }
 
 ch_error_t ch_piece_validate_move(ch_piece_t *piece, ch_chess_t *chess,
-                                  ch_move_t move, ch_apply_move_payload_t *out) {
+                                  ch_move_t move,
+                                  ch_apply_move_payload_t *out) {
   assert(piece->methods && piece->methods->validate_move);
   return piece->methods->validate_move(piece, chess, move, out);
+}
+
+void ch_piece_fill_moves(ch_piece_t *piece, ch_chess_t *chess,
+                    ch_move_db_t *move_db) {
+  assert(piece->methods && piece->methods->fill_moves);
+  return piece->methods->fill_moves(piece, chess, move_db);
 }
 
 ch_piece_data_t ch_piece_data_make_empty() { return (ch_piece_data_t){}; }

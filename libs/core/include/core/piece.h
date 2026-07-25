@@ -3,6 +3,7 @@
 
 #include "core/common.h"
 #include "core/move.h"
+#include "core/move_db.h"
 #include "core/vector2.h"
 
 typedef union {
@@ -10,7 +11,7 @@ typedef union {
 
 typedef struct _ch_piece_methods_t ch_piece_methods_t;
 
-typedef struct {
+struct _ch_piece_t {
   ch_piece_id_t id;
   ch_side_t side;
   ch_piece_type_t type;
@@ -20,7 +21,7 @@ typedef struct {
   bool is_captured;
   ch_piece_data_t data;
   const ch_piece_methods_t *methods;
-} ch_piece_t;
+};
 
 typedef struct {
   ch_piece_id_t piece_id;
@@ -32,15 +33,19 @@ typedef struct {
 typedef ch_error_t ch_validate_move_fn_t(ch_piece_t *piece, ch_chess_t *chess,
                                          ch_move_t move,
                                          ch_apply_move_payload_t *payload);
+typedef void ch_fill_moves_fn_t(ch_piece_t *piece, ch_chess_t *chess,
+                                ch_move_db_t *move_db);
 
 struct _ch_piece_methods_t {
   ch_validate_move_fn_t *validate_move;
+  ch_fill_moves_fn_t *fill_moves;
 };
 
 void ch_piece_init(ch_piece_t *piece, ch_piece_id_t id, ch_side_t side,
                    ch_piece_type_t type, ch_vector2_t position,
                    ch_piece_data_t data, const ch_piece_methods_t *methods);
 ch_validate_move_fn_t ch_piece_validate_move;
+ch_fill_moves_fn_t ch_piece_fill_moves;
 ch_piece_data_t ch_piece_data_make_empty();
 
 #endif

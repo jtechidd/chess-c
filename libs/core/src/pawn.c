@@ -1,10 +1,21 @@
 #include "core/chess.h"
 #include "core/common.h"
+#include "core/move.h"
+#include "core/move_db.h"
 #include "core/piece.h"
 #include "core/utils.h"
 #include "core/vector2.h"
+#include <stdbool.h>
+
+#define CH_PAWN_NUM_PROMOTABLE_TYPES 4
 
 static const ch_piece_methods_t CH_PAWN_METHODS;
+static const ch_piece_type_t CH_PAWN_PROMOTABLE_TYPE[] = {
+    CH_PIECE_TYPE_QUEEN,
+    CH_PIECE_TYPE_ROOK,
+    CH_PIECE_TYPE_KNIGHT,
+    CH_PIECE_TYPE_BISHOP,
+};
 
 void ch_chess_spawn_pawn(ch_chess_t *chess, ch_side_t side,
                          ch_vector2_t position) {
@@ -34,8 +45,12 @@ static bool ch_can_do_en_passant(ch_chess_t *chess, ch_piece_t *pawn,
 }
 
 static bool ch_is_valid_promote_to(ch_piece_type_t type) {
-  return type == CH_PIECE_TYPE_QUEEN || type == CH_PIECE_TYPE_ROOK ||
-         type == CH_PIECE_TYPE_BISHOP || type == CH_PIECE_TYPE_KNIGHT;
+  for (uint8_t i = 0; i < CH_PAWN_NUM_PROMOTABLE_TYPES; i++) {
+    if (type == CH_PAWN_PROMOTABLE_TYPE[i]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 static bool ch_is_position_promotable(ch_vector2_t pos, ch_side_t side) {
@@ -151,6 +166,62 @@ bool ch_chess_is_position_safe_from_pawn(ch_chess_t *chess,
   return true;
 }
 
+static void ch_pawn_fill_promotable_raw_moves(ch_piece_t *piece,
+                                              ch_chess_t *chess,
+                                              ch_move_db_t *move_db,
+                                              bool is_taking,
+                                              ch_vector2_t dest) {
+  ch_piece_type_t promote_to;
+  ch_move_t move;
+
+  if (!ch_is_position_in_bound(dest)) {
+    return;
+  }
+
+  for (uint8_t p = 0; p < CH_PAWN_NUM_PROMOTABLE_TYPES; p++) {
+    promote_to = CH_PAWN_PROMOTABLE_TYPE[p];
+    move = ch_move_make_from_piece(piece, false, dest, promote_to);
+    ch_chess_validate_and_add_move(chess, move_db, move);
+  }
+
+  move = ch_move_make_from_piece(piece, false, dest, CH_EMPTY);
+  ch_chess_validate_and_add_move(chess, move_db, move);
+}
+
+static void ch_pawn_fill_moves(ch_piece_t *pawn, ch_chess_t *chess,
+                               ch_move_db_t *move_db) {
+  ch_vector2_t up = ch_vector2_make(-1, 0);
+  ch_vector2_t up2 = ch_vector2_make(-2, 0);
+  ch_vector2_t up_left = ch_vector2_make(-1, -1);
+  ch_vector2_t up_right = ch_vector2_make(-1, 1);
+
+  if (pawn->side == CH_SIDE_BLACK) {
+    up = ch_vector2_flipv(up);
+    up2 = ch_vector2_flipv(up2);
+    up_left = ch_vector2_flipv(up_left);
+    up_right = ch_vector2_flipv(up_right);
+  }
+
+  ch_vector2_t dest;
+
+  // Add move double step up
+  dest = ch_vector2_add(pawn->position, up2);
+  ch_pawn_fill_promotable_raw_moves(pawn, chess, move_db, false, dest);
+
+  // Add move step up
+  dest = ch_vector2_add(pawn->position, up);
+  ch_pawn_fill_promotable_raw_moves(pawn, chess, move_db, false, dest);
+
+  // Add move taking left
+  dest = ch_vector2_add(pawn->position, up_left);
+  ch_pawn_fill_promotable_raw_moves(pawn, chess, move_db, true, dest);
+
+  // Add move taking right
+  dest = ch_vector2_add(pawn->position, up_right);
+  ch_pawn_fill_promotable_raw_moves(pawn, chess, move_db, true, dest);
+}
+
 static const ch_piece_methods_t CH_PAWN_METHODS = {
     .validate_move = ch_pawn_validate_move,
+    .fill_moves = ch_pawn_fill_moves,
 };

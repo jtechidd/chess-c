@@ -4,6 +4,7 @@
 #include "core/chess.h"
 #include "core/common.h"
 #include "core/move.h"
+#include "core/move_db.h"
 #include "core/piece.h"
 #include "core/piece_db.h"
 #include "core/pieces/bishop.h"
@@ -260,6 +261,29 @@ ch_error_t ch_chess_apply_move_lan(ch_chess_t *chess,
   }
 
   return CH_ERR_SUCCESS;
+}
+
+void ch_chess_validate_and_add_move(ch_chess_t *chess, ch_move_db_t *move_db,
+                                 ch_move_t move) {
+  ch_chess_t chess_cpy;
+  memcpy(&chess_cpy, chess, sizeof(ch_chess_t));
+  if (ch_chess_apply_move(&chess_cpy, move) == CH_ERR_SUCCESS) {
+    ch_move_db_add_move(move_db, move);
+  }
+}
+
+void ch_chess_fill_moves(ch_chess_t *chess, ch_move_db_t *move_db) {
+  ch_piece_t *piece;
+  memset(move_db, 0, sizeof(ch_move_db_t));
+
+  for (uint8_t i = 0; i < chess->piece_db.total; i++) {
+    piece = ch_piece_db_get_by_index(&chess->piece_db, i);
+    if (piece->side != chess->turn)
+      continue;
+    if (piece->is_captured)
+      continue;
+    ch_piece_fill_moves(piece, chess, move_db);
+  }
 }
 
 void ch_chess_print_board(ch_chess_t *chess) {

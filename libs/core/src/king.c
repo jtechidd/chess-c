@@ -107,6 +107,37 @@ bool ch_chess_is_position_safe_from_king(ch_chess_t *chess,
   return true;
 }
 
+static void ch_king_fill_moves(ch_piece_t *king, ch_chess_t *chess,
+                               ch_move_db_t *move_db) {
+  ch_vector2_t dest, dir;
+  ch_move_t move;
+  for (uint8_t k = 0; k < CH_KING_NUM_DIRECTIONS; k++) {
+    dir = CH_KING_DIRECTIONS[k];
+    dest = ch_vector2_add(king->position, dir);
+    if (!ch_is_position_in_bound(dest)) {
+      continue;
+    }
+    move = ch_move_make_from_piece(king, false, dest, CH_EMPTY);
+    ch_chess_validate_and_add_move(chess, move_db, move);
+
+    move = ch_move_make_from_piece(king, true, dest, CH_EMPTY);
+    ch_chess_validate_and_add_move(chess, move_db, move);
+  }
+
+  for (uint8_t k = 0; k < CH_KING_NUM_CASTLING_DIRECTIONS; k++) {
+    dir = CH_KING_CASTLING_DIRECTIONS[k];
+    dest = ch_vector2_add(king->position, ch_vector2_scalmult(dir, 2));
+    if (!ch_is_position_in_bound(dest)) {
+      continue;
+    }
+
+    move = ch_move_make_from_piece(king, false, dest, CH_EMPTY);
+    ch_chess_validate_and_add_move(chess, move_db, move);
+  }
+  return;
+}
+
 static const ch_piece_methods_t CH_KING_METHODS = {
     .validate_move = ch_king_validate_move,
+    .fill_moves = ch_king_fill_moves,
 };

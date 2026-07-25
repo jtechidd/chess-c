@@ -23,6 +23,20 @@ int8_t ch_file_to_horizontal_position(char file) {
   return file - 'a';
 }
 
+char ch_vertical_position_to_rank(int8_t i) {
+  if (i < 0 || i >= CH_BOARD_HEIGHT) {
+    return CH_EMPTY;
+  }
+  return (CH_BOARD_HEIGHT - i) + '0';
+}
+
+char ch_horizontal_position_to_file(int8_t j) {
+  if (j < 0 || j >= CH_BOARD_WIDTH) {
+    return CH_EMPTY;
+  }
+  return j + 'a';
+}
+
 ch_piece_type_t ch_char_to_piece_type(char piece_char) {
   switch (piece_char) {
   case 'R':

@@ -8,6 +8,8 @@ bool ch_is_valid_file(char file);
 bool ch_is_valid_rank(char rank);
 int8_t ch_rank_to_vertical_position(char rank);
 int8_t ch_file_to_horizontal_position(char file);
+char ch_vertical_position_to_rank(int8_t i);
+char ch_horizontal_position_to_file(int8_t j);
 ch_piece_type_t ch_char_to_piece_type(char piece_char);
 char ch_piece_type_to_char(ch_piece_type_t type);
 bool ch_is_position_in_bound(ch_vector2_t position);

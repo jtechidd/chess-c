@@ -1,4 +1,6 @@
 #include "core/move.h"
+#include "core/common.h"
+#include "core/piece.h"
 #include "core/utils.h"
 
 ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation) {
@@ -82,4 +84,47 @@ ch_error_t ch_move_parse_lan(ch_move_t *move, const char *notation) {
   memcpy(move, &parsed_move, sizeof(ch_move_t));
 
   return CH_ERR_SUCCESS;
+}
+
+static void ch_safe_write_char(char *buf, uint8_t *idx, char c,
+                               uint8_t buf_len) {
+  if (*idx >= buf_len - 1)
+    return;
+  buf[*idx] = c;
+  *idx = *idx + 1;
+  return;
+}
+
+void ch_move_to_str(ch_move_t *move, char *buf, uint8_t buf_len) {
+  uint8_t idx = 0;
+  char piece_char = ch_piece_type_to_char(move->piece_type);
+  char pos_from_file = ch_horizontal_position_to_file(move->position_from.j);
+  char pos_from_rank = ch_vertical_position_to_rank(move->position_from.i);
+  char pos_to_file = ch_horizontal_position_to_file(move->position_to.j);
+  char pos_to_rank = ch_vertical_position_to_rank(move->position_to.i);
+
+  if (piece_char != CH_EMPTY && piece_char != 'P') {
+    ch_safe_write_char(buf, &idx, piece_char, buf_len);
+  }
+  ch_safe_write_char(buf, &idx, pos_from_file, buf_len);
+  ch_safe_write_char(buf, &idx, pos_from_rank, buf_len);
+  if (move->is_taking) {
+    ch_safe_write_char(buf, &idx, 'x', buf_len);
+  }
+  ch_safe_write_char(buf, &idx, pos_to_file, buf_len);
+  ch_safe_write_char(buf, &idx, pos_to_rank, buf_len);
+
+  buf[idx] = '\0';
+}
+
+ch_move_t ch_move_make_from_piece(ch_piece_t *piece, bool is_taking,
+                                  ch_vector2_t position_to,
+                                  ch_piece_type_t promote_to) {
+  return (ch_move_t){
+      .piece_type = piece->type,
+      .position_from = piece->position,
+      .is_taking = is_taking,
+      .position_to = position_to,
+      .promote_to = promote_to,
+  };
 }

@@ -2,6 +2,8 @@
 
 #include "core/chess.h"
 #include "core/common.h"
+#include "core/move.h"
+#include "core/move_db.h"
 
 void test_pawn_up2_failed_repeat() {
   ch_chess_t chess;
@@ -353,7 +355,60 @@ void test_king_pin() {
   assert(ch_chess_apply_move_lan(&chess, "Nc3d5") == CH_ERR_SUCCESS);
 }
 
+void test_fill_moves_ruy_lopez() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  ch_chess_apply_move_lan(&chess, "e2e4");
+  ch_chess_apply_move_lan(&chess, "e7e5");
+  ch_chess_apply_move_lan(&chess, "Ng1f3");
+  ch_chess_apply_move_lan(&chess, "Nb8c6");
+  ch_chess_apply_move_lan(&chess, "Bf1b5");
+  ch_chess_apply_move_lan(&chess, "Ng8f6");
+
+  ch_chess_print_board(&chess);
+
+  ch_move_db_t move_db;
+  ch_chess_fill_moves(&chess, &move_db);
+
+  ch_move_t *move;
+  char move_str[16];
+  printf("%d\n", move_db.total);
+  for (uint16_t i = 0; i < move_db.total; i++) {
+    move = ch_move_db_get_by_index(&move_db, i);
+    ch_move_to_str(move, move_str, 16);
+    printf("%s\n", move_str);
+  }
+}
+
+void test_fill_moves_fools_mate() {
+  ch_chess_t chess;
+  ch_chess_init_standard(&chess);
+
+  ch_chess_apply_move_lan(&chess, "g2g4");
+  ch_chess_apply_move_lan(&chess, "e7e5");
+  ch_chess_apply_move_lan(&chess, "f2f3");
+  ch_chess_apply_move_lan(&chess, "Qd8h4");
+
+  ch_chess_print_board(&chess);
+
+  ch_move_db_t move_db;
+  ch_chess_fill_moves(&chess, &move_db);
+
+  ch_move_t *move;
+  char move_str[16];
+  printf("%d\n", move_db.total);
+  for (uint16_t i = 0; i < move_db.total; i++) {
+    move = ch_move_db_get_by_index(&move_db, i);
+    ch_move_to_str(move, move_str, 16);
+    printf("%s\n", move_str);
+  }
+}
+
 int main(int argc, char *argv[]) {
+
+  printf("%ld\n", sizeof(ch_chess_t));
+  printf("%ld\n", sizeof(ch_move_db_t));
   test_pawn_up2_failed_repeat();
   test_pawn_up_failed_occupied();
   test_pawn_up2_failed_occupied();
@@ -376,6 +431,9 @@ int main(int argc, char *argv[]) {
   test_king_castling_queen_side();
   test_king_castling_queen_side_invalid_rook_moved();
   test_king_pin();
+
+  test_fill_moves_ruy_lopez();
+  // test_fill_moves_fools_mate();
 
   return 0;
 }

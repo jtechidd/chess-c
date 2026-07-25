@@ -24,7 +24,8 @@ typedef uint8_t ch_piece_id_t;
 typedef enum : uint8_t {
   CH_ERR_SUCCESS = 0,
   CH_ERR_INVALID_NOTATION,
-  CH_ERR_ILLEGAL_MOVE
+  CH_ERR_ILLEGAL_MOVE,
+  CH_ERR_NOT_ENOUGH_BUFFER,
 } ch_error_t;
 
 typedef enum : uint8_t { CH_SIDE_WHITE = 1, CH_SIDE_BLACK } ch_side_t;
@@ -39,5 +40,6 @@ typedef enum : uint8_t {
 } ch_piece_type_t;
 
 typedef struct _ch_chess_t ch_chess_t;
+typedef struct _ch_piece_t ch_piece_t;
 
 #endif

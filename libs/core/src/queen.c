@@ -75,6 +75,29 @@ bool ch_chess_is_position_safe_from_queen(ch_chess_t *chess,
   return true;
 }
 
+static void ch_queen_raw_moves(ch_piece_t *queen, ch_chess_t *chess,
+                                    ch_move_db_t *move_db) {
+  ch_vector2_t dir, dest;
+  ch_move_t move;
+  for (uint8_t k = 0; k < CH_QUEEN_NUM_DIRECTIONS; k++) {
+    dir = CH_QUEEN_DIRECTIONS[k];
+    for (uint8_t s = 1; s < CH_BOARD_SIZE; s++) {
+      dest = ch_vector2_add(queen->position, ch_vector2_scalmult(dir, s));
+      if (!ch_is_position_in_bound(dest)) {
+        break;
+      }
+
+      move = ch_move_make_from_piece(queen, false, dest, CH_EMPTY);
+      ch_chess_validate_and_add_move(chess, move_db, move);
+
+      move = ch_move_make_from_piece(queen, true, dest, CH_EMPTY);
+      ch_chess_validate_and_add_move(chess, move_db, move);
+    }
+  }
+  return;
+}
+
 static const ch_piece_methods_t CH_QUEEN_METHODS = {
     .validate_move = ch_queen_validate_move,
+    .fill_moves = ch_queen_raw_moves,
 };
