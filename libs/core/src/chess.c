@@ -75,7 +75,7 @@ static void ch_chess_update_board(ch_chess_t *chess) {
   ch_board_t *board = &chess->board;
   ch_piece_db_t *piece_db = &chess->piece_db;
   ch_board_clear(&chess->board);
-  for (uint8_t i = 0; i < piece_db->num_pieces; i++) {
+  for (uint8_t i = 0; i < piece_db->total; i++) {
     ch_piece_t *piece = ch_piece_db_get_by_index(piece_db, i);
     if (!piece->is_captured) {
       ch_board_place_piece(board, piece);
@@ -124,15 +124,14 @@ bool ch_chess_is_position_safe_to_move_to(ch_chess_t *chess,
 }
 
 static void ch_chess_mutate_pieces_and_board_state_unchecked(
-    ch_chess_t *chess, ch_move_t move, ch_piece_id_t piece_id,
-    ch_validate_move_out_t *vld_move_out) {
+    ch_chess_t *chess, ch_move_t move, ch_apply_move_payload_t *payload) {
   // 1. Get corresponding pieces
   ch_piece_t *piece, *taking_piece, *castling_rook;
-  piece = ch_piece_db_get_by_id(&chess->piece_db, piece_id);
+  piece = ch_piece_db_get_by_id(&chess->piece_db, payload->piece_id);
   taking_piece =
-      ch_piece_db_get_by_id(&chess->piece_db, vld_move_out->taking_piece_id);
+      ch_piece_db_get_by_id(&chess->piece_db, payload->taking_piece_id);
   castling_rook =
-      ch_piece_db_get_by_id(&chess->piece_db, vld_move_out->castling_rook_id);
+      ch_piece_db_get_by_id(&chess->piece_db, payload->castling_rook_id);
 
   // 2. Mutate pieces state
   piece->position = move.position_to;
@@ -147,7 +146,7 @@ static void ch_chess_mutate_pieces_and_board_state_unchecked(
   }
   if (castling_rook != NULL) {
     assert(piece->type == CH_PIECE_TYPE_KING);
-    castling_rook->position = vld_move_out->castling_rook_position_to;
+    castling_rook->position = payload->castling_rook_position_to;
     castling_rook->move_count++;
     castling_rook->latest_move_turn_count = chess->turn_count;
   }
@@ -156,17 +155,14 @@ static void ch_chess_mutate_pieces_and_board_state_unchecked(
   ch_chess_update_board(chess);
 }
 
-static bool
-ch_chess_is_king_safe_after_move(ch_chess_t *chess, ch_move_t move,
-                                 ch_piece_id_t piece_id,
-                                 ch_validate_move_out_t *vld_move_out) {
+static bool ch_chess_is_king_safe_after_move(ch_chess_t *chess, ch_move_t move,
+                                             ch_apply_move_payload_t *payload) {
   // 1. Clone chess
   ch_chess_t chess_cpy;
   memcpy(&chess_cpy, chess, sizeof(ch_chess_t));
 
   // 2. Try mutate cloned chess pieces and board state
-  ch_chess_mutate_pieces_and_board_state_unchecked(&chess_cpy, move, piece_id,
-                                                   vld_move_out);
+  ch_chess_mutate_pieces_and_board_state_unchecked(&chess_cpy, move, payload);
 
   // 3. Check whether king is safe after mutated cloned chess state
   ch_piece_t *king =
@@ -180,8 +176,8 @@ ch_chess_is_king_safe_after_move(ch_chess_t *chess, ch_move_t move,
 
 ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
   ch_piece_t *piece, *taking_piece;
+  ch_apply_move_payload_t payload = {0};
   piece = ch_chess_get_piece_on_position(chess, move.position_from);
-  ch_validate_move_out_t vld_move_out = {0};
 
   // 1. Perform preliminary move validation
   if (!(ch_is_position_in_bound(move.position_from) &&
@@ -202,9 +198,8 @@ ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
   }
   if (move.is_taking) {
     taking_piece = ch_chess_get_piece_on_position(chess, move.position_to);
-    if (taking_piece != NULL) {
-      vld_move_out.taking_piece_id = taking_piece->id;
-    }
+    // If the piece is pawn, and taking piece is empty, may be it is en passant.
+    // The pawn move validation will handle this again later.
     if (piece->type != CH_PIECE_TYPE_PAWN && !taking_piece) {
       return CH_ERR_ILLEGAL_MOVE;
     }
@@ -218,21 +213,26 @@ ch_error_t ch_chess_apply_move(ch_chess_t *chess, ch_move_t move) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
+  // 2. Fill some part of payload
+  payload.piece_id = piece->id;
+  if (taking_piece != NULL) {
+    payload.taking_piece_id = taking_piece->id;
+  }
+
   // 2. Perform specific move validation by piece type
-  if (ch_piece_validate_move(piece, chess, move, &vld_move_out) !=
-      CH_ERR_SUCCESS) {
+  // This will update some part of payload. Specifically, update taking piece
+  // from pawn en passant, or update castling rook from king castling.
+  if (ch_piece_validate_move(piece, chess, move, &payload) != CH_ERR_SUCCESS) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
-  // 3. Checking whether king is safe after move
-  if (!ch_chess_is_king_safe_after_move(chess, move, piece->id,
-                                        &vld_move_out)) {
+  // 3. Check if king is safe after move
+  if (!ch_chess_is_king_safe_after_move(chess, move, &payload)) {
     return CH_ERR_ILLEGAL_MOVE;
   }
 
   // 4. Mutate pieces and board state
-  ch_chess_mutate_pieces_and_board_state_unchecked(chess, move, piece->id,
-                                                   &vld_move_out);
+  ch_chess_mutate_pieces_and_board_state_unchecked(chess, move, &payload);
 
   // 5. Flip turn and increase number of turns
   if (chess->turn == CH_SIDE_WHITE) {

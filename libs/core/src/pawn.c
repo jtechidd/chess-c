@@ -1,6 +1,7 @@
 #include "core/chess.h"
 #include "core/common.h"
 #include "core/piece.h"
+#include "core/utils.h"
 #include "core/vector2.h"
 
 static const ch_piece_methods_t CH_PAWN_METHODS;
@@ -44,7 +45,7 @@ static bool ch_is_position_promotable(ch_vector2_t pos, ch_side_t side) {
 
 static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
                                         ch_move_t move,
-                                        ch_validate_move_out_t *out) {
+                                        ch_apply_move_payload_t *payload) {
   ch_vector2_t up = ch_vector2_make(-1, 0);
   ch_vector2_t up2 = ch_vector2_make(-2, 0);
   ch_vector2_t left = ch_vector2_make(0, -1);
@@ -68,7 +69,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
   ch_piece_t *en_passant_piece = NULL;
 
   if (move.is_taking) {
-    if (out->taking_piece_id == CH_EMPTY) {
+    if (payload->taking_piece_id == CH_EMPTY) {
       if (ch_vector2_equal(disp, up_left)) {
         en_passant_piece = ch_chess_get_piece_on_position(chess, pos_from_left);
       } else if (ch_vector2_equal(disp, up_right)) {
@@ -80,7 +81,7 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
       if (!ch_can_do_en_passant(chess, pawn, en_passant_piece)) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      out->taking_piece_id = en_passant_piece->id;
+      payload->taking_piece_id = en_passant_piece->id;
     } else {
       if (!ch_vector2_equal(disp, up_left) &&
           !ch_vector2_equal(disp, up_right)) {
@@ -119,6 +120,34 @@ static ch_error_t ch_pawn_validate_move(ch_piece_t *pawn, ch_chess_t *chess,
 
 bool ch_chess_is_position_safe_from_pawn(ch_chess_t *chess,
                                          ch_vector2_t position) {
+  ch_vector2_t up_left = ch_vector2_make(-1, -1);
+  ch_vector2_t up_right = ch_vector2_make(-1, 1);
+  ch_vector2_t dest;
+  ch_piece_t *piece;
+
+  if (chess->turn == CH_SIDE_BLACK) {
+    up_left = ch_vector2_flipv(up_left);
+    up_right = ch_vector2_flipv(up_right);
+  }
+
+  dest = ch_vector2_add(position, up_left);
+  if (ch_is_position_in_bound(dest)) {
+    piece = ch_chess_get_piece_on_position(chess, dest);
+    if (piece != NULL && piece->type == CH_PIECE_TYPE_PAWN &&
+        piece->side != chess->turn) {
+      return false;
+    }
+  }
+
+  dest = ch_vector2_add(position, up_right);
+  if (ch_is_position_in_bound(dest)) {
+    piece = ch_chess_get_piece_on_position(chess, dest);
+    if (piece != NULL && piece->type == CH_PIECE_TYPE_PAWN &&
+        piece->side != chess->turn) {
+      return false;
+    }
+  }
+
   return true;
 }
 

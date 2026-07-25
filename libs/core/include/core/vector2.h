@@ -16,5 +16,8 @@ ch_vector2_t ch_vector2_scalmult(ch_vector2_t v, int8_t s);
 ch_vector2_t ch_vector2_inv(ch_vector2_t v);
 ch_vector2_t ch_vector2_fliph(ch_vector2_t v);
 ch_vector2_t ch_vector2_flipv(ch_vector2_t v);
+double ch_vector2_dot(ch_vector2_t v1, ch_vector2_t v2);
+double ch_vector2_magnitude(ch_vector2_t v);
+bool ch_vector2_parallel(ch_vector2_t v1, ch_vector2_t v2);
 
 #endif

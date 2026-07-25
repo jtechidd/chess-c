@@ -23,14 +23,15 @@ typedef struct {
 } ch_piece_t;
 
 typedef struct {
+  ch_piece_id_t piece_id;
   ch_piece_id_t taking_piece_id;
   ch_piece_id_t castling_rook_id;
   ch_vector2_t castling_rook_position_to;
-} ch_validate_move_out_t;
+} ch_apply_move_payload_t;
 
 typedef ch_error_t ch_validate_move_fn_t(ch_piece_t *piece, ch_chess_t *chess,
                                          ch_move_t move,
-                                         ch_validate_move_out_t *out);
+                                         ch_apply_move_payload_t *payload);
 
 struct _ch_piece_methods_t {
   ch_validate_move_fn_t *validate_move;

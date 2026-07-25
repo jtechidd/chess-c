@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 
 #define CH_BOARD_SIZE 8
 #define CH_BOARD_WIDTH CH_BOARD_SIZE

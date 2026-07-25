@@ -5,7 +5,7 @@
 #include "core/piece.h"
 
 typedef struct {
-  uint8_t num_pieces;
+  uint8_t total;
   ch_piece_id_t cid;
   ch_piece_t pieces[CH_MAX_PIECES];
 } ch_piece_db_t;

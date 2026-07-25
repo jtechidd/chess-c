@@ -4,7 +4,13 @@
 #include "core/utils.h"
 #include "core/vector2.h"
 
+#define CH_KING_NUM_DIRECTIONS 8
+#define CH_KING_NUM_CASTLING_DIRECTIONS 2
+
 static const ch_piece_methods_t CH_KING_METHODS;
+static const ch_vector2_t CH_KING_DIRECTIONS[] = {
+    {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+static const ch_vector2_t CH_KING_CASTLING_DIRECTIONS[] = {{0, 1}, {0, -1}};
 
 void ch_chess_spawn_king(ch_chess_t *chess, ch_side_t side,
                          ch_vector2_t position) {
@@ -12,30 +18,43 @@ void ch_chess_spawn_king(ch_chess_t *chess, ch_side_t side,
                        ch_piece_data_make_empty(), &CH_KING_METHODS);
 }
 
-static bool ch_king_check_displacement_castling(ch_vector2_t disp) {
-  return disp.i == 0 && abs(disp.j) == 2;
+static bool ch_king_check_displacement_castling(ch_vector2_t disp,
+                                                ch_vector2_t *dir_out) {
+  ch_vector2_t dir;
+  for (uint8_t k = 0; k < CH_KING_NUM_CASTLING_DIRECTIONS; k++) {
+    dir = CH_KING_CASTLING_DIRECTIONS[k];
+    if (ch_vector2_equal(disp, ch_vector2_scalmult(dir, 2))) {
+      *dir_out = dir;
+      return true;
+    }
+  }
+  return false;
 }
 
 static bool ch_king_check_displacement(ch_vector2_t disp) {
-  if (abs(disp.i) + abs(disp.j) == 1 || abs(disp.i) * abs(disp.j) == 1)
-    return true;
+  ch_vector2_t dir;
+  for (uint8_t k = 0; k < CH_KING_NUM_DIRECTIONS; k++) {
+    dir = CH_KING_DIRECTIONS[k];
+    if (ch_vector2_equal(disp, dir)) {
+      return true;
+    }
+  }
   return false;
 }
 
 static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
                                         ch_move_t move,
-                                        ch_validate_move_out_t *out) {
+                                        ch_apply_move_payload_t *payload) {
   ch_vector2_t disp, dir, adj, dest;
   ch_piece_t *castling_rook;
   disp = ch_vector2_sub(move.position_to, move.position_from);
-  if (ch_king_check_displacement_castling(disp)) {
+  if (ch_king_check_displacement_castling(disp, &dir)) {
     if (move.is_taking) {
       return CH_ERR_ILLEGAL_MOVE;
     }
     if (piece->move_count > 0) {
       return CH_ERR_ILLEGAL_MOVE;
     }
-    dir = ch_vector2_make(0, disp.j / abs(disp.j));
     adj = ch_vector2_add(move.position_from, dir);
     if (!(ch_chess_is_position_safe_to_move_to(chess, move.position_to) &&
           ch_chess_is_position_safe_to_move_to(chess, adj))) {
@@ -56,8 +75,8 @@ static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
       if (castling_rook->move_count > 0) {
         return CH_ERR_ILLEGAL_MOVE;
       }
-      out->castling_rook_id = castling_rook->id;
-      out->castling_rook_position_to = adj;
+      payload->castling_rook_id = castling_rook->id;
+      payload->castling_rook_position_to = adj;
       return CH_ERR_SUCCESS;
     }
     return CH_ERR_ILLEGAL_MOVE;
@@ -69,6 +88,22 @@ static ch_error_t ch_king_validate_move(ch_piece_t *piece, ch_chess_t *chess,
 
 bool ch_chess_is_position_safe_from_king(ch_chess_t *chess,
                                          ch_vector2_t position) {
+  ch_vector2_t dest, dir;
+  ch_piece_t *piece;
+  for (uint8_t k = 0; k < CH_KING_NUM_DIRECTIONS; k++) {
+    dir = CH_KING_DIRECTIONS[k];
+    dest = ch_vector2_add(position, dir);
+    if (!ch_is_position_in_bound(dest)) {
+      continue;
+    }
+    piece = ch_chess_get_piece_on_position(chess, dest);
+    if (piece == NULL) {
+      continue;
+    }
+    if (piece->type == CH_PIECE_TYPE_KING && piece->side != chess->turn) {
+      return false;
+    }
+  }
   return true;
 }
 
